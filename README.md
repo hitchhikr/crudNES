@@ -4,7 +4,7 @@ It automatically generates disassembled files (and also all necessary files need
 
 Obviously, the more the user plays a game, the more accurate the tracing & disassembling is.
 
-crudNES is a heavily modified version of aNESe from Sadai Sarmiento (Hyde).
+crudNES is a heavily modified version of aNESe v4.0a from Sadai Sarmiento (Hyde).
 
 TODO:
 
