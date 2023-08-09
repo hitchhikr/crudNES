@@ -1,0 +1,106 @@
+
+// Common headers used by Shay Green's libraries
+
+#ifndef BLARGG_COMMON_H
+#define BLARGG_COMMON_H
+
+#include "../include/datatypes.h"
+
+// allow prefix configuration file
+#ifdef HAVE_CONFIG_H
+	#include "config.h"
+#endif
+
+// check for boost availability
+/*#include "boost/config.hpp"
+#ifndef BOOST
+	#define BOOST boost
+#endif*/
+
+// BLARGG_BIG_ENDIAN and BLARGG_LITTLE_ENDIAN
+#if !defined (BLARGG_BIG_ENDIAN) && !defined (BLARGG_LITTLE_ENDIAN)
+	#if defined (__powerc) || defined (macintosh)
+		#define BLARGG_BIG_ENDIAN 1
+	
+	#elif defined (_MSC_VER) && defined (_M_IX86)
+		#define BLARGG_LITTLE_ENDIAN 1
+	#endif
+#endif
+
+// BLARGG_CPU_*
+#if !defined (BLARGG_CPU_POWERPC) && !defined (BLARGG_CPU_X86)
+	#if defined (__powerc)
+		#define BLARGG_CPU_POWERPC 1
+	
+	#elif defined (_MSC_VER) && defined (_M_IX86)
+		#define BLARGG_CPU_X86 1
+	#endif
+#endif
+
+// BLARGG_MOST_PORTABLE (use most portable version when there's a choice)
+#ifndef BLARGG_MOST_PORTABLE
+	#define BLARGG_MOST_PORTABLE 0
+#endif
+
+// BLARGG_DEBUG
+#ifndef BLARGG_DEBUG
+	#ifdef NDEBUG
+		#define BLARGG_DEBUG 0
+	#else
+		#define BLARGG_DEBUG 1
+	#endif
+#endif
+
+// BOOST_STATIC_ASSERT( expr )
+//#include "boost/static_assert.hpp"
+#undef int8_t
+#undef int16_t
+#undef int32_t
+#undef uint8_t
+#undef uint16_t
+#undef uint32_t
+typedef char int8_t;
+typedef short int16_t;
+typedef int int32_t;
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
+
+// BOOST::uint8_t, BOOST::int16_t, etc.
+//#include "boost/cstdint.hpp"
+
+// bool, TRUE, FALSE
+#ifndef BLARGG_COMPILER_HAS_BOOL
+	#if !BOOST_MINIMAL
+		#define BLARGG_COMPILER_HAS_BOOL 1
+	
+	#elif defined (__MWERKS__)
+		#if !__option(bool)
+			#define BLARGG_COMPILER_HAS_BOOL 0
+		#endif
+	
+	#elif defined (_MSC_VER)
+		#if _MSC_VER < 1100
+			#define BLARGG_COMPILER_HAS_BOOL 0
+		#endif
+	
+	#elif __cplusplus < 199711
+		#define BLARGG_COMPILER_HAS_BOOL 0
+	
+	#endif
+#endif
+//#ifndef BLARGG_COMPILER_HAS_BOOL
+	#define BLARGG_COMPILER_HAS_BOOL 1
+//#endif
+
+/*#if !BLARGG_COMPILER_HAS_BOOL
+	typedef int bool;
+	const bool TRUE  = 1;
+	const bool FALSE = 0;
+#endif
+*/
+#include <stddef.h>
+#include <assert.h>
+
+#endif
+

@@ -1,0 +1,76 @@
+09/06/23 - 1.0
+
+  - Renamed to crudNES.
+  - Fixed a bug which made the emulator to crash with "Astyanax".
+  - The emulator is now using the name of the current ROM to create
+    the labels files (also the .txt of the ROM is loaded at start if available
+    thus allowing multi-sessions).
+  - Removed the wxwidget code (i don't need that).
+  - Default background color is now black.
+  - Integrated a disassembler.
+  - Fixed a bug which made the emulator to crash with "Just Breed".
+  - Fixed a bug in labels dumping function.
+  - Now displaying 240 lines in PAL mode and 224 in NTSC.
+  - Word accesses are now recorded and used in jump tables.
+  - Fixed MMC2 mapper ("Punch Out!").
+  - Absolute addressing mode wasn't recorded.
+  - ROM is now directly disassembled at exit
+    (output is far better than with SmartRENES).
+  - Added support for mappers 118/119/220 (MMC3/MMC6).
+  - All necessary files for assembling/linking with ca65/ld65 are now generated.
+  - Added support for mapper 87/CNROM ("Choplifter").
+  - Added support for mapper 185/No Mapper ("B-Wings").
+  - Disassembler now generates NES constants.
+
+02/15/05 - 4.0a
+
+  - Added support for PAL games (Retrocoders - Years Behind Demo works);
+  - Added support for 16-bit graphics;
+  - Added shortcut keys for switching between windowed and fullscreen modes (ALT-ENTER), 
+    and for pausing the emulation process (CTRL-P);
+  - Full customization of display dimensions is now allowed;
+  - Customized palettes can now be loaded through the emulation settings
+    dialog;
+  - Added two new graphic filters: Super2xSaI and SuperEagle (NOTE: you
+    must have 16-bit graphics selected to make these work properly
+    and have a fast computer);
+  - Fixed various memory leaks;
+  - Fixed a bug found in the state loader;
+  - Sped up the inaccurate PPU core;
+  - Improved the accurate PPU core (fixed some bugs);
+  - Partial support for joypads;
+  - Fixed mapper 68 (After Burner II). Should work fine now;
+  - Added support for ZIP files;
+
+01/23/05 - 3.0a
+
+  - Optimized both PPU cores (should work *MUCH* faster);
+  - Made sure that binaries don't use 100% of available CPU time when they
+    really don't have to;
+  - Worked on mapper NES-BTR (Batman: Return of The Joker (U)). Games using
+    it should run better now;
+  - Cleaned up generic IRQ functions;
+  - Preliminary support for MMC5 games. Castlevania III and Laser Invasion work
+    (crappily maybe?). I am glad I can finally play Castlevania III at full 
+    speed on my computer (no frame skipping, wee);
+  - Preliminary support for MMC2 (Mike Tyson's Punch Out);
+  - Fixed APU IRQ issues. Cobra Triangle, Skate Or Die 2, and possibly others
+    work well;
+  - Reduced the level of binary optimization. Now you need an OKish computer
+    to run most games;
+  - Reduced the amount of graphics tearing under windowed mode (VSync baby);
+  - Sped up the address logger by a whole lot;
+  - Fixed an issue that caused Rad Racer to malfunction from time to time
+    (random bug);
+  - Added means through which various aspects of the emulator can be configurated;
+  - Improved state (load/save) handler;
+
+11/22/04 - 2.0a
+
+  - Fixed AD&D Heroes of the Lance (U) menu glitches and probably others;
+  - Fixed a weirdo NMI bug that caused Spelunker (U) and other games to
+    malfunction;
+  - Improved support for sound IRQs.
+
+08/24/04 - 1.0a
+  - Test-only release.
