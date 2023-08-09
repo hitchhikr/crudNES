@@ -1,4 +1,4 @@
-09/06/23 - 1.0
+09/08/23 - 1.0
 
   - Renamed to crudNES.
   - Fixed a bug which made the emulator to crash with "Astyanax".
