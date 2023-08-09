@@ -161,7 +161,7 @@ void NESGUIHandler :: Install (void)
 	setPalette ();
 
 	text_mode (gui_bg_color);
-	set_window_title ("aNESe - Another NES Emulator");
+	set_window_title ("crudNES v1.0");
 	set_window_close_button (FALSE);
 	clear_to_color (screen, gui_bg_color);
 	show_mouse (screen); 	

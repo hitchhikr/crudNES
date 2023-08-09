@@ -22,15 +22,11 @@
 #ifndef _CNES_H
 #define _CNES_H
 
-//Macros related to the two different versions of aNESe
-
 #define nes ((c_nes *)(o_machine))
 
 #include "../blargg/blargg_common.h"
 #include "../blargg/Nes_Apu.h"
-
 #include "c_tracer.h"
-
 #include "c_machine.h"
 #include "c_label_holder.h"
 
