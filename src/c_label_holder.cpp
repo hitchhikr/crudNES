@@ -392,11 +392,6 @@ void c_label_holder::dump_rom(void)
                 label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
                 label_type = label->type;
                 sub_t = label->sub_type;
-			if(k == 0xd085)
-			{
-				int t;
-				t=0;
-			}
 
                 switch(label_type)
                 {
@@ -405,11 +400,6 @@ void c_label_holder::dump_rom(void)
                         while(label_type == TYPE_UNK &&
                               k < pages->address + pages->size)
                         {
-			if(k > 0xd000)
-			{
-				int t;
-				t=0;
-			}
 							instruction_size = _2A03_map_instruction(pages->address,
                                                                      k,
                                                                      i,

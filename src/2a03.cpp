@@ -59,54 +59,52 @@ int warnings;
 
 static const char *_2A03_instructionSet[] =
 {
-	"brk",	   "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)", // $00
+	"brk",	   "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)",
 	"php",     "ora",   "asl a", "(undef)", "(undef)",     "ora",     "asl", "(undef)",
 
-	"bpl",     "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)", // $10
+	"bpl",     "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)",
 	"clc",     "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)",
 
-	"jsr",     "and", "(undef)", "(undef)",     "bit",     "and",     "rol", "(undef)", // $20
+	"jsr",     "and", "(undef)", "(undef)",     "bit",     "and",     "rol", "(undef)",
 	"plp",     "and",   "rol a", "(undef)",     "bit",     "and",     "rol", "(undef)",
 
-	"bmi",     "and", "(undef)", "(undef)", "(undef)",     "and",     "rol", "(undef)", // $30
+    "bmi",     "and", "(undef)", "(undef)", "(undef)",     "and",     "rol", "(undef)",
 	"sec",     "and", "(undef)", "(undef)", "(undef)",     "and",     "rol", "(undef)",
 
-	"rti",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)", // $40
+	"rti",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)",
 	"pha",     "eor",   "lsr a", "(undef)",     "jmp",     "eor",     "lsr", "(undef)",
 
-	"bvc",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)", // $50
+	"bvc",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)",
 	"cli",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)",
 
-	"rts",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", // $60
+    "rts",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", 
 	"pla",     "adc",   "ror a", "(undef)",     "jmp",     "adc",     "ror", "(undef)", 
 
-	"bvs",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", // $70
+	"bvs",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", 
 	"sei",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", 
 
-	"bvs",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", // $80
 	"(undef)", "sta", "(undef)", "(undef)",     "sty",     "sta",     "stx", "(undef)",
+	"dey", "(undef)",     "txa", "(undef)",     "sty",     "sta",     "stx", "(undef)",
 
-	"dey", "(undef)",     "txa", "(undef)",     "sty",     "sta",     "stx", "(undef)", // $90
 	"bcc",     "sta", "(undef)", "(undef)",     "sty",     "sta",     "stx", "(undef)",
+	"tya",     "sta",     "txs", "(undef)", "(undef)",     "sta", "(undef)", "(undef)",
 
-	"tya",     "sta",     "txs", "(undef)", "(undef)",     "sta", "(undef)", "(undef)", // $a0
 	"ldy",     "lda",     "ldx", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", 
+	"tay",     "lda",     "tax", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", 
 
-	"tay",     "lda",     "tax", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", // $b0
 	"bcs",     "lda", "(undef)", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", 
+	"clv",     "lda",     "tsx", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", 
 
-	"clv",     "lda",     "tsx", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", // $c0
 	"cpy",     "cmp", "(undef)", "(undef)",     "cpy",     "cmp",     "dec", "(undef)", 
+	"iny",     "cmp",     "dex", "(undef)",     "cpy",     "cmp",     "dec", "(undef)", 
 
-	"iny",     "cmp",     "dex", "(undef)",     "cpy",     "cmp",     "dec", "(undef)", // $d0
 	"bne",     "cmp", "(undef)", "(undef)", "(undef)",     "cmp",     "dec", "(undef)", 
+	"cld",     "cmp", "(undef)", "(undef)", "(undef)",     "cmp",     "dec", "(undef)", 
 
-	"cld",     "cmp", "(undef)", "(undef)", "(undef)",     "cmp",     "dec", "(undef)", // $e0
 	"cpx",     "sbc", "(undef)", "(undef)",     "cpx",     "sbc",     "inc", "(undef)", 
+	"inx",     "sbc",     "nop", "(undef)",     "cpx",     "sbc",     "inc", "(undef)", 
 
-	"inx",     "sbc",     "nop", "(undef)",     "cpx",     "sbc",     "inc", "(undef)", // $f0
     "beq",     "sbc", "(undef)", "(undef)", "(undef)",     "sbc",     "inc", "(undef)", 
-
 	"sed",     "sbc", "(undef)", "(undef)", "(undef)",     "sbc",     "inc", "(undef)"
 };
 
