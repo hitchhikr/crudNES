@@ -22,7 +22,7 @@
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
-#include <unzip.h>
+#include "include/zlib/unzip.h"
 
 #include "include/c_tracer.h"
 #include "include/c_ppu.h"
@@ -43,7 +43,7 @@ c_nes_rom :: c_nes_rom (const char *filename)
 {
 	info.filename = new char [strlen (filename) + 1];
 	strcpy (info.filename, filename);
-	char *extension = strrchr (filename, '.');
+	char *extension = (char *) strrchr (filename, '.');
 	if (!strcmp (extension, ".zip"))
 		FileType = __ZIP;
 	else 
@@ -95,7 +95,7 @@ __BOOL c_nes_rom :: check_header (int PAL)
 	{
 		info.handle = (FILE *)(fopen (info.filename, "rb"));
 		if (!info.handle) return TRUE;
-		info.Size = filelength (fileno ((FILE *)(info.handle)));
+		info.Size = _filelength (_fileno ((FILE *)(info.handle)));
 		fread (bNESHeader, 1, 8, (FILE *)(info.handle));
 	}
 	else

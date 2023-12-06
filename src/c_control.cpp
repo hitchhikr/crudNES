@@ -109,15 +109,13 @@ void c_nes_control :: write_byte (__UINT_16 address, __UINT_8 value)
 
 __UINT_8 c_nes_control :: ApuDmaReadByte (const __UINT_16 &address)
 {
-	switch (address)
-	{
-		//Apparently some games expect data returned from joypad ports to be
-		//in the format of $4x (x_offset: 0/1).
-		case 0x4016: return (0x40 | nes->o_input->read_bitstream ());
+	//Apparently some games expect data returned from joypad ports to be
+	//in the format of $4x (x_offset: 0/1).
+	if(address == 0x4016)
+		return (0x40 | nes->o_input->read_bitstream ());
 
-		case nes->o_apu.status_addr:
-			return nes->o_apu.read_status (nes->o_cpu->current_time ());
-	}
+	if(address == nes->o_apu.status_addr)
+		return nes->o_apu.read_status (nes->o_cpu->current_time ());
 
 	return 0x40;
 }

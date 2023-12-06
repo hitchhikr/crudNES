@@ -23,6 +23,7 @@
 
 #include "include/allegro.h"
 #include <stdio.h>
+#include <ctype.h>
 
 #include "include/c_machine.h"
 #include "include/c_nes.h"

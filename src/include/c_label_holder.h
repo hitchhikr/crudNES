@@ -59,7 +59,7 @@ struct s_label_node
 	__UINT_16 jump_base_table;
 	s_label_node *Next;
 
-    operator = (s_label_node *source)
+    void operator = (s_label_node *source)
     {
         this->address = source->address;
         this->contents = source->contents;

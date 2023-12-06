@@ -209,7 +209,7 @@ void Blip_Impulse_::scale_impulse( int unit, imp_t* imp_in ) const
 		}
 		
 		// add error to middle
-		imp [-width / 2 - 1] += error;
+		imp [-width / 2 - 1] += (Blip_Impulse_::imp_t) error;
 	}
 	
 	if ( res > 2 ) {

@@ -57,7 +57,7 @@ const char * c_save_state :: get_filename (void)
 	filename++;
 	__INT_32 length = (__INT_32)(strlen (filename));
 	strcpy (filename + length - 3, "as");
-	itoa (iSlot, filename + length - 1, 10);
+	_itoa (iSlot, filename + length - 1, 10);
 
 	return filename;
 }
