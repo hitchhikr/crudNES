@@ -26,7 +26,7 @@ Currrently handled mappers:
 - Camerica/Codemasters (71) *
 - HK-SF3 (91) *
 
-* Handled by the builtin disassembler.
+\* Handled by the builtin disassembler.
 
 It's a work in progress so there's still a lot to do:
 
