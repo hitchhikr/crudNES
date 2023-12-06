@@ -8,23 +8,23 @@ crudNES is a heavily modified version of aNESe v4.0a from Sadai Sarmiento (Hyde)
 
 Currrently handled mappers:
 
-NROM (0) *
-SxROM, MMC1 (1)
-UxROM (2) *
-CNROM (3 87 185) *
-TxROM, MMC3, MMC6 (4 118 119 220)
-ExROM, MMC5 (5)
-AxROM (7) *
-PxROM, MMC2 (9)
-FxROM, MMC4 (10)
-Color Dreams (11) *
-Bandai EPROM (24C02) (16)
-VRC4a, VRC4c (21)
-BxROM, NINA-001 (34) *
-After Burner (68)
-FME-7, Sunsoft 5B (69)
-Camerica/Codemasters (71) *
-HK-SF3 (91) *
+- NROM (0) *
+- SxROM, MMC1 (1)
+- UxROM (2) *
+- CNROM (3 87 185) *
+- TxROM, MMC3, MMC6 (4 118 119 220)
+- ExROM, MMC5 (5)
+- AxROM (7) *
+- PxROM, MMC2 (9)
+- FxROM, MMC4 (10)
+- Color Dreams (11) *
+- Bandai EPROM (24C02) (16)
+- VRC4a, VRC4c (21)
+- BxROM, NINA-001 (34) *
+- After Burner (68)
+- FME-7, Sunsoft 5B (69)
+- Camerica/Codemasters (71) *
+- HK-SF3 (91) *
 
 * Handled by the builtin disassembler.
 
