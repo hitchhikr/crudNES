@@ -5,7 +5,7 @@
    - Mapper Color Dreams (11) is now handled by the disassembler.
    - crudNES now exits when encountering an unknown instruction
      (and records it's position in the log file).
-   - Removed lot of unecessary code.
+   - Removed lot of unnecessary code.
    - Code clean up.
    - Fixed a mirroring bug in mapper Bandai (16).
    - Fixed a bug with hanging window at exit.
