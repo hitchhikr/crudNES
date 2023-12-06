@@ -1,3 +1,8 @@
+06/12/23 - 1.1b
+
+    - Fixed several nasty bugs in the disassembler.
+    - Added support for mapper 10 (Nintendo MMC4) disassembly.
+
 06/12/23 - 1.1
 
    - Migrated from VS2003 to VS2008 (until i remove allegro in favor of SDL2

@@ -62,17 +62,7 @@ class c_mapper {
 
 		}
 
-		virtual __UINT_8 get_bank_number (__UINT_16 address)
-		{
-			return 0;
-		}
-
 		__UINT_8 get_last_page_switched (void)
-		{
-			return last_page_switched;
-		}
-
-		virtual __UINT_8 get_prg_bank_number (__UINT_16 address)
 		{
 			return last_page_switched;
 		}

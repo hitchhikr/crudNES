@@ -23,7 +23,7 @@
 #define _CRUDNES_DEFINITIONS_H
 
 #define APPNAME "crudNES"
-#define APPVERSION "v1.1"
+#define APPVERSION "v1.1b"
 
 #define BIT_0 0x01
 #define BIT_1 0x02

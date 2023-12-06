@@ -68,7 +68,9 @@ void c_mapper_001 :: reset (void)
 	registers [0] |= (BIT_2 | BIT_3);
 
 	nes->o_ppu->swap_page (0x0000, 0, _8K_);
-
+	
+	last_page_switched_8000 = 0;
+	last_page_switched = nes->o_rom->information ().prg_pages - 1;
 	nes->o_cpu->swap_page (0x8000, 0, _16K_);
 	nes->o_cpu->swap_page (0xc000, nes->o_rom->information ().prg_pages - 1, _16K_);
 }
@@ -152,20 +154,23 @@ void c_mapper_001 :: write_byte (__UINT_16 address, __UINT_8 value)
 				if (!(registers [0] & BIT_3))
 				{
 					nes->o_cpu->swap_page (0x8000, ((registers [3] & 0xf) >> 1) & _32K_prg_mask, _32K_);
+					last_page_switched_8000 = ((registers [3] & 0xf) >> 1) & _32K_prg_mask;
                 }
 				else
 				{
 					if (registers [0] & BIT_2)
 					{
-						last_page_switched = bBitBuffer & _16K_prg_mask;
-
 						nes->o_cpu->swap_page (0x8000, (registers [3] /*& 0xf*/)/* & _16K_prg_mask*/, _16K_);
+						last_page_switched_8000 = (registers [3] /*& 0xf*/);
 						nes->o_cpu->swap_page (0xc000, nes->o_rom->information ().prg_pages - 1, _16K_);
+						last_page_switched = nes->o_rom->information ().prg_pages - 1;
 					}
 					else
 					{
 						nes->o_cpu->swap_page (0xc000, (registers [3] /*& 0xf*/)/* & _16K_prg_mask*/, _16K_);
+						last_page_switched = (registers [3] /*& 0xf*/);
 						nes->o_cpu->swap_page (0x8000, 0, _16K_);
+						last_page_switched_8000 = 0;
 					}
 				}
 				break;

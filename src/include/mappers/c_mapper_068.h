@@ -35,10 +35,6 @@ class c_mapper_068 : public c_mapper {
 		void reset (void);
 		void write_byte (__UINT_16, __UINT_8);
 
-		__UINT_8 get_bank_number (__UINT_16 address)
-		{
-			return get_last_page_switched();
-		}
 
 		void save_state (c_tracer &o_writer);
 		void load_state (c_tracer &o_reader);

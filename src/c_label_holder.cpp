@@ -338,6 +338,7 @@ void c_label_holder::dump_rom(void)
     int old_k;
     int old_offset;
 	int repass;
+	int done_vectors;
 	s_label_node *label;
 	s_label_node *navigator;
 	s_label_node *pages;
@@ -392,7 +393,7 @@ void c_label_holder::dump_rom(void)
                 label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
                 label_type = label->type;
                 sub_t = label->sub_type;
-
+				
                 switch(label_type)
                 {
                     case TYPE_CODE:
@@ -407,6 +408,18 @@ void c_label_holder::dump_rom(void)
                                                                      pages->alias,
 																	 label->alias,
 																	 sub_t);
+                            if(instruction_size == -2)
+                            {
+								label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
+								if(label->type == TYPE_CODE)
+								{
+									label->type = TYPE_DATA;
+									label->sub_type = TYPE_DEAD;
+								}
+								instruction_size = 1;
+                                label_type = TYPE_DATA;
+                                break;
+							}
                             if(instruction_size == -1)
                             {
                                 // restart
@@ -419,6 +432,8 @@ void c_label_holder::dump_rom(void)
                             {
                                 // BRK
                                 case 0x0:
+//                                // JSR abs
+  //                              case 0x20:
                                 // JMP abs
                                 case 0x4c:
                                 // JMP ind
@@ -547,7 +562,8 @@ void c_label_holder::dump_rom(void)
 
         pages = nes->prg_pages;
         rom_offset_glob = pages->rom_offset;
-        
+        done_vectors = FALSE;
+
         // Create the constants file
         sprintf(inc_name, "%s_prg.inc", nes->Game_FileName);
         out = fopen(inc_name, "wb");
@@ -658,30 +674,32 @@ void c_label_holder::dump_rom(void)
 						{
 							goto No_Label;
 						}
-						if((int) navigator->contents > 0x7fff &&
-						   (int) navigator->contents <= 0xfffe)
+						if((int) navigator->contents >= pages->address &&
+						   (int) navigator->contents < (pages->address + pages->size))
 						{
-							if((pos_export % 8) == 0)
+							if((int) navigator->contents > 0x7fff &&
+							   (int) navigator->contents <= 0xfffe)
 							{
-
-								sprintf(line, "        .export ");
+								if((pos_export % 8) == 0)
+								{
+									sprintf(line, "        .export ");
+									listing.Add(line);
+								}
+								else
+								{
+									sprintf(line, ", ");
+									listing.Add(line);
+								}
+								sprintf(line, "Lbl_%.02x%.04x", navigator->alias, navigator->contents);
 								listing.Add(line);
+								if((pos_export % 8) == 7)
+								{
+									sprintf(line, "\n");
+									listing.Add(line);
+									pos_export = -1;
+								}
+								pos_export++;
 							}
-							else
-							{
-								sprintf(line, ", ");
-								listing.Add(line);
-							}
-							sprintf(line, "Lbl_%.02x%.04x",
-										navigator->alias, navigator->contents);
-							listing.Add(line);
-							if((pos_export % 8) == 7)
-							{
-								sprintf(line, "\n");
-								listing.Add(line);
-								pos_export = -1;
-							}
-							pos_export++;
 						}
 No_Label:;
 					}
@@ -706,13 +724,9 @@ No_Label:;
                 label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
                 label_type = label->type;
                 sub_t = label->sub_type;
-			if(k == 0xc034)
-			{
-				int t;
-				t=0;
-			}
                 pos_data = 0;
-                if(label_type == TYPE_DATA &&
+
+				if(label_type == TYPE_DATA &&
                    sub_t == TYPE_WORD ||
                    sub_t == TYPE_RAWWORD)
                 {
@@ -722,7 +736,11 @@ No_Label:;
 						{
 							if(k == nes->o_mapper->vectors_address)
 							{
-								sprintf(line, "\n        .segment \"VECTORS\"\n\n");
+								if(!done_vectors)
+								{
+									sprintf(line, "\n        .segment \"VECTORS\"\n\n");
+									done_vectors = TRUE;
+								}
 								listing.Add(line);
 								sprintf(line, "Lbl_%.02x%.04x:\n", label->alias, k);
 								listing.Add(line);
@@ -731,7 +749,7 @@ No_Label:;
 							{
 								sprintf(line, "\nLbl_%.02x%.04x:\n", label->alias, k);
 								listing.Add(line);
-								sprintf(line, "Lbl_%.02x%.04x=Lbl_%.02x%.04x+1\n",
+								sprintf(line, "Lbl_%.02x%.04x = Lbl_%.02x%.04x+1\n",
 											label->alias,
 											k + 1,
 											label->alias,
@@ -775,6 +793,13 @@ No_Label:;
 																	 label->bank,
 																	 label->ref_bank,
 																	 pages->bank);
+                            if(instruction_size == -2)
+                            {
+								instruction_size = 1;
+                                label_type = TYPE_DATA;
+								goto Direct_Data;
+                                break;
+							}
                             if(instruction_size == 0xfffffff)
                             {
                                 // restart
@@ -804,6 +829,8 @@ No_Label:;
                             {
                                 // BRK
                                 case 0x0:
+  //                              // JSR abs
+//                                case 0x20:
                                 // JMP abs
                                 case 0x4c:
                                 // JMP ind
@@ -813,8 +840,8 @@ No_Label:;
                                 // RTS
                                 case 0x60:
                                     rom_offset += instruction_size;
-                                    label_type = TYPE_DATA;
-                                    break;
+									label_type = TYPE_DATA;
+									break;
                                 default:
                                     rom_offset += instruction_size;
 									label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
@@ -831,7 +858,7 @@ No_Label:;
 
                     case TYPE_DATA:       // Data
                     case TYPE_UNK:        // Unknown
-
+Direct_Data:
                         // Determine the size of the array of bytes to dump
                         label_type = TYPE_UNK;
                         in_raw_word = 0;
@@ -1039,8 +1066,8 @@ No_Label:;
 			printf("Generating \"%s\" bank file... ", bank_name);
 
 			fprintf(out, "; Game name: %s\n", nes->Game_Name);
-            fprintf(out, "; 16k prg-rom: %d\n", infos->prg_pages);
-            fprintf(out, "; 8k chr-rom: %d\n", infos->chr_pages);
+            fprintf(out, "; prg-rom: %d\n", infos->prg_pages);
+            fprintf(out, "; chr-rom: %d\n", infos->chr_pages);
             fprintf(out, "; Mapper: %d\n", infos->mapper);
             fprintf(out, "; Mirroring: %d\n", infos->mirroring);
             fprintf(out, "; ------------------------------\n");

@@ -40,14 +40,22 @@ class c_mapper_010 : public c_mapper
 		void save_state (c_tracer &o_writer);
 		void load_state (c_tracer &o_reader);
 
-		__UINT_8 get_bank_number (__UINT_16 address)
+		__UINT_8 get_real_prg_bank_number (__UINT_16 address)
 		{
-			if (address < 0xc000) return get_last_page_switched ();
-			else return nes->o_rom->information ().prg_pages - 1;
+			if (address < 0xc000)
+			{
+				return last_page_switched_8000;
+			}
+			else
+			{
+				return nes->o_rom->information ().prg_pages - 1;
+			}
 		}
 
 	private:
 		__UINT_16 bLatches [2], pages [4];
+		int last_page_switched_8000;
+		int last_prg_page;
 };
 
 #endif

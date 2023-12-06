@@ -46,21 +46,21 @@ c_mapper_071 :: c_mapper_071 (void)
     // All pages start at 0x8000
     // except the last one which starts at 0xc000
     // No chr pages
-    pages = pages->create_page(pages, 0, 0x8000, _16K_, start, 0, 0, alias, alias * _16K_);
+    pages = pages->create_page(pages, 0, 0x8000, _16K_, start, 0, 0, 0, 0);
     max_pages++;
 	alias += 4;
     start += _16K_;
     nes->prg_pages = pages;
     for(i = 1; i < (int) nes->o_rom->information ().prg_pages - 1; i++)
     {
-        pages = pages->create_page(pages, i, 0x8000, _16K_, start, i, i, alias, max_pages * _16K_);
+        pages = pages->create_page(pages, i, 0x8000, _16K_, start, i, i, alias, start);
 		alias += 4;
         max_pages++;
         start += _16K_;
     }
 	last_prg_page = max_pages;
 	max_alias = alias;
-    pages->create_page(pages, i, 0xc000, _16K_, start, i, i, alias, max_pages * _16K_);
+    pages->create_page(pages, i, 0xc000, _16K_, start, i, i, alias, start);
     max_pages++;
 
 	__DBG_INSTALLED ();

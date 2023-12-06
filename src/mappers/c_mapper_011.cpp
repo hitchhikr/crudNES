@@ -41,32 +41,36 @@ extern c_machine *o_machine;
 c_mapper_011 :: c_mapper_011 (void)
 {
     int i;
+	int alias = 0;
     int start = 0;
+    s_label_node *pages = NULL;
 
 	__DBG_INSTALLING ("Mapper #011");
 
     // All 32k pages start at 0x8000
-    s_label_node *pages = NULL;
     pages = pages->create_page(pages, 0, 0x8000, _32K_, start, 0, 0, 0, 0);
     max_pages++;
+	alias += 8;
     start += _32K_;
     nes->prg_pages = pages;
     for(i = 1; i < (int) nes->o_rom->information ().prg_pages - 1; i++)
     {
-        pages = pages->create_page(pages, i, 0x8000, _32K_, start, i, i, i, start >> 12);
-        max_pages++;
+        pages = pages->create_page(pages, i, 0x8000, _32K_, start, i, i, alias, start);
+ 		alias += 8;
+		max_pages++;
         start += _32K_;
     }
+	max_alias = alias - 8;
 
     // Chr pages
     pages = NULL;
-    pages = pages->create_page(pages, 0, 0x0000, _8K_, start, 0, 0, 0, start >> 12);
+    pages = pages->create_page(pages, 0, 0x0000, _8K_, start, 0, 0, 0, start);
     max_pages++;
     start += _8K_;
     nes->chr_pages = pages;
     for(i = 1; i < (int) nes->o_rom->information().chr_pages; i++)
     {
-        pages = pages->create_page(pages, i, 0x0000, _8K_, start, i, i, i, start >> 12);
+        pages = pages->create_page(pages, i, 0x0000, _8K_, start, i, i, i, start);
         max_pages++;
         start += _8K_;
     }

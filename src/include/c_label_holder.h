@@ -28,8 +28,8 @@
 
 enum e_dattype
 {
-	TYPE_CODE = 0,
-	TYPE_DATA = 1,
+	TYPE_DATA = 0,
+	TYPE_CODE = 1,
 	TYPE_BYTE = 2,
 	TYPE_WORD = 3,
 	TYPE_RELCODE = 4,

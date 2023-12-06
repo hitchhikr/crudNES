@@ -64,16 +64,17 @@ c_mapper_003:: c_mapper_003(void)
         start += _32K_;
         max_pages += 2;
     }
+	max_alias = 0;
     
     // Chr pages
-//    pages = NULL;
-    pages = pages->create_page(pages, 0, 0x0000, _8K_, start, 0, 0, 0, start >> 12);
+    pages = NULL;
+    pages = pages->create_page(pages, 0, 0x0000, _8K_, start, 0, 0, 0, start);
     max_pages++;
     start += _8K_;
     nes->chr_pages = pages;
     for(i = 1; i < (int) nes->o_rom->information().chr_pages; i++)
     {
-        pages = pages->create_page(pages, i, 0x0000, _8K_, start, i, i, i, start >> 12);
+        pages = pages->create_page(pages, i, 0x0000, _8K_, start, i, i, i, start);
         max_pages++;
         start += _8K_;
     }

@@ -36,8 +36,61 @@ extern c_machine *o_machine;
 
 c_mapper_010 :: c_mapper_010 (void)
 {
+    int i;
+	int alias = 0;
+    int start = 0;
+	s_label_node *pages = NULL;
+
 	__DBG_INSTALLING ("Mapper #010");
 
+    // All pages start at 0x8000
+    // except the last one which starts at 0xc000
+    pages = pages->create_page(pages, 0, 0x8000, _16K_, start, 0, 0, alias, 0);
+    max_pages++;
+	alias += 4;
+    start += _16K_;
+    nes->prg_pages = pages;
+    for(i = 1; i < (int) nes->o_rom->information ().prg_pages - 1; i++)
+    {
+        pages = pages->create_page(pages, i, 0x8000, _16K_, start, i, i, alias, start);
+		alias += 4;
+        max_pages++;
+        start += _16K_;
+    }
+	last_prg_page = max_pages;
+    pages->create_page(pages, i, 0xc000, _16K_, start, i, i, alias, start);
+    max_pages++;
+	max_alias = alias;
+
+    // Chr pages
+    pages = NULL;
+    pages = pages->create_page(pages, 0, 0x0000, _4K_, start, 0, 0, 0, start);
+    max_pages++;
+    start += _4K_;
+    nes->chr_pages = pages;
+    for(i = 1; i < (int) nes->o_rom->information().chr_pages; i++)
+    {
+        pages = pages->create_page(pages, i, 0x0000, _4K_, start, i, i, i, start);
+        max_pages++;
+        start += _4K_;
+    }
+
+/*    // Chr pages
+    pages = NULL;
+    pages = pages->create_page(pages, 0, 0x0000, _4K_, start, 0, 0, 0, start);
+    nes->chr_pages = pages;
+    max_pages++;
+    start += _4K_;
+    pages = pages->create_page(pages, 1, 0x0000, _4K_, start, 1, 1, 1, start);
+    max_pages++;
+    start += _4K_;
+    pages = pages->create_page(pages, 2, 0x1000, _4K_, start, 2, 2, 2, start);
+    max_pages++;
+    start += _4K_;
+    pages = pages->create_page(pages, 3, 0x1000, _4K_, start, 3, 3, 3, start);
+    max_pages++;
+    start += _4K_;
+*/
 	__DBG_INSTALLED ();
 }
 
@@ -49,8 +102,8 @@ c_mapper_010 :: ~c_mapper_010 (void)
 
 void c_mapper_010 :: reset (void)
 {
-	last_page_switched = 0;
-
+	last_page_switched = nes->o_rom->information ().prg_pages - 1;
+	last_page_switched_8000 = 0;
 	nes->o_cpu->swap_page (0x8000, 0, _16K_);
 	nes->o_cpu->swap_page (0xc000, nes->o_rom->information ().prg_pages - 1, _16K_);
 
@@ -116,7 +169,7 @@ void c_mapper_010 :: write_byte (__UINT_16 address, __UINT_8 value)
 	{
 	    case 0xa000:
 		    nes->o_cpu->swap_page (0x8000, value & _16K_prg_mask, _16K_);
-		    last_page_switched = value & _16K_prg_mask;
+			last_page_switched_8000 = value & _16K_prg_mask;
 		    break;
 
 	    case 0xb000:

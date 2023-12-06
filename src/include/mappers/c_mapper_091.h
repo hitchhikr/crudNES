@@ -36,19 +36,6 @@ class c_mapper_091 : public c_mapper
 
 		void h_blank (void);
 
-		__UINT_8 get_prg_bank_number (__UINT_16 address)
-		{
-            if(address < 0xa000)
-            {
-				return last_page_switched_8000;
-		    }
-			else if(address < 0xc000)
-			{
-				return last_page_switched_a000;
-			}
-		    return last_prg_page;
-		}
-
 		__UINT_8 get_real_prg_bank_number (__UINT_16 address)
 		{
             if(address < 0xa000)

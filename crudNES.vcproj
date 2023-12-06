@@ -52,6 +52,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				PreprocessorDefinitions="WIN32;NDEBUG;__CRUDNES_ALLEGRO;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -80,6 +81,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/LTCG"
 				AdditionalDependencies="src\lib\alleg.lib src\lib\zlib.lib"
 				OutputFile=".\bin/crudNES.exe"
 				LinkIncremental="1"

@@ -49,6 +49,7 @@ void _2A03_disassembleInstruction(__INT_32);
 void _2A03_disassemblePRGROM(void);
 void _2A03_dumpPTTables(__UINT_8);
 int write_address(char *operands, int dat);
+void add_warning(char *operands, int code_jmp);
 
 int base_addr = 0x12345678;
 int idx_addr;
@@ -1759,7 +1760,7 @@ int _2A03_Check_Code_Sanity(char *operands,
                             int address,
                             int bank_alias)
 {
-    char constant[1024];
+//    char constant[1024];
 	s_label_node *label1;
 	s_label_node *label2;
 	int index = 0;
@@ -1773,13 +1774,13 @@ int _2A03_Check_Code_Sanity(char *operands,
             label2 = nes->BankJMPList->search_label(bank_lo, bank_hi, address + index, bank_alias);
         }
         while(label2->type == TYPE_UNK);
-        sprintf(constant, "\nLbl_%.02x%.04x = Lbl_%.02x%.04x - %d",
+/*        sprintf(constant, "\nLbl_%.02x%.04x = Lbl_%.02x%.04x - %d",
                           label1->alias,
 						  address,
                           label2->alias,
 						  address + index,
                           index);
-        strcat(operands, constant);
+        strcat(operands, constant);*/
         return(1);
     }
     return(1);
@@ -1846,7 +1847,8 @@ int _2A03_get_instruction(int base_addr,
     int writing;
     int addr;
 	int cur_bank;
-	
+	int ret = 0;
+
 	union NESROMData
 	{
 		__UINT_8 b;
@@ -1861,11 +1863,7 @@ int _2A03_get_instruction(int base_addr,
 
 	if(strcmp(instruction, "        (undef)") == 0)
     {
-        // Shouldn't occur under normal circumstances.
-		nes->general_log.f_write("swslsbs", ">>> 2A03: Invalid Instruction at: ", address, " (Offset: ", iROMOffset, ") (", nes->o_cpu->PRGROM[iROMOffset], ")\r\n");
-		printf("Error encountered during emulation, check log file.\n");
-        exit(-1);
-        return(0);
+        return(-2);
     }
 
     switch(nes->o_cpu->PRGROM[iROMOffset])
@@ -1935,19 +1933,21 @@ int _2A03_get_instruction(int base_addr,
 							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
 							break;
 						case 0:
-							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
-							(read.w < address))
+							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) || (read.w < address))
 							{
 								sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
 								warnings = 1;
 								break;
 							}
 							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
-							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+							if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
 																read.w,
 																TYPE_CODE,
-																TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref);
-							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+																TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref)
+																)
+							{
+								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							}
 							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
 							break;
 						default:
@@ -1966,7 +1966,8 @@ int _2A03_get_instruction(int base_addr,
 				}
 				else
 				{
-    				write_address(operands, read.w);
+    				ret = write_address(operands, read.w);
+					if(ret) add_warning(operands, code_jmp);
 				}
 			}
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
@@ -2001,11 +2002,14 @@ int _2A03_get_instruction(int base_addr,
 								break;
 							}
 							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
-							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+							if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
 																read.w,
 																TYPE_DATA,
-																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
-							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref)
+																)
+							{
+								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							}
 							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
 							break;
 						default:
@@ -2024,7 +2028,8 @@ int _2A03_get_instruction(int base_addr,
 				}
 				else
 				{
-    				write_address(operands, read.w);
+    				ret = write_address(operands, read.w);
+					if(ret) add_warning(operands, code_jmp);
 				}
 			}
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
@@ -2059,11 +2064,14 @@ int _2A03_get_instruction(int base_addr,
 								break;
 							}
 							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
-							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+							if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
 																read.w,
 																TYPE_DATA,
-																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
-							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref)
+																)
+							{
+								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							}
 							sprintf(operands, " Lbl_%.02x%.04x, x", bank_alias, read.w);
 							break;
 						default:
@@ -2081,8 +2089,9 @@ int _2A03_get_instruction(int base_addr,
 			    }
 			    else
 			    {
-		            write_address(operands, read.w);
+		            ret = write_address(operands, read.w);
 			        strcat(operands, ", x");
+					if(ret) add_warning(operands, code_jmp);
 		        }
 		    }
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
@@ -2117,11 +2126,14 @@ int _2A03_get_instruction(int base_addr,
 								break;
 							}
 							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
-							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+							if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
 																read.w,
 																TYPE_DATA,
-																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
-							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref)
+																)
+							{
+								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							}
 							sprintf(operands, " Lbl_%.02x%.04x, y", bank_alias, read.w);
 							break;
 						default:
@@ -2139,8 +2151,9 @@ int _2A03_get_instruction(int base_addr,
 			    }
 			    else
 			    {
-		            write_address(operands, read.w);
+		            ret = write_address(operands, read.w);
 			        strcat(operands, ", y");
+					if(ret) add_warning(operands, code_jmp);
 		        }
 		    }
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
@@ -2168,8 +2181,7 @@ int _2A03_get_instruction(int base_addr,
 							break;
 						case 0:
 							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
-							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
-							(read.w < address))
+							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) || (read.w < address))
 							{
 								sprintf(operands, " ($%.04x) ; <<< WARNING: This location was never reached !", read.w);
 								warnings = 1;
@@ -2177,19 +2189,19 @@ int _2A03_get_instruction(int base_addr,
 							}
 							if(code_jmp)
 							{
-								nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
-																	read.w,
-																	TYPE_CODE,
-																	TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref);
+								ret = nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+																	      read.w,
+																	      TYPE_CODE,
+																	      TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref);
 							}
 							else
 							{
-								nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
-																	read.w,
-																	TYPE_DATA,
-																	TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
+								ret = nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+																	      read.w,
+																	      TYPE_DATA,
+																	      TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
 							}
-							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							if(ret) if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
 							sprintf(operands, " (Lbl_%.02x%.04x)", bank_alias, read.w);
 							break;
 						default:
@@ -2208,7 +2220,8 @@ int _2A03_get_instruction(int base_addr,
 			    }
 			    else
 			    {
-		            write_address(operands, read.w);
+		            ret = write_address(operands, read.w);
+					if(ret) add_warning(operands, code_jmp);
 		        }
 		    }
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
@@ -2280,10 +2293,7 @@ int _2A03_map_instruction(int base_addr,
     sprintf(operands, "%s", _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
     if(strcmp(operands, "(undef)") == 0)
     {
-		nes->general_log.f_write("swslsbs", ">>> 2A03: Invalid Instruction at: ", address, " (Offset: ", iROMOffset, ") (", nes->o_cpu->PRGROM[iROMOffset], ")\r\n");
-		printf("Error encountered during emulation, check log file.\n");
-        exit(-1);
-		return(-1);
+		return(-2);
     }
 
     switch(nes->o_cpu->PRGROM[iROMOffset])
@@ -2514,13 +2524,7 @@ int _2A03_map_instruction(int base_addr,
 		case REL:
 		    offset = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w = address;
-			read.w += (int) ((short) ((char) offset)) + 2;
-			if(read.w == 0xc03d)
-			{
-				int t;
-				t=0;
-			}
-			
+			read.w += (int) ((short) ((char) offset)) + 2;			
             nes->BankJMPList->insert_label_bank(bank, read.w, TYPE_CODE, TYPE_CODE, 0, 0, ref_bank, (iROMOffset - 1) + (int) ((short) ((char) offset)) + 2);
 		    length++;
 			break;
@@ -2667,13 +2671,27 @@ int write_address(char *operands, int dat)
         default:
 			if(dat >= 0x2000)
 			{
-				sprintf(temp, " $%.04x ; <<< WARNING: unknown register !", dat);
+				sprintf(temp, " $%.04x", dat);
+				strcat(operands, temp);
+				return 1;
 			}
 			else
 			{
 				sprintf(temp, " $%.04x", dat);
 			}
             strcat(operands, temp);
-		    return 1;
     }
+	return 0;
+}
+
+void add_warning(char *operands, int code_jmp)
+{
+	if(code_jmp)
+	{
+		strcat(operands, " ; <<< WARNING: unknown address !");
+	}
+	else
+	{
+		strcat(operands, " ; <<< WARNING: unknown register !");
+	}
 }

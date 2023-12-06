@@ -37,7 +37,8 @@ extern c_machine *o_machine;
 c_mapper_034 :: c_mapper_034 (void)
 {
     int i;
-    int start = 0;
+	int alias = 0;
+	int start = 0;
 
 	__DBG_INSTALLING ("Mapper #034");
 
@@ -50,14 +51,18 @@ c_mapper_034 :: c_mapper_034 (void)
     // 32k
     pages = pages->create_page(pages, 0, 0x8000, _32K_, start, 0, 0, 0, 0);
     nes->prg_pages = pages;
+	alias += 8;
     start += _32K_;
     max_pages++;
-    for(i = 1; i < (int) nes->o_rom->information().prg_pages; i++)
+    for(i = 1; i < (int) nes->o_rom->information().prg_pages - 1; i++)
     {
-        pages = pages->create_page(pages, i, 0x8000, _32K_, start, i, i, i, start);
+        pages = pages->create_page(pages, i, 0x8000, _32K_, start, i, i, alias, start);
+		alias += 8;
         max_pages++;
         start += _32K_;
+		if(start >= (int) nes->o_rom->ROM.get_size()) break;
     }
+	max_alias = alias - 8;
 
     // Chr pages
     if(nes->o_rom->information().chr_pages)
@@ -86,6 +91,7 @@ c_mapper_034 :: ~c_mapper_034 (void)
 
 void c_mapper_034 :: reset (void)
 {
+	last_page_switched = 0;
 	nes->o_cpu->swap_page (0x8000, 0, _32K_);
 	nes->o_ppu->swap_page (0x0000, 0, _8K_);
 }

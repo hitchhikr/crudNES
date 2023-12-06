@@ -33,12 +33,21 @@ class c_mapper_002: public c_mapper {
 		void reset (void);
 		void write_byte (__UINT_16, __UINT_8);
 
-		__UINT_8 get_bank_number (__UINT_16 address)
+		__UINT_8 get_real_prg_bank_number (__UINT_16 address)
 		{
-			if (address < 0xc000) return get_last_page_switched ();
-			else return nes->o_rom->information ().prg_pages - 1;
+			if (address < 0xc000)
+			{
+				return last_page_switched_8000;
+			}
+			else
+			{
+				return nes->o_rom->information ().prg_pages - 1;
+			}
 		}
 
+private:
+		int last_page_switched_8000;
+		int last_prg_page;
 };
 
 #endif

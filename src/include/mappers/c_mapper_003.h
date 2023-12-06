@@ -32,16 +32,6 @@ class c_mapper_003 : public c_mapper {
 
 		void write_byte (__UINT_16, __UINT_8);
 
-		__UINT_8 get_bank_number (__UINT_16 address)
-		{
-			if (address < 0x8000) return get_last_page_switched ();
-			else 
-			{
-			    if(address < 0xc000) return 0;
-			    return 1;
-		    }
-		}
-
 };
 
 #endif
