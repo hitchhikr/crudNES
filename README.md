@@ -16,7 +16,7 @@ Currrently handled mappers:
 - ExROM, MMC5 (5)
 - AxROM (7) *
 - PxROM, MMC2 (9)
-- FxROM, MMC4 (10)
+- FxROM, MMC4 (10) *
 - Color Dreams (11) *
 - Bandai EPROM (24C02) (16)
 - VRC4a, VRC4c (21)
