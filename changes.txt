@@ -1,4 +1,4 @@
-06/12/23 - 1.1b
+07/12/23 - 1.2
 
     - Fixed several nasty bugs in the disassembler.
     - Added support for mapper 10 (Nintendo MMC4) disassembly.
