@@ -59,9 +59,15 @@ class c_nes_cpu
 		void request_secondary_nmi (void) { _2A03_request_secondary_nmi (); }
 		void request_irq (void) { _2A03_request_irq (); }
         
-		void kill_cycles (__INT_32 cycles) { _2A03_kill_cycles (cycles*16); }
+		void kill_cycles (__INT_32 cycles)
+		{
+			_2A03_kill_cycles (cycles*16);
+		}
 
-		__INT_32 current_time (void) { return _2A03_get_current_time () / (3*16); }
+		__INT_32 current_time (void)
+		{
+			return _2A03_get_current_time () / (3*16);
+		}
 
 		__INT_32 earliest_event_before (__INT_32 iEndTime);
 
@@ -76,14 +82,27 @@ class c_nes_cpu
 			ideal_time -= end_time;
 		}
 
+		void toggle_logtracer (void) { _2A03_toggle_logtracer (); }
 		void toggle_tracer (void) { _2A03_toggle_tracer (); }
 		void toggle_label_holder (void) { _2A03_toggle_label_holder (); }
 		void set_instruction_dumper (__BOOL status) { _2A03_set_tracer (status); }
 		void set_label_holder (__BOOL status) { _2A03_set_label_holder (status); }
+		void set_logtracer(__BOOL status) { _2A03_set_logtracer (status); }
 		__BOOL is_tracer_on (void) { return _2A03_get_tracer (); }
+		__BOOL is_logtracer_on (void) { return _2A03_get_logtracer (); }
 
-		__UINT_8 read_byte (__UINT_16 address) { return PRGRAM [(address >> 12) & 7] [address & 0xfff]; }
-		__UINT_16 read_word (__UINT_16 address) { return *((__UINT_16 *)(PRGRAM [(address >> 12) & 7] + (address & 0xfff))); }
+		__UINT_8 read_byte (__UINT_16 address)
+		{
+			return PRGRAM [(address >> 12) & 7] [address & 0xfff];
+		}
+		__UINT_16 read_word (__UINT_16 address)
+		{
+			return *((__UINT_16 *)(PRGRAM [(address >> 12) & 7] + (address & 0xfff)));
+		}
+		int get_rom_offset (__UINT_16 address)
+		{
+			return (int) (((int) PRGRAM [(address >> 12) & 7] + (address & 0xfff)) - (int) &PRGROM[0]);
+		}
 
 		void swap_page (c_mem_block *uiDest, __UINT_16 dest_where, __UINT_8 page_number, e_page_sizes size)
 		{
@@ -116,7 +135,7 @@ class c_nes_cpu
 		__UINT_8 is_frame_even;
 		__UINT_8 *PRGRAM [8];
 		__UINT_16 pages [8];
-		__BOOL apu_irqs_enabled, is_config_requested, limit_frame_rate, sound_enabled, is_sound_stereo, pal_console;
+		__BOOL apu_irqs_enabled, is_config_requested, sound_enabled, is_sound_stereo, pal_console;
 		__INT_32 sampling_rate, bits_per_sample, frame_rate;
 		__UINT_32 last_line;
 		__UINT_32 cycle_multiplier;

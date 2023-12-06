@@ -1,6 +1,6 @@
 /*******************************************************************************
     crudNES - A NES emulator for reverse engineering purposes
-    NINA-1
+    BNROM NINA-001
     Copyright (C) 2003-2004 Sadai Sarmiento
     Copyright (C) 2023 Franck "hitchhikr" Charlet
 
@@ -41,7 +41,6 @@ c_mapper_034 :: c_mapper_034 (void)
 
 	__DBG_INSTALLING ("Mapper #034");
 
-
     // No mapping there's only a 16k prg page at c000
     // (mirrored at 8000 if the ROM is 24k)
     // and a chr page of 8k)
@@ -49,13 +48,13 @@ c_mapper_034 :: c_mapper_034 (void)
     s_label_node *pages = NULL;
     
     // 32k
-    pages = pages->Create(pages, 0x8000, _32K_, start, 0, 0, 0);
+    pages = pages->create_page(pages, 0, 0x8000, _32K_, start, 0, 0, 0, 0);
     nes->prg_pages = pages;
     start += _32K_;
     max_pages++;
     for(i = 1; i < (int) nes->o_rom->information().prg_pages; i++)
     {
-        pages = pages->Create(pages, 0x8000, _32K_, start, i, i, i);
+        pages = pages->create_page(pages, i, 0x8000, _32K_, start, i, i, i, start);
         max_pages++;
         start += _32K_;
     }
@@ -64,13 +63,13 @@ c_mapper_034 :: c_mapper_034 (void)
     if(nes->o_rom->information().chr_pages)
     {
         pages = NULL;
-        pages = pages->Create(pages, 0x0000, _4K_, start, 0, 0, 0);
+        pages = pages->create_page(pages, 0, 0x0000, _4K_, start, 0, 0, 0, start);
         max_pages++;
         start += _4K_;
         nes->chr_pages = pages;
         for(i = 1; i < (int) nes->o_rom->information().chr_pages; i++)
         {
-            pages = pages->Create(pages, 0x0000, _4K_, start, i, i, i);
+            pages = pages->create_page(pages, i, 0x0000, _4K_, start, i, i, i, start);
             max_pages++;
             start += _4K_;
         }
@@ -95,6 +94,7 @@ void c_mapper_034 :: write_byte (__UINT_16 address, __UINT_8 value)
 {
 	if (address < 0x8000) nes->o_sram->write_byte (address, value);
 
+	// NINA-001
 	if (0x7ffd == address)
 	{
 	    nes->o_cpu->swap_page (0x8000, value & _32K_prg_mask, _32K_);
@@ -105,7 +105,8 @@ void c_mapper_034 :: write_byte (__UINT_16 address, __UINT_8 value)
 	else if (0x7fff == address) nes->o_ppu->swap_page (0x1000, value & _4K_chr_mask, _4K_);
 	else if (address > 0x7fff)
 	{
-	    nes->o_cpu->swap_page (0x8000, value & _32K_prg_mask, _32K_);
+		// BNROM
+		nes->o_cpu->swap_page (0x8000, value & _32K_prg_mask, _32K_);
         last_page_switched = value & _32K_prg_mask;
         set_vectors();
     }

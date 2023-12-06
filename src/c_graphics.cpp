@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "include/2xSai.h"
 #include "include/c_tracer.h"
 #include "include/c_graphics.h"
 #include "include/datatypes.h"
@@ -58,12 +57,9 @@ c_graphics :: c_graphics (void)
 	__DBG_INSTALLING ("Graphics");
 
 	active_page = NULL;
-	filter_page = NULL;
 	dummy = NULL;
 
 	load_config ();
-
-	Init_2xSaI (565);
 
 	clear_to_color (screen, nes_palette [0x0e]);
 	gui_bg_color = nes_palette [0x0e];
@@ -78,12 +74,9 @@ c_graphics :: c_graphics (void)
 
 c_graphics :: ~c_graphics (void)
 {
-//	__DBG_UNINSTALLING ("Graphics");
+	__DBG_UNINSTALLING ("Graphics");
 
-	if (active_page) { destroy_bitmap (active_page); }
-	if (filter_page) { destroy_bitmap (filter_page); __DELETE_MEM_BLOCK (dummy); }
-
-//	__DBG_UNINSTALLED ();
+	__DBG_UNINSTALLED ();
 }
 
 /******************************************************************************/
@@ -94,38 +87,19 @@ void c_graphics :: draw_frame (void)
 {
 	static __INT_32 ulEllapsedTime = (__INT_32)(time (0)), ulFPS = 0;
 
-	ulFPS ++;    	
+	ulFPS ++;
 
-    if (ulEllapsedTime != time (0)) {
-
+    if (ulEllapsedTime != time (0))
+	{
 		char Buffer [10];
 		sprintf (Buffer, "%i FPS", ulFPS);
 		
-		if (is_full_screen_mode);//textout (screen, font, Buffer, 0, 0, nes_palette [0x10]);
-		else set_window_title (Buffer);
+		set_window_title (Buffer);
     	ulEllapsedTime = (__INT_32)(time (0));
 		ulFPS = 0;
 	}
 
-	if (display_w == 256 && display_h == nes->o_cpu->Height)
-		blit (active_page, screen, 0, 8, 0, 0, display_w, display_h);
-	else
-	{
-		switch (using_filter)
-		{
-		    case 0: 
-			    stretch_blit (active_page, screen, 0, 8, 256, nes->o_cpu->Height, 0, 0, display_w, display_h);
-			    break;
-		    case 1:
-			    Super2xSaI (active_page->line[8], (unsigned int)(active_page->line[1] - active_page->line[0]), NULL, filter_page, 256, nes->o_cpu->Height);
-			    blit (filter_page, screen, 0, 0, 0, 0, display_w, display_h);
-			    break;
-		    case 2:
-			    SuperEagle (active_page->line[8], (unsigned int)(active_page->line[1] - active_page->line[0]), dummy, filter_page, 256, nes->o_cpu->Height);
-			    blit (filter_page, screen, 0, 0, 0, 0, display_w, display_h);
-			    break;
-		}
-	}
+	stretch_blit (active_page, screen, 0, 8, 256, nes->o_cpu->Height, 0, 0, display_w, display_h);
 }
 
 #define PDX_MIN(x_offset,y) ((x_offset) < (y) ? (x_offset) : (y))
@@ -255,57 +229,31 @@ void c_graphics :: load_config (void)
 {
 	config_requested = FALSE;
 
-	int bValue;
-    int iValue;
-
-	using_filter = (__UINT_8) 0;
-
-    iValue = 1;
-
-	switch (iValue)
-	{
-		case 0:	if (!using_filter) color_depth = 8; else color_depth = 16; break;
-		case 1: color_depth = 16; break;
-	}
-	
+	color_depth = 16;
     v_sync_enabled = 1;
-
-    iValue = 2;
-
-	switch (iValue)
-	{
-		case 0: display_w = 256; display_h = nes->o_cpu->Height; break;
-		case 2: display_w = 512; display_h = nes->o_cpu->Height * 2; break;
-	}
-
-    iValue = 0;
-
-	if (!iValue) { iValue = GFX_AUTODETECT_WINDOWED; is_full_screen_mode = FALSE; }
-	else { iValue = GFX_AUTODETECT_FULLSCREEN; is_full_screen_mode = TRUE; /*win_set_window (NULL);*/ }
+	display_w = 512;
+	display_h = nes->o_cpu->Height * 2;
 
 	set_color_depth (color_depth);
-	if (set_gfx_mode (iValue, display_w, display_h, 0, 0) < 0)
+	if (set_gfx_mode (GFX_AUTODETECT_WINDOWED, display_w, display_h, 0, 0) < 0)
 	{
-		if (display_w == 512) set_gfx_mode (GFX_AUTODETECT_FULLSCREEN, 640, 480, 0, 0);
-		else if (display_w == 768) set_gfx_mode (GFX_AUTODETECT_FULLSCREEN, 800, 600, 0, 0);
-		else set_gfx_mode (GFX_AUTODETECT_FULLSCREEN, 320, 240, 0, 0);
+		exit(-1);
 	}
 
-	if (active_page) destroy_bitmap (active_page);
 	active_page = create_bitmap (256 + 8, nes->o_cpu->Height + 16);
 
-	bValue = 1;
-	
-	if (bValue) set_display_switch_mode(SWITCH_BACKGROUND);
-	else set_display_switch_mode(SWITCH_PAUSE);
+	set_display_switch_mode(SWITCH_BACKGROUND);
 
-	if (using_filter)
-	{
-		if (filter_page) { destroy_bitmap (filter_page); filter_page = NULL; }
-		if (dummy) __DELETE_MEM_BLOCK (dummy);
-		filter_page = create_bitmap (display_w, display_h);
-		__NEW_MEM_BLOCK (dummy, __UINT_8, display_w * display_h << 1);
-	}
+	gui_fg_color = nes_palette [0x1a];
+	gui_bg_color = nes_palette [0x0e];
+
+	nes->o_gfx->compute_palette ();
+
+	text_mode (gui_bg_color);
+	set_window_title (APPNAME" "APPVERSION);
+	set_window_close_button (FALSE);
+	clear_to_color (screen, gui_bg_color);
+	show_mouse (screen); 	
 
 	c_tracer o_reader;
     // either Matrixz.pal or Fce.pal
@@ -313,18 +261,10 @@ void c_graphics :: load_config (void)
 	{
 	    o_reader.set_output_file ("Fce.pal", __READ);
 	}
-	o_reader.read ((__UINT_8 *)bPalette, 64 * 3);
+	o_reader.read ((__UINT_8 *) bPalette, 64 * 3);
 	o_reader.close ();
-
-	if (8 == color_depth)
-	{
-		bPalette [0x21] [0] = bPalette [0x2c] [0];
-		bPalette [0x21] [1] = bPalette [0x2c] [1];
-		bPalette [0x21] [2] = bPalette [0x2c] [2];
-	}
 
 	compute_palette ();
 
-	remove_keyboard ();
 	install_keyboard ();
 }

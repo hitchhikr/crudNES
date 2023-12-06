@@ -26,7 +26,7 @@
    extern "C" {
 #endif
 
-struct BITMAP;
+struct BITMAP_;
 
 AL_VAR(PALETTE, black_palette);
 AL_VAR(PALETTE, desktop_palette);
@@ -90,7 +90,7 @@ AL_FUNC(void, select_palette, (AL_CONST PALETTE p));
 AL_FUNC(void, unselect_palette, (void));
 
 AL_FUNC(void, generate_332_palette, (PALETTE pal));
-AL_FUNC(int, generate_optimized_palette, (struct BITMAP *image, PALETTE pal, AL_CONST signed char rsvdcols[256]));
+AL_FUNC(int, generate_optimized_palette, (struct BITMAP_ *image, PALETTE pal, AL_CONST signed char rsvdcols[256]));
 
 AL_FUNC(void, create_rgb_table, (RGB_MAP *table, AL_CONST PALETTE pal, AL_METHOD(void, callback, (int pos))));
 AL_FUNC(void, create_light_table, (COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b, AL_METHOD(void, callback, (int pos))));

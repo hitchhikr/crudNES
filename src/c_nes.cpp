@@ -19,6 +19,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+#include <windows.h>
 #include "include/datatypes.h"
 #include "include/c_nes.h"
 #include "include/c_cpu.h"
@@ -57,22 +58,16 @@ c_nes :: c_nes()
 
 void c_nes :: Open (int PAL, const char *FilePath)
 {
-	close (); 
+    MSG msg;
 
-    general_log.set_output_file ("crudNES.log", __NEW);
+    general_log.set_output_file (APPNAME".log", __NEW);
 
 	__NEW (o_rom, c_nes_rom (FilePath));
 	bIsPowerOff = o_rom->check_header (PAL);
 
 	if (bIsPowerOff)
 	{
-		#ifdef GUIPLUS
-			alert ("ERROR: File not found!",
-				   " ",
-			       NULL,
-			       "&OK", NULL, NULL, NULL);
-		#endif
-
+		printf("ERROR: File not found!\n");
 		__DELETE (o_rom);
 		general_log.close ();
 		return; 
@@ -91,7 +86,6 @@ void c_nes :: Open (int PAL, const char *FilePath)
 	switch (o_rom->information ().mapper)
 	{
 		case 0:
-		case 185:
 		    __NEW (o_mapper, c_mapper_000);
 		    break;
 		case 1: __NEW (o_mapper, c_mapper_001); break;
@@ -99,7 +93,9 @@ void c_nes :: Open (int PAL, const char *FilePath)
 
 		case 3:
 		case 87:
+		case 185:
 		    __NEW (o_mapper, c_mapper_003);
+			o_mapper->mapper_185  = 1;
 		    break;
 
 		case 4:
@@ -125,7 +121,7 @@ void c_nes :: Open (int PAL, const char *FilePath)
 
 		default:
 			alert ("WARNING: Unsupported o_mapper!", 
-				   "crudNES will now attempt to run the selected",
+				   APPNAME" will now attempt to run the selected",
 				   "program under the default memory mapping scheme.",
 				   "Proceed...", NULL, NULL, NULL);
 			__NEW (o_mapper, c_mapper);
@@ -140,28 +136,34 @@ void c_nes :: Open (int PAL, const char *FilePath)
 
 	__NEW (BankJMPList, c_label_holder);
 
-//	Rom->close ();
-
 	bis_running = TRUE;
 	bis_paused = FALSE;
 
 	show_mouse (0);
 	clear_keybuf ();
-	
+
+	if(PeekMessage(&msg, 0, 0, 0, PM_REMOVE) != 0)
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
 	o_sram->load_from ((char *)(o_state->get_filename ("sav")), 0, 0, _8K_);
 	o_state->reset ();
 	o_cpu->reset ();
 	o_cpu->run_accurate ();
-
-#ifdef GUIPLUS
-	show_mouse (screen);
-	clear_keybuf ();
-#endif
 }
 
 void c_nes :: close (void)
 {
 	bis_running = FALSE;
+    MSG msg;
+
+	if(PeekMessage(&msg, 0, 0, 0, PM_REMOVE) != 0)
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 
 	if (!bIsPowerOff)
 	{
@@ -225,8 +227,11 @@ void c_nes :: load_state (void)
 void c_nes :: set_instruction_dumper (__BOOL o_state)
 {
 	o_cpu->toggle_tracer ();
-/*	if (o_cpu->is_tracer_on ()) writeText->Hide ();
-	else writeText->Show ();*/
+}
+
+void c_nes :: set_log_tracer(__BOOL o_state)
+{
+	o_cpu->set_logtracer (o_state);
 }
 
 void c_nes :: set_label_holder (__BOOL o_state)

@@ -20,40 +20,46 @@
 *******************************************************************************/
 
 #define ALLEGRO_USE_CONSOLE
-#ifdef __CRUDNES_ALLEGRO_GUI
 
 #include "include/allegro.h"
 #include <stdio.h>
 
 #include "include/c_machine.h"
 #include "include/c_nes.h"
-#include "include/c_gui.h"
 
 /******************************************************************************/
 /** Global Data                                                              **/
 /******************************************************************************/
 
 c_machine *o_machine;
-NESGUIHandler NESGUI;
-
-extern int NES_Uninstall (void);
 
 void print_usage(void)
 {
-    printf("crudNES v1.0\n");
+    printf(APPNAME" "APPVERSION"\n");
     printf("Copyright (C) 2003-2004 Sadai Sarmiento\n");
     printf("Copyright (C) 2023 Franck \"hitchhikr\" Charlet\n\n");
-    printf("Usage: <P|N> <rom file>\n\n");
+    printf("Usage: [L] <P|N> <rom file>\n\n");
+    printf("       [L] = Turn instructions logger on at startup\n");
     printf("       <P|N> = PAL|NTSC\n\n");
     printf("       Keys: A=A S=B ENTER=START SPACE=SELECT\n");
     printf("             Arrows=Direction pad\n");
     printf("             (Joystick is supported too)\n");
+    printf("       P: Turn emulation on/off\n");
     printf("       F5: Save state\n");
     printf("       F6: Load state\n");
     printf("       F7: Decrement current slot number (Total # of slots: 8)\n");
     printf("       F8: Increment current slot number\n");
     printf("       F10: Soft reset\n");
+    printf("       F12: Toggle instructions logger (generates *HUGE* .log).\n");
     printf("       ESC: Quit emulation and start disassembling process\n");
+}
+
+void free_everything()
+{
+	o_machine->close ();
+	remove_keyboard ();
+	remove_mouse ();
+	allegro_exit ();
 }
 
 int main (int argc, char *argv[])
@@ -65,6 +71,10 @@ int main (int argc, char *argv[])
         return 0;
     }
 
+    printf(APPNAME" "APPVERSION"\n");
+
+	atexit(&free_everything);
+
 	allegro_init ();
 	install_timer ();
 
@@ -73,17 +83,14 @@ int main (int argc, char *argv[])
 
 	install_sound (DIGI_AUTODETECT, MIDI_NONE, NULL);
 
-	set_color_depth (8);
-	if (set_gfx_mode (GFX_AUTODETECT_WINDOWED, 256, 240, 0, 0) < 0)
-	{
-		return -1;
-    }
-
-	set_display_switch_mode(SWITCH_BACKGROUND);
-
 	__NEW (o_machine, c_nes);
 
-	NESGUI.Install ();
+	nes->set_log_tracer(FALSE);
+	if(toupper(argv[pos_arg][0]) == 'L')
+	{
+		nes->set_log_tracer(TRUE);
+		pos_arg++;
+	}
 
 	switch(toupper(argv[pos_arg][0]))
 	{
@@ -97,19 +104,8 @@ int main (int argc, char *argv[])
             print_usage();
             break;
 	}
-	
-//	NESGUI.run ();
 
-	NES_Uninstall ();
-
-	NESGUI.Uninstall ();
-
-	remove_keyboard ();
-	remove_mouse ();
-	allegro_exit ();
-
+	exit(0);
 	return 0;
 }
 END_OF_MAIN()
-
-#endif

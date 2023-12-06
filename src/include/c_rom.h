@@ -25,10 +25,11 @@
 #include <io.h>
 #include <stdio.h>
 
+#include "c_mem_block.h"
 #include "datatypes.h"
 
-struct SRominformation {
-
+struct SRominformation
+{
 	char *filename;
 	__UINT_32 Size;
 	void *handle;
@@ -56,13 +57,20 @@ class c_nes_rom {
 		__UINT_8 read_byte (__UINT_32);
 		void transfer_block (__UINT_8 *, __UINT_32, __UINT_32);
 		void close (void);
+		void load_ROM(const char *filename, __UINT_32 where_in_source, __UINT_32 rom_buffer,  __UINT_32 header_buffer, __UINT_32 size);
 
-		SRominformation & information (void) { return info; }
+		SRominformation & information (void)
+		{
+			return info;
+		}
+
+		c_mem_block ROM;
+		c_mem_block HEADER;
+		SRominformation info;
 
 	private:
 
 		EFileType FileType;
-		SRominformation info;
 };
 
 #endif

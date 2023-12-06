@@ -26,6 +26,7 @@
 #include "../c_label_holder.h"
 #include "../c_tracer.h"
 #include "../c_rom.h"
+#include "../c_cpu.h"
 
 #include "../datatypes.h"
 
@@ -43,25 +44,47 @@ class c_mapper {
 		virtual void update (void *vData);
 		virtual void h_blank (void);
 
-		virtual void create_label (s_label_node *o_label, __UINT_16 address, __UINT_8 type, __UINT_8 sub_type, int base)
+		void create_label (s_label_node *o_label, __UINT_16 address, e_dattype type, e_dattype sub_type, int base, int offset, int ref_bank)
 		{
+            o_label->address = address;
 			o_label->contents = address;
-			o_label->bank = get_bank_number(address);
+			o_label->bank = get_real_prg_bank_number (address);
+			o_label->alias = nes->BankJMPList->get_bank_alias(o_label->bank, address);
+			o_label->bank_lo = o_label->alias;
+			o_label->bank_hi = o_label->alias;
+			o_label->real_bank = o_label->bank;
+			o_label->offset = offset;
+			o_label->rom_offset = offset;
 			o_label->type = type;
 			o_label->sub_type = sub_type;
 			o_label->jump_base_table = base;
+			o_label->ref_bank = ref_bank;
+
 		}
 
-		virtual __UINT_8 get_bank_number (__UINT_16 address) {	return 0; }
-		__UINT_8 get_last_page_switched (void) { return last_page_switched; }
-		virtual int get_bank_alias(int bank, int address)
+		virtual __UINT_8 get_bank_number (__UINT_16 address)
 		{
-		    return last_page_switched;
-        }
+			return 0;
+		}
+
+		__UINT_8 get_last_page_switched (void)
+		{
+			return last_page_switched;
+		}
+
+		virtual __UINT_8 get_prg_bank_number (__UINT_16 address)
+		{
+			return last_page_switched;
+		}
+
+		virtual __UINT_8 get_real_prg_bank_number (__UINT_16 address)
+		{
+			return last_page_switched;
+		}
 
         virtual int get_max_pages(void)
         {
-            return(max_pages - 1);
+            return(max_alias);
         }
 
 		virtual void save_state (c_tracer &o_writer);
@@ -70,12 +93,13 @@ class c_mapper {
         virtual void set_vectors();
         int vectors_address;
         s_label_node *constants;
+		__UINT_8 mapper_185;
+		__UINT_8 last_page_switched;
 
 	protected:
 		__UINT_16 _1K_chr_mask, _2K_chr_mask, _4K_chr_mask, _8K_chr_mask;
 		__UINT_16 _8K_prg_mask, _16K_prg_mask, _32K_prg_mask;
-
-		__UINT_8 last_page_switched;
+		int max_alias;
         int max_pages;
 };
 

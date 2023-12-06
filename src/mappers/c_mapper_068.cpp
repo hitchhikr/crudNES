@@ -37,6 +37,7 @@ extern c_machine *o_machine;
 c_mapper_068 :: c_mapper_068 (void)
 {
 	__DBG_INSTALLING ("Mapper #068");
+
 	__DBG_INSTALLED ();
 }
 
@@ -69,7 +70,10 @@ void c_mapper_068 :: write_byte (__UINT_16 address, __UINT_8 value)
 			Registers [1] = value & 3;
 			UpdateBanks ();
 			break;
-		case 0xf000: nes->o_cpu->swap_page (0x8000, value & _16K_prg_mask, _16K_); break;
+		case 0xf000: 
+			nes->o_cpu->swap_page (0x8000, value & _16K_prg_mask, _16K_); 
+			last_page_switched = value & _16K_prg_mask;
+			break;
 	}
 }
 

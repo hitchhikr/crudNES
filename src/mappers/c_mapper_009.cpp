@@ -37,6 +37,7 @@ extern c_machine *o_machine;
 c_mapper_009 :: c_mapper_009 (void)
 {
 	__DBG_INSTALLING ("Mapper #009");
+
 	__DBG_INSTALLED ();
 }
 
@@ -107,7 +108,6 @@ void c_mapper_009 :: write_byte (__UINT_16 address, __UINT_8 value)
 		    nes->o_cpu->swap_page (0x8000, value & _8K_prg_mask, _8K_);
 		    last_page_switched = value & _8K_prg_mask;
 		    break;
-
 	    case 0xb000:
 		    pages [0] = value & _4K_chr_mask;
 		    if (bLatches [0] == 0xfd) nes->o_ppu->swap_page (0x0000, pages [0], _4K_); 
@@ -124,7 +124,6 @@ void c_mapper_009 :: write_byte (__UINT_16 address, __UINT_8 value)
 		    pages [3] = value & _4K_chr_mask;
 		    if (bLatches [1] == 0xfe) nes->o_ppu->swap_page (0x1000, pages [3], _4K_); 
 		    break;
-
 	    case 0xf000:
 		    if (value & BIT_0) nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING);
 		    else nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING);

@@ -134,26 +134,26 @@ int osx_bootstrap_ok(void);
 void setup_direct_shifts(void);
 void osx_init_fade_system(void);
 void osx_fade_screen(int fade_in, double seconds);
-void osx_qz_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-void osx_qz_created_sub_bitmap(BITMAP *bmp, BITMAP *parent);
-BITMAP *osx_qz_create_video_bitmap(int width, int height);
-BITMAP *osx_qz_create_system_bitmap(int width, int height);
-void osx_qz_destroy_video_bitmap(BITMAP *bmp);
+void osx_qz_blit_to_self(BITMAP_ *source, BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+void osx_qz_created_sub_bitmap(BITMAP_ *bmp, BITMAP_ *parent);
+BITMAP_ *osx_qz_create_video_bitmap(int width, int height);
+BITMAP_ *osx_qz_create_system_bitmap(int width, int height);
+void osx_qz_destroy_video_bitmap(BITMAP_ *bmp);
 int osx_setup_colorconv_blitter(void);
 void osx_update_dirty_lines(void);
 
-uintptr_t osx_qz_write_line(BITMAP *bmp, int lyne);
-void osx_qz_unwrite_line(BITMAP *bmp);
-void osx_qz_acquire(BITMAP *bmp);
-void osx_qz_release(BITMAP *bmp);
+uintptr_t osx_qz_write_line(BITMAP_ *bmp, int lyne);
+void osx_qz_unwrite_line(BITMAP_ *bmp);
+void osx_qz_acquire(BITMAP_ *bmp);
+void osx_qz_release(BITMAP_ *bmp);
 
 void osx_keyboard_handler(int pressed, NSEvent *event);
 void osx_keyboard_modifiers(unsigned int new_mods);
 void osx_keyboard_focused(int focused, int state);
 
 void osx_mouse_handler(int x, int y, int dx, int dy, int dz, int buttons);
-int osx_mouse_set_sprite(BITMAP *sprite, int x, int y);
-int osx_mouse_show(BITMAP *bmp, int x, int y);
+int osx_mouse_set_sprite(BITMAP_ *sprite, int x, int y);
+int osx_mouse_show(BITMAP_ *bmp, int x, int y);
 void osx_mouse_hide(void);
 void osx_mouse_move(int x, int y);
 

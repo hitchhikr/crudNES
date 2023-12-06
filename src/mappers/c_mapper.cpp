@@ -55,6 +55,7 @@ c_mapper :: c_mapper (void)
 	last_page_switched = 0;
 	vectors_address = 0xfffa;
 	max_pages = 0;
+	mapper_185 = 0;
 
 	__DBG_INSTALLED ();
 }
@@ -115,11 +116,11 @@ void c_mapper :: set_vectors()
 {
     if (_2A03_labelHolder)
 	{
-	    nes->BankJMPList->insert_label(vectors_address, TYPE_DATA, TYPE_WORD, 0, vectors_address);
 	    nes->BankJMPList->insert_label(vectors_address + 2, TYPE_DATA, TYPE_WORD, 0, 0);
 	    nes->BankJMPList->insert_label(vectors_address + 4, TYPE_DATA, TYPE_WORD, 0, 0);
-	    nes->BankJMPList->insert_label(NMIAddr, TYPE_CODE, TYPE_CODE, 0, 0);
+	    nes->BankJMPList->insert_label(vectors_address, TYPE_DATA, TYPE_WORD, 0, vectors_address);
 	    nes->BankJMPList->insert_label(resetAddr, TYPE_CODE, TYPE_CODE, 0, 0);
 	    nes->BankJMPList->insert_label(IRQAddr, TYPE_CODE, TYPE_CODE, 0, 0);
+	    nes->BankJMPList->insert_label(NMIAddr, TYPE_CODE, TYPE_CODE, 0, 0);
     }
 }

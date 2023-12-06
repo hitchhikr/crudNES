@@ -102,6 +102,12 @@ void c_tracer :: f_write (const char *sArgDescription, ...)
 				buffer_pos += 4;
 				break;
 
+			case 'l':
+				write.uiDWord = va_arg (vl, __UINT_32);
+				sprintf (Buffer + buffer_pos, "%08x", write.uiDWord);
+				buffer_pos += 8;
+				break;
+
 			case 'f':
 				write.uiByte = va_arg (vl, __UINT_8);
 				sprintf (Buffer + buffer_pos, "%c", write.uiByte);

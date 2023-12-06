@@ -1,3 +1,22 @@
+06/12/23 - 1.1
+
+   - Mapper Color Dreams (11) is now handled by the disassembler.
+   - crudNES now exits when encountering an unknown instruction
+     (and records it's position in the log file).
+   - Removed lotsa unecessary code.
+   - Code clean up.
+   - Fixed a mirroring bug in mapper Bandai (16).
+   - Fixed a bug with hanging window at exit.
+   - crudNES is a bit more talkative during disassembling process.
+   - Mapper Camerica/Codemasters (71) is now handled by the disassembler.
+   - Added F12 key handling to toggle CPU instructions logging.
+   - Added a toggle to the command line parameters to turn instructions logging on/off.
+   - Fixed a bug with the database files handling.
+   - Huge improvements done to the disassembler (like cross-banks references).
+   - Mapper HK-SF3 (91) is now handled by the disassembler.
+   - "P" key to toggle emulation pause on/off.
+   - Added support for zipped ROMs.
+
 09/08/23 - 1.0
 
   - Renamed to crudNES.

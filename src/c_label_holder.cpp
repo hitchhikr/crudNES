@@ -31,22 +31,30 @@
 
 #include "include/c_save_state.h"
 #include "include/c_nes.h"
+#include "include/clist.h"
 
 extern c_machine *o_machine;
+CList <char *> listing;
+extern int warnings;
 
 c_label_holder :: c_label_holder (void)
 {
     char *line;
+	int real_bank;
     int bank;
     int contents;
-    int type;
-    int sub_type;
+    e_dattype type;
+    e_dattype sub_type;
     int jump_table;
+	int offset;
+	int ref_bank;
 
     memset(&unknown, 0, sizeof(unknown));
     unknown.type = TYPE_UNK;
     unknown.sub_type = TYPE_BYTE;
     unknown.alias = -2;
+	type = TYPE_DATA;
+    sub_type = TYPE_BYTE;
 
     // Load all the labels
 	c_tracer reader (nes->Labels_Name, __READ);
@@ -60,7 +68,13 @@ c_label_holder :: c_label_holder (void)
     while(strlen(line))
     {
         // parse the data line
-        bank = strtol(line, &line, 16);
+        offset = strtol(line, &line, 16);
+        // Skip comma
+        line++;
+		real_bank = strtol(line, &line, 16);
+        // Skip comma
+        line++;
+		bank = strtol(line, &line, 16);
         // Skip comma
         line++;
         contents = strtol(line, &line, 16);
@@ -77,10 +91,11 @@ c_label_holder :: c_label_holder (void)
                         sub_type = TYPE_BYTE;
                         break;
 
-                    case 'DROW':
+					case 'DROW':
                         sub_type = TYPE_WORD;
                         break;
-                    case 'WWAR':
+
+					case 'WWAR':
                         sub_type = TYPE_RAWWORD;
                         break;
                 }
@@ -88,6 +103,7 @@ c_label_holder :: c_label_holder (void)
 
             case 'EDOC':
                 type = TYPE_CODE;
+                line += 5;
                 switch(((unsigned int ) *(unsigned int *) &line[0]))
                 {
                     case 'EDOC':
@@ -97,14 +113,19 @@ c_label_holder :: c_label_holder (void)
                     case 'CLER':
                         sub_type = TYPE_RELCODE;
                         break;
-                }
+
+					case 'ETYB':
+                        sub_type = TYPE_BYTE;
+                        break;
+               }
                 break;
         }
         line += 5;
-        // parse the data line
         jump_table = strtol(line, &line, 16);
-        
-        insert_label_bank(bank, contents, type, sub_type, 0, jump_table);
+        line += 1;
+        ref_bank = strtol(line, &line, 16);
+                
+        insert_label_bank(real_bank, contents, type, sub_type, 0, jump_table, bank, offset, ref_bank);
 
         line = reader.f_read("%s")->string;   
     }    
@@ -113,81 +134,200 @@ c_label_holder :: c_label_holder (void)
 // Dump all labels before closing
 c_label_holder :: ~c_label_holder (void)
 {
-	if (!head)
-	{
-	    return;
-	}
-    
-	c_tracer writer (nes->Labels_Name);
-	writer.f_write ("s", "Bank,Address,Type,Access,Sub,Jump\r\n");
 
-	s_label_node *navigator = head;
-
-    while(navigator)
-	{
-		writer.f_write ("nsnsssns",
-		                navigator->bank,
-		                ",",
-		                navigator->contents,
-		                navigator->type == TYPE_CODE ? ",CODE" : ",DATA",
-		                navigator->type == TYPE_CODE ? 
-		                    navigator->sub_type == TYPE_RELCODE ? ",RELC" : ",BYTE" :
-		                    navigator->sub_type == TYPE_BYTE ? ",BYTE" : 
-		                    navigator->sub_type == TYPE_WORD ? ",WORD" : ",RAWW",
-		                ",",
-		                navigator->jump_base_table,
-		                "\n"
-		               );
-
-		navigator = navigator->Next;
-	}
-    // Free the pages mapping
-	while(head)
-	{
-		navigator = head->Next;
-		delete head;
-		head = navigator;
-	}
-	
-	
-	writer.close ();
 }
 
-// -1 = none
-// 1 = data
-// 0 = code
-s_label_node *c_label_holder::search_label(int bank_lo, int bank_hi, int address)
+s_label_node *c_label_holder::search_label(int bank_lo, int bank_hi, int address, int page_alias, int real_ref, int all_refs)
+{
+	s_label_node *navigator;
+	if(real_ref == -1)
+	{
+		real_ref = page_alias;
+	}
+	if(all_refs == -1)
+	{
+		for(navigator = head; navigator;)
+		{
+			if(navigator->bank_lo >= bank_lo && navigator->bank_hi <= bank_hi &&
+			   navigator->contents == address && get_bank_alias(navigator->ref_bank, address) == real_ref
+			  )
+			{
+				return(navigator);
+			}
+			navigator = navigator->Next;
+		}
+	}
+	else
+	{
+		for(navigator = head; navigator;)
+		{
+			if(navigator->bank_lo >= bank_lo && navigator->bank_hi <= bank_hi &&
+			   navigator->contents == address
+			  )
+			{
+				return(navigator);
+			}
+			navigator = navigator->Next;
+		}
+	}
+	unknown.bank = bank_lo;
+    unknown.alias = page_alias;
+    return(&unknown);
+}
+
+// returns a page within a range
+s_label_node *c_label_holder::search_page(int address)
+{
+	s_label_node *pages;
+
+	for(pages = nes->prg_pages; pages;)
+	{
+		if((address >= pages->address) && (address < (pages->address + pages->size)))
+		{
+            return(pages);
+        }
+        pages = pages->Next;
+	}
+    return(NULL);
+}
+
+int c_label_holder::search_unknown_value(int address)
 {
 	s_label_node *navigator;
 
 	for(navigator = head; navigator;)
 	{
-		if(navigator->bank >= bank_lo && navigator->bank <= bank_hi &&
-		   navigator->contents == address)
+		if(navigator->address == address)
 		{
-            return(navigator);
+            return(navigator->alias);
         }
         navigator = navigator->Next;
 	}
-    unknown.bank = bank_lo;
-    return(&unknown);
+   return(-1);
+}
+
+int c_label_holder::fix_var_bank(int value, int ref_bank)
+{
+	s_label_node *page;
+	int found_bank;
+
+	page = search_page(value);
+	if(page)
+	{
+		if(page->alias != ref_bank && !is_current_page(ref_bank, value))
+		{
+			found_bank = search_unknown_value(value);
+			if(found_bank != -1)
+			{
+				return found_bank;
+			}
+			page = get_page_from_bank(ref_bank);
+			if(page->address > value)
+			{
+				return -1;
+			}
+			else
+			{
+				page = search_page(value);
+				ref_bank = page->alias;
+			}
+		}
+	}
+	return ref_bank;
+}
+
+int c_label_holder::fix_rom_offset(int value, int ref_bank, int offset)
+{
+	s_label_node *page;
+
+	page = get_page_from_bank(ref_bank);
+	if(page)
+	{
+		offset = (page->rom_offset + (value - page->address));
+	}
+	return offset;
+}
+
+s_label_node *c_label_holder::get_page_from_bank(int bank)
+{
+	s_label_node *pages;
+
+	for(pages = nes->prg_pages; pages;)
+	{
+		if(pages->alias == bank)
+		{
+			return pages;
+        }
+        pages = pages->Next;
+	}
+    return NULL;
+}
+
+int c_label_holder::get_bank_alias(int bank, int value)
+{
+	s_label_node *pages;
+
+	for(pages = nes->prg_pages; pages;)
+	{
+		if((pages->bank == bank) &&
+		   (value >= pages->address) && (value < (pages->address + pages->size))
+		   )
+		{
+			return pages->alias;
+        }
+        pages = pages->Next;
+	}
+    return 0;
+}
+
+int c_label_holder::get_real_bank(int alias)
+{
+	s_label_node *pages;
+
+	for(pages = nes->prg_pages; pages;)
+	{
+		if(pages->alias == alias)
+		{
+			return pages->bank;
+        }
+        pages = pages->Next;
+	}
+    return 0;
+}
+
+int c_label_holder::is_current_page(int bank, int address)
+{
+	s_label_node *pages;
+
+	for(pages = nes->prg_pages; pages;)
+	{
+		if((address >= pages->address) && (address < (pages->address + pages->size)))
+		{
+			if(bank == pages->alias) return TRUE;
+        }
+        pages = pages->Next;
+	}
+    return FALSE;
 }
 
 void c_label_holder::dump_rom(void)
 {
     int i;
+	int j;
     int k;
     char inc_name[1024];
     char bank_name[1024];
     char instruction[1024];
-    SRominformation *infos;
+	char line[1024];
+	char dat_line[1024];
+	SRominformation *infos;
     FILE *out;
     int instruction_size;
     int pos_export;
     int rom_offset;
     int rom_offset_glob;
     int label_type;
-    int pos_data;
+	int pos_data;
     int sub_t;
     int double_label;
     int nbr_prg_pages;
@@ -197,6 +337,7 @@ void c_label_holder::dump_rom(void)
     int no_labels;
     int old_k;
     int old_offset;
+	int repass;
 	s_label_node *label;
 	s_label_node *navigator;
 	s_label_node *pages;
@@ -205,14 +346,15 @@ void c_label_holder::dump_rom(void)
 	{
 	    return;
 	}
-
+	
     infos = &nes->o_rom->information();
 
     pages = nes->prg_pages;
     nbr_prg_pages = 0;
+	rom_offset_glob = 0;
     if(pages)
     {
-        rom_offset_glob = pages->offset;
+        rom_offset_glob = pages->rom_offset;
         while(pages)
         {
             nbr_prg_pages++;
@@ -235,7 +377,9 @@ void c_label_holder::dump_rom(void)
 
     if(pages)
     {
-        nes->o_mapper->reset();
+		printf("Disassembling... ");
+
+		nes->o_mapper->reset();
 
         // Pass 1: fix unresolved code labels
         for(i = 0; i < (int) nbr_prg_pages; i++)
@@ -245,9 +389,14 @@ void c_label_holder::dump_rom(void)
             k = pages->address;
             while(k < pages->address + pages->size)
             {
-                label = search_label(pages->bank_lo, pages->bank_hi, k);
+                label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
                 label_type = label->type;
                 sub_t = label->sub_type;
+			if(k == 0xd085)
+			{
+				int t;
+				t=0;
+			}
 
                 switch(label_type)
                 {
@@ -256,11 +405,18 @@ void c_label_holder::dump_rom(void)
                         while(label_type == TYPE_UNK &&
                               k < pages->address + pages->size)
                         {
-                            instruction_size = _2A03_map_instruction(pages->address,
+			if(k > 0xd000)
+			{
+				int t;
+				t=0;
+			}
+							instruction_size = _2A03_map_instruction(pages->address,
                                                                      k,
                                                                      i,
                                                                      rom_offset,
-                                                                     i);
+                                                                     pages->alias,
+																	 label->alias,
+																	 sub_t);
                             if(instruction_size == -1)
                             {
                                 // restart
@@ -286,11 +442,15 @@ void c_label_holder::dump_rom(void)
                                     break;
                                 default:
                                     rom_offset += instruction_size;
-                                    label = search_label(pages->bank_lo, pages->bank_hi, k);
-                                    label_type = label->type;
-                                    sub_t = label->sub_type;
+									label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
+									label_type = label->type;
+									sub_t = label->sub_type;
                                     break;
                             }
+							if(label_type != TYPE_UNK)
+							{
+								break;
+							}
                         }
                         break;
 
@@ -329,7 +489,7 @@ void c_label_holder::dump_rom(void)
                                         nes->BankJMPList->insert_label_bank(i,
                                                           w_dat,
                                                           TYPE_DATA,
-                                                          TYPE_BYTE, 0, 0);
+                                                          TYPE_BYTE, 0, 0, pages->alias, rom_offset);
 		                            }
 		                            in_raw_word = 1;
 	                                break;
@@ -351,7 +511,7 @@ void c_label_holder::dump_rom(void)
                                 k++;
                                 rom_offset++;
                             }
-                            label = search_label(pages->bank_lo, pages->bank_hi, k);
+                            label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
                             label_type = label->type;
                             sub_t = label->sub_type;
 	                        if(in_raw_word && label_type == TYPE_UNK)
@@ -377,27 +537,35 @@ void c_label_holder::dump_rom(void)
                                 k++;
                                 rom_offset++;
                             }
-                            label = search_label(pages->bank_lo, pages->bank_hi, k);
+                            label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
                             label_type = label->type;
                             sub_t = label->sub_type;
                         }
                         break;
                 }
             }
-            pages = pages->Next;
-            if(pages) rom_offset_glob = pages->offset;
-        }
+			pages = pages->Next;
+			if(pages)
+			{
+				rom_offset_glob = pages->rom_offset;
+			}
+         }
 
+		printf("Done.\n");
+		printf("---------------------------------------------------------------------------------\n");
+		printf("Assembly files generation:\n");
 
         pages = nes->prg_pages;
-        rom_offset_glob = pages->offset;
+        rom_offset_glob = pages->rom_offset;
         
         // Create the constants file
         sprintf(inc_name, "%s_prg.inc", nes->Game_FileName);
         out = fopen(inc_name, "wb");
         if(out)
         {
-            fprintf(out, "PPU_CTRL1       =       $2000\n");
+			printf("Generating \"%s\" file... ", inc_name);
+
+			fprintf(out, "PPU_CTRL1       =       $2000\n");
             fprintf(out, "PPU_CTRL2       =       $2001\n");
             fprintf(out, "PPU_STATUS      =       $2002\n");
 
@@ -428,6 +596,11 @@ void c_label_holder::dump_rom(void)
             fprintf(out, "APU_NOISE_REG3  =       $400e\n");
             fprintf(out, "APU_NOISE_REG4  =       $400f\n");
 
+            fprintf(out, "DMC_CTRL        =       $4010\n");
+            fprintf(out, "DMC_LEV         =       $4011\n");
+            fprintf(out, "DMC_ADDR        =       $4012\n");
+            fprintf(out, "DMC_LEN         =       $4013\n");
+
             fprintf(out, "PPU_SPR_DMA     =       $4014\n");
 
             fprintf(out, "APU_CTRL        =       $4015\n");
@@ -435,124 +608,167 @@ void c_label_holder::dump_rom(void)
             fprintf(out, "NES_JOY1        =       $4016\n");
             fprintf(out, "NES_JOY2        =       $4017\n");
             fclose(out);
-        }
 
-        double_label = 0;
+			printf("Done.\n");
+		}
+
         for(i = 0; i < (int) nbr_prg_pages; i++)
         {
+			double_label = 0;
             rom_offset = rom_offset_glob;
             sprintf(bank_name, "%s_%.03d_prg.asm", nes->Game_FileName, i);
             out = fopen(bank_name, "wb");
             if(!out) break;
 
-            fprintf(out, "; Game name: %s\n", nes->Game_Name);
-            fprintf(out, "; 16k prg-rom: %d\n", infos->prg_pages);
-            fprintf(out, "; 8k chr-rom: %d\n", infos->chr_pages);
-            fprintf(out, "; Mapper: %d\n", infos->mapper);
-            fprintf(out, "; Mirroring: %d\n\n", infos->mirroring);
-            fprintf(out, "        .autoimport +\n\n");
-            fprintf(out, "        .include \"%s_prg.inc\"\n\n", nes->Game_Name);
-            // Dump the exports of this bank
+			listing.Erase();
+			printf("Generating \"%s\" bank file... ", bank_name);
 
-            int bnk_alias = pages->alias;
+			sprintf(line, "; Game name: %s\n", nes->Game_Name);
+            listing.Add(line);
+            sprintf(line, "; 16k prg-rom: %d\n", infos->prg_pages);
+            listing.Add(line);
+            sprintf(line, "; 8k chr-rom: %d\n", infos->chr_pages);
+            listing.Add(line);
+            sprintf(line, "; Mapper: %d\n", infos->mapper);
+            listing.Add(line);
+            sprintf(line, "; Mirroring: %d\n", infos->mirroring);
+            listing.Add(line);
+            sprintf(line, "; ------------------------------\n");
+            listing.Add(line);
+			sprintf(line, "; Disassembled with "APPNAME" "APPVERSION"\n");
+            listing.Add(line);
+            sprintf(line, "; ------------------------------\n\n");
+            listing.Add(line);
+            sprintf(line, "        .autoimport +\n\n");
+            listing.Add(line);
+            sprintf(line, "        .include \"%s_prg.inc\"\n\n", nes->Game_Name);
+            listing.Add(line);
+
+			// Dump the exports of this bank
 
             // Write them 8 by 8
             navigator = head;
             pos_export = 0;
+			warnings = 0;
 	        for(navigator = head; navigator;)
 	        {
-	            if(nes->o_mapper->get_bank_alias(i, navigator->contents) == i)
-	            {
-	                if(navigator->bank == bnk_alias)
-	                {
-		                if(navigator->bank >= pages->bank_lo ||
-		                   navigator->bank <= pages->bank_hi &&
-		                   navigator->sub_type != TYPE_RELCODE)
-		                {
-		                    if(navigator->sub_type == TYPE_WORD &&
-		                       navigator->jump_base_table != navigator->contents)
-		                    {
-		                        goto No_Label;
-	                        }
-		                    if(navigator->sub_type == TYPE_RAWWORD &&
-		                       navigator->jump_base_table != navigator->contents)
-		                    {
-		                        goto No_Label;
-	                        }
-	                        if((int) navigator->contents > 0x7fff &&
-	                           (int) navigator->contents <= 0xfffe)
-	                        {
-	                            if((pos_export % 8) == 0)
-	                            {
-                                    fprintf(out, "        .export Lbl_%.04x",
-                                                    navigator->contents);
-	                            }
-	                            else
-	                            {
-		                            fprintf(out, ", Lbl_%.04x",
-		                                         navigator->contents);
-	                            }
-                            }
-	                        if((pos_export % 8) == 7)
-	                        {
-                                fprintf(out, "\n");
-	                            pos_export = -1;
-	                        }
-	                        pos_export++;
+		        if(navigator->ref_bank <= pages->bank)
+		        {
+					if(navigator->alias == pages->alias &&
+						navigator->sub_type != TYPE_RELCODE &&
+						navigator->sub_type != TYPE_DEAD)
+					{
+						if(navigator->sub_type == TYPE_WORD &&
+						   navigator->jump_base_table != navigator->contents)
+						{
+							goto No_Label;
+						}
+						if(navigator->sub_type == TYPE_RAWWORD &&
+						   navigator->jump_base_table != navigator->contents)
+						{
+							goto No_Label;
+						}
+						if((int) navigator->contents > 0x7fff &&
+						   (int) navigator->contents <= 0xfffe)
+						{
+							if((pos_export % 8) == 0)
+							{
+
+								sprintf(line, "        .export ");
+								listing.Add(line);
+							}
+							else
+							{
+								sprintf(line, ", ");
+								listing.Add(line);
+							}
+							sprintf(line, "Lbl_%.02x%.04x",
+										navigator->alias, navigator->contents);
+							listing.Add(line);
+							if((pos_export % 8) == 7)
+							{
+								sprintf(line, "\n");
+								listing.Add(line);
+								pos_export = -1;
+							}
+							pos_export++;
+						}
 No_Label:;
-		                }
-                    }
-                }
-        	    navigator = navigator->Next;
+					}
+				}
+				navigator = navigator->Next;
 	        }
 	        if((pos_export % 8) != 0)
 	        {
-                fprintf(out, "\n");
+                sprintf(line, "\n");
+				listing.Add(line);
 	        }
 
-            fprintf(out, "\n        .segment \"PRG_%d\"\n", i);
+            sprintf(line, "\n        .segment \"PRG_%d\"\n", i);
+            listing.Add(line);
 
 			rom_offset = rom_offset_glob;
             // Pass 2: Disassemble the complete bank
             k = pages->address;
-            
-            while(k < pages->address + pages->size)
+            repass = -1;
+			while(k < pages->address + pages->size)
             {
-                label = search_label(pages->bank_lo, pages->bank_hi, k);
+                label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
                 label_type = label->type;
                 sub_t = label->sub_type;
+			if(k == 0xc034)
+			{
+				int t;
+				t=0;
+			}
                 pos_data = 0;
-
                 if(label_type == TYPE_DATA &&
                    sub_t == TYPE_WORD ||
                    sub_t == TYPE_RAWWORD)
                 {
-                    if(label->jump_base_table == k)
-                    {
-                        if(k == nes->o_mapper->vectors_address)
-                        {
-                            fprintf(out, "\n        .segment \"VECTORS\"\n\n");
-                            fprintf(out, "Lbl_%.04x:\n", k);
-                        }
-                        else
-                        {
-                            fprintf(out, "\nLbl_%.04x:\n", k);
-                            fprintf(out, "Lbl_%.04x=Lbl_%.04x+1\n",
-                                         k + 1,
-                                         k);
-                        }
-                    }
-                }
+					if(repass < k)
+					{
+						if(label->jump_base_table == k)
+						{
+							if(k == nes->o_mapper->vectors_address)
+							{
+								sprintf(line, "\n        .segment \"VECTORS\"\n\n");
+								listing.Add(line);
+								sprintf(line, "Lbl_%.02x%.04x:\n", label->alias, k);
+								listing.Add(line);
+							}
+							else
+							{
+								sprintf(line, "\nLbl_%.02x%.04x:\n", label->alias, k);
+								listing.Add(line);
+								sprintf(line, "Lbl_%.02x%.04x=Lbl_%.02x%.04x+1\n",
+											label->alias,
+											k + 1,
+											label->alias,
+											k);
+								listing.Add(line);
+							}
+						}
+					}
+				}
                 else
                 {
-                    if(!double_label)
-                    {
-                        fprintf(out, "\nLbl_%.04x:\n",
-                                     k);
-                    }
-                    double_label = 0;
-                }
-                    
+					if(label_type != TYPE_UNK)
+					{
+						if(!double_label)
+						{
+							if(repass < k)
+							{
+								sprintf(line, "\nLbl_%.02x%.04x:\n",
+											label->alias,
+											k);
+								listing.Add(line);
+							}
+						}
+						double_label = 0;
+					}
+				}
+            
                 switch(label_type)
                 {
                     case TYPE_CODE:
@@ -565,14 +781,34 @@ No_Label:;
                                                                      pages->bank_hi,
                                                                      rom_offset,
                                                                      instruction,
-                                                                     i);
+                                                                     pages->alias,
+																	 label->bank,
+																	 label->ref_bank,
+																	 pages->bank);
+                            if(instruction_size == 0xfffffff)
+                            {
+                                // restart
+								repass = k;
+                                k = pages->address;
+                                rom_offset = rom_offset_glob;
+                                break;
+                            }
+							if(k >= repass)
+							{
+								repass = -1;
+							}
                             if(instruction_size == 0)
                             {
-                                fprintf(out, "\n; --- WARNING: Unreachable code ! ---\n");
+                                sprintf(line, "\n; <<< WARNING: Unreachable code !n");
+								listing.Add(line);
                                 double_label = 1;
                                 break;
                             }
-                            fprintf(out, instruction);
+							if(repass < k)
+							{
+								sprintf(line, instruction);
+								listing.Add(line);
+							}
                             k += instruction_size;
                             switch(nes->o_cpu->PRGROM[rom_offset])
                             {
@@ -591,11 +827,15 @@ No_Label:;
                                     break;
                                 default:
                                     rom_offset += instruction_size;
-                                    label = search_label(pages->bank_lo, pages->bank_hi, k);
-                                    label_type = label->type;
-                                    sub_t = label->sub_type;
+									label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
+									label_type = label->type;
+									sub_t = label->sub_type;
                                     break;
                             }
+							if(label_type != TYPE_UNK)
+							{
+								break;
+							}
                         }
                         break;
 
@@ -605,6 +845,8 @@ No_Label:;
                         // Determine the size of the array of bytes to dump
                         label_type = TYPE_UNK;
                         in_raw_word = 0;
+						strcpy(line, "");
+						strcpy(dat_line, "");
                         while(label_type == TYPE_UNK && k < pages->address + pages->size)
                         {
                             switch(sub_t)
@@ -612,17 +854,29 @@ No_Label:;
                                 case TYPE_WORD:
 	                                if((pos_data % 16) == 0)
 	                                {
-                                        fprintf(out, "        .word ");
+										if(repass < k)
+										{
+											sprintf(dat_line, "        .word ");
+											strcat(line, dat_line);
+										}
                                     }
                                     w_dat = nes->o_cpu->PRGROM[rom_offset];
                                     w_dat |= nes->o_cpu->PRGROM[rom_offset + 1] << 8;
 		                            if(w_dat > 0x7fff)
 		                            {
-		                                fprintf(out, "Lbl_%.04x", w_dat);
+										if(repass < k)
+										{
+											sprintf(dat_line, "Lbl_%.02x%.04x", pages->alias, w_dat);
+											strcat(line, dat_line);
+										}
 		                            }
 		                            else
-		                            {
-		                                fprintf(out, "$%.04x", w_dat);
+									{
+										if(repass < k)
+										{
+											sprintf(dat_line, "$%.04x", w_dat);
+											strcat(line, dat_line);
+										}
 		                            }
 		                            // Re-init the line
 		                            pos_data = 15;
@@ -631,25 +885,42 @@ No_Label:;
                                 case TYPE_RAWWORD:
 	                                if((pos_data % 16) == 0)
 	                                {
-                                        fprintf(out, "        .word ");
+										if(repass < k)
+										{
+											sprintf(dat_line, "        .word ");
+											strcat(line, dat_line);
+										}
                                     }
                                     else
                                     {
                                         if(!in_raw_word)
                                         {
-                                            fprintf(out, "\n");
-                                            fprintf(out, "        .word ");
+											if(repass < k)
+											{
+												sprintf(dat_line, "\n");
+												strcat(line, dat_line);
+												sprintf(dat_line, "        .word ");
+												strcat(line, dat_line);
+											}
                                         }
                                     }
                                     w_dat = nes->o_cpu->PRGROM[rom_offset];
                                     w_dat |= nes->o_cpu->PRGROM[rom_offset + 1] << 8;
 		                            if(w_dat > 0x7fff)
 		                            {
-		                                fprintf(out, "Lbl_%.04x", w_dat);
+										if(repass < k)
+										{
+											sprintf(dat_line, "Lbl_%.02x%.04x", pages->alias, w_dat);
+											strcat(line, dat_line);
+										}
 		                            }
 		                            else
 		                            {
-		                                fprintf(out, "$%.04x", w_dat);
+										if(repass < k)
+										{
+											sprintf(dat_line, "$%.04x", w_dat);
+											strcat(line, dat_line);
+										}
 		                            }
 		                            in_raw_word = 1;
 		                            pos_data = 15;
@@ -658,23 +929,42 @@ No_Label:;
                                 default:
                                     if((pos_data % 16) == 0)
 	                                {
-                                        fprintf(out, "        .byte ");
+										if(repass < k)
+										{
+											sprintf(dat_line, "        .byte ");
+											strcat(line, dat_line);
+										}
                                     }
                                     else
                                     {
                                         if(in_raw_word)
                                         {
-                                            fprintf(out, "\n");
-                                            fprintf(out, "        .byte ");
+											if(repass < k)
+											{
+												sprintf(dat_line, "\n");
+												strcat(line, dat_line);
+												sprintf(dat_line, "        .byte ");
+												strcat(line, dat_line);
+											}
                                         }
                                     }
-		                            fprintf(out, "$%.02x", nes->o_cpu->PRGROM[rom_offset]);
+									if(repass < k)
+									{
+										sprintf(dat_line, "$%.02x", nes->o_cpu->PRGROM[rom_offset]);
+										strcat(line, dat_line);
+									}
 		                            in_raw_word = 0;
 		                            break;
 	                        }
 	                        if((pos_data % 16) == 15)
 	                        {
-                                fprintf(out, "\n");
+								if(repass < k)
+								{
+	                                sprintf(dat_line, "\n");
+									strcat(line, dat_line);
+									listing.Add(line);
+									strcpy(line, "");
+								}
 	                        }
     	                    
                             if(sub_t == TYPE_WORD || sub_t == TYPE_RAWWORD)
@@ -687,7 +977,7 @@ No_Label:;
                                 k++;
                                 rom_offset++;
                             }
-                            label = search_label(pages->bank_lo, pages->bank_hi, k);
+							label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
                             label_type = label->type;
                             sub_t = label->sub_type;
 	                        if((pos_data % 16) != 15)
@@ -695,11 +985,21 @@ No_Label:;
 	                            if(label_type != TYPE_UNK ||
 	                               k >= pages->address + pages->size)
 	                            {
-                                    fprintf(out, "\n");
+									if(repass < k)
+									{
+										sprintf(dat_line, "\n");
+										strcat(line, dat_line);
+										listing.Add(line);
+										strcpy(line, "");
+									}
 	                            }
 	                            else
 	                            {
-                                    fprintf(out, ",");
+									if(repass < k)
+									{
+										sprintf(dat_line, ",");
+										strcat(line, dat_line);
+									}
 	                            }
 	                        }
 	                        if(in_raw_word && label_type == TYPE_UNK)
@@ -708,13 +1008,27 @@ No_Label:;
 	                        }
                             pos_data++;
                         }
+						listing.Add(line);
                         break;
                 }
             }
-            
-            fclose(out);
+			for(j = 0; j < listing.Amount(); j++)
+			{
+				fprintf(out, listing.Get(j)->Content);
+			}
+
+			fclose(out);
             pages = pages->Next;
-            if(pages) rom_offset_glob = pages->offset;
+			if(pages)
+			{
+				rom_offset_glob = pages->rom_offset;
+			}
+
+			printf("Done.\n");
+			if(warnings)
+			{
+				printf("CAUTION: Source contains one or more warnings !\n");
+			}
         }
     }
 
@@ -722,86 +1036,108 @@ No_Label:;
 
     if(pages)
     {
-        rom_offset_glob = pages->offset;
+        rom_offset_glob = pages->rom_offset;
         //nes->o_ppu->decode_chr_rom();
         for(i = 0; i < nbr_chr_pages; i++)
         {
             rom_offset = rom_offset_glob;
-            sprintf(bank_name, "%s_%.03d_chr.asm", nes->Game_FileName, pages->bank_lo);
+
+			sprintf(bank_name, "%s_%.03d_chr.asm", nes->Game_FileName, pages->bank_lo);
             out = fopen(bank_name, "wb");
             if(!out) break;
             
-            fprintf(out, "; Game name: %s\n", nes->Game_Name);
+			printf("Generating \"%s\" bank file... ", bank_name);
+
+			fprintf(out, "; Game name: %s\n", nes->Game_Name);
             fprintf(out, "; 16k prg-rom: %d\n", infos->prg_pages);
             fprintf(out, "; 8k chr-rom: %d\n", infos->chr_pages);
-            fprintf(out, "; Mapper: %d\n\n", infos->mapper);
+            fprintf(out, "; Mapper: %d\n", infos->mapper);
             fprintf(out, "; Mirroring: %d\n", infos->mirroring);
-
+            fprintf(out, "; ------------------------------\n");
+			fprintf(out, "; Disassembled with "APPNAME" "APPVERSION"\n");
+            fprintf(out, "; ------------------------------\n\n");
             fprintf(out, "        .autoimport +\n\n");
-            fprintf(out, "\n        .segment \"CHR_%d\"\n", pages->bank_lo);
-            
+            fprintf(out, "\n        .segment \"CHR_%d\"\n\n", pages->bank_lo);
+
             // Dump the complete chr bank
             k = pages->address;
+			pos_data = 0;
+
+			// Determine the size of the array of bytes to dump
             while(k < pages->address + pages->size)
             {
-                pos_data = 0;
+	            if((pos_data % 16) == 0)
+	            {
+                    fprintf(out, "        .byte ");
+				}
 
-                fprintf(out, "\nLbl_%.04x:\n", k);
+		        fprintf(out, "$%.02x", nes->o_rom->ROM.read_byte(rom_offset));
 
-                // Determine the size of the array of bytes to dump
-                while(k < pages->address + pages->size)
-                {
-	                if((pos_data % 16) == 0)
-	                {
-                        fprintf(out, "        .byte ");
-					}
+				if((pos_data % 16) == 15)
+	            {
+                    fprintf(out, "\n");
+	            }
+    	        
+                k++;
+                rom_offset++;
 
-		            fprintf(out, "$%.02x", nes->o_ppu->CHRROM[rom_offset]);
-
-					if((pos_data % 16) == 15)
+	            if((pos_data % 16) != 15)
+	            {
+	                if(k >= pages->address + pages->size)
 	                {
                         fprintf(out, "\n");
 	                }
-    	            
-                    k++;
-                    rom_offset++;
-
-	                if((pos_data % 16) != 15)
+	                else
 	                {
-	                    if(k >= pages->address + pages->size)
-	                    {
-                            fprintf(out, "\n");
-	                    }
-	                    else
-	                    {
-                            fprintf(out, ",");
-	                    }
+                        fprintf(out, ",");
 	                }
-                    pos_data++;
-                }
+	            }
+                pos_data++;
             }
 
             fclose(out);
             pages = pages->Next;
-            if(pages) rom_offset_glob = pages->offset;
-        }
+            if(pages)
+			{
+				rom_offset_glob = pages->rom_offset;
+			}
+
+			printf("Done.\n");
+		}
     }
 
     // Generate the config file
     if(nbr_chr_pages || nbr_prg_pages)
     {
-        sprintf(bank_name, "%s.cfg", nes->Game_FileName);
+		printf("---------------------------------------------------------------------------------\n");
+		printf("Misc. files generation:\n");
+
+		// Generate the header file
+        sprintf(bank_name, "%s_header.bin", nes->Game_FileName);
+		printf("Dumping the ROM header as \"%s\" ... ", bank_name);
         out = fopen(bank_name, "wb");
         if(out)
         {
-            fprintf(out, "MEMORY {\n");
+			fwrite ((void *) &nes->o_rom->HEADER[0], 1, 0x10, out);
+			nes->dump_header(bank_name);
+			fclose(out);
+		}
+		printf("Done.\n");
+
+		sprintf(bank_name, "%s.cfg", nes->Game_FileName);
+        out = fopen(bank_name, "wb");
+        if(out)
+        {
+			printf("Generating \"%s\" file... ", bank_name);
+			
+			fprintf(out, "MEMORY {\n");
             pages = nes->prg_pages;
             if(nes->prg_pages)
             {
                 for(i = 0; i < nbr_prg_pages; i++)
                 {
-                    fprintf(out, "    PRG%d: start = $%.04x, size = $%.04x;\n",
-                                pages->bank_lo,
+                    fprintf(out, "    PRG_%d: start = $%.04x, size = $%.04x;\n",
+                                i,
                                 pages->address,
                                 pages->size
                                 );
@@ -816,8 +1152,8 @@ No_Label:;
             {
                 for(i = 0; i < nbr_chr_pages; i++)
                 {
-                    fprintf(out, "    CHR%d: start = $%.04x, size = $%.04x;\n",
-                                pages->bank_lo,
+                    fprintf(out, "    CHR_%d: start = $%.04x, size = $%.04x;\n",
+                                i,
                                 pages->address,
                                 pages->size
                                 );
@@ -833,10 +1169,9 @@ No_Label:;
             {
                 for(i = 0; i < nbr_prg_pages; i++)
                 {
-                    fprintf(out, "    PRG_%d: load = PRG%d, start = $%.04x;\n",
-                                pages->bank_lo,
-                                pages->bank_lo,
-                                pages->address
+                    fprintf(out, "    PRG_%d: load = PRG_%d;\n",
+                                i,
+                                i
                                 );
                     pages = pages->Next;
                 }
@@ -848,32 +1183,33 @@ No_Label:;
             {
                 for(i = 0; i < nbr_chr_pages; i++)
                 {
-                    fprintf(out, "    CHR_%d: load = CHR%d;\n",
-                                pages->bank_lo,
-                                pages->bank_lo
+                    fprintf(out, "    CHR_%d: load = CHR_%d;\n",
+                                i,
+                                //pages->address,
+                                i
                                 );
                     pages = pages->Next;
                 }
             }
             fprintf(out, "}\n");
-        }
 
-        // Generate the header file
-        sprintf(bank_name, "%s_header.bin", nes->Game_FileName);
-        nes->dump_header(bank_name);
+			printf("Done.\n");
+		}
 
-        // Generate the batch file
+		// Generate the batch file
         sprintf(bank_name, "%s.bat", nes->Game_FileName);
         out = fopen(bank_name, "wb");
         if(out)
         {
+			printf("Generating \"%s\" file... ", bank_name);
+
             fprintf(out, "@echo off\n");
             if(nes->prg_pages)
             {
                 pages = nes->prg_pages;
                 for(i = 0; i < nbr_prg_pages; i++)
                 {
-                    fprintf(out, "ca65.exe \"%s_%.03d_prg.asm\"\n", nes->Game_Name, pages->bank_lo);
+                    fprintf(out, "ca65.exe \"%s_%.03d_prg.asm\"\n", nes->Game_Name, i);
                     fprintf(out, "if errorlevel 1 goto end\n");
                     pages = pages->Next;
                 }
@@ -883,7 +1219,7 @@ No_Label:;
                 pages = nes->chr_pages;
                 for(i = 0; i < nbr_chr_pages; i++)
                 {
-                    fprintf(out, "ca65.exe \"%s_%.03d_chr.asm\"\n", nes->Game_Name, pages->bank_lo);
+                    fprintf(out, "ca65.exe \"%s_%.03d_chr.asm\"\n", nes->Game_Name, i);
                     fprintf(out, "if errorlevel 1 goto end\n");
                     pages = pages->Next;
                 }
@@ -896,7 +1232,7 @@ No_Label:;
                 pages = nes->prg_pages;
                 for(i = 0; i < nbr_prg_pages; i++)
                 {
-                    fprintf(out, " \"%s_%.03d_prg.o\"", nes->Game_Name, pages->bank_lo);
+                    fprintf(out, " \"%s_%.03d_prg.o\"", nes->Game_Name, i);
                     pages = pages->Next;
                 }
             }
@@ -905,7 +1241,7 @@ No_Label:;
                 pages = nes->chr_pages;
                 for(i = 0; i < nbr_chr_pages; i++)
                 {
-                    fprintf(out, " \"%s_%.03d_chr.o\"", nes->Game_Name, pages->bank_lo);
+                    fprintf(out, " \"%s_%.03d_chr.o\"", nes->Game_Name, i);
                     pages = pages->Next;
                 }
             }
@@ -916,14 +1252,13 @@ No_Label:;
                         nes->Game_Name,
                         nes->Game_Name
                 );
-            fprintf(out, ":end\n");
             fprintf(out, "del \"%s.prg\"\n", nes->Game_Name);
             if(nes->prg_pages)
             {
                 pages = nes->prg_pages;
                 for(i = 0; i < nbr_prg_pages; i++)
                 {
-                    fprintf(out, "del \"%s_%.03d_prg.o\"\n", nes->Game_Name, pages->bank_lo);
+                    fprintf(out, "del \"%s_%.03d_prg.o\"\n", nes->Game_Name, i);
                     pages = pages->Next;
                 }
             }
@@ -932,15 +1267,60 @@ No_Label:;
                 pages = nes->chr_pages;
                 for(i = 0; i < nbr_chr_pages; i++)
                 {
-                    fprintf(out, "del \"%s_%.03d_chr.o\"\n", nes->Game_Name, pages->bank_lo);
+                    fprintf(out, "del \"%s_%.03d_chr.o\"\n", nes->Game_Name, i);
                     pages = pages->Next;
                 }
             }
+            fprintf(out, ":end\n");
             
             fclose(out);
-        }
+
+			printf("Done.\n");
+		}
     }
 
+	if (head)
+	{
+    
+		c_tracer writer (nes->Labels_Name);
+		writer.f_write ("s", "Offset,Real,Bank,Address,Type,Access,Jump,RefBank\r\n");
+
+		s_label_node *navigator = head;
+
+		while(navigator)
+		{
+			writer.f_write ("lsnsnsnsssnsns",
+							navigator->offset,
+							",",
+							navigator->real_bank,
+							",",
+							navigator->alias,
+							",",
+							navigator->contents,
+							navigator->type == TYPE_CODE ? ",CODE" : ",DATA",
+							navigator->type == TYPE_CODE ? 
+								navigator->sub_type == TYPE_RELCODE ? ",RELC" : ",CODE" :
+									navigator->sub_type == TYPE_BYTE ? ",BYTE" : 
+										navigator->sub_type == TYPE_WORD ? ",WORD" : ",RAWW",
+							",",
+							navigator->jump_base_table,
+							",",
+							navigator->ref_bank,
+							"\n"
+						);
+
+			navigator = navigator->Next;
+		}
+		// Free the pages mapping
+		while(head)
+		{
+			navigator = head->Next;
+			delete head;
+			head = navigator;
+		}
+		
+		writer.close ();
+	}
     // Free the pages mapping
 	for(pages = nes->prg_pages; pages;)
 	{
@@ -957,14 +1337,17 @@ No_Label:;
 	}
 }
 
-void c_label_holder :: insert_label (__UINT_16 value, __UINT_8 type, __UINT_8 sub_type, int force, int base)
+void c_label_holder :: insert_label (__UINT_16 value, e_dattype type, e_dattype sub_type, int force, int base, int ref_bank)
 {
 	s_label_node *new_label;
+	__UINT_8 bank = nes->o_mapper->get_real_prg_bank_number (value);
+
+	if(ref_bank == -1) ref_bank = bank;
 
 	if (!head)
 	{
 		__NEW (head, s_label_node);
-		nes->o_mapper->create_label (head, value, type, sub_type, base);
+		nes->o_mapper->create_label (head, value, type, sub_type, base, nes->o_cpu->get_rom_offset(value), ref_bank);
 		head->Next = NULL;
 		return;
 	}
@@ -973,12 +1356,12 @@ void c_label_holder :: insert_label (__UINT_16 value, __UINT_8 type, __UINT_8 su
     s_label_node *PrevNode = head;
 
 	__BOOL is_found = FALSE;
-	__UINT_8 bank = nes->o_mapper->get_bank_number (value);
 
-	while ((NULL != navigator->Next) && !is_found)
+	while ((NULL != navigator) && !is_found)
 	{
-		if ((navigator->contents == value) &&
-			(navigator->bank == bank))
+		PrevNode = navigator;
+		if ((navigator->address == value) &&
+			(navigator->ref_bank == ref_bank))
 	    {
 	        is_found = TRUE;
 	        break;
@@ -986,51 +1369,55 @@ void c_label_holder :: insert_label (__UINT_16 value, __UINT_8 type, __UINT_8 su
 		navigator = navigator->Next;
 	}
 	
-	if ((navigator->contents == value) &&
-		(navigator->bank == bank))
+	if(is_found)
 	{
-	    if(force)
-	    {
-	        if(navigator->sub_type != TYPE_WORD &&
-	            navigator->sub_type != TYPE_RAWWORD ||
-	            type == TYPE_CODE)
-	        {
-	            navigator->type = type;
-	            navigator->bank = bank;
-	            navigator->sub_type = sub_type;
-		        navigator->offset = 0;
-		        navigator->jump_base_table = base;
-            }
-
-	        //navigator->bank = bank;
-	        //navigator->type = type;
-	        //navigator->sub_type = sub_type;
-	    }
-	    else
-	    {
-	        if(type == TYPE_CODE && navigator->type != TYPE_CODE)
-	        {
-	            // Replace the label if the new one is of CODE type
-	            // Since it must be disassembled (code have precedence).
-	            navigator->bank = bank;
-	            navigator->type = TYPE_CODE;
-	            navigator->sub_type = sub_type;
-	        }
-        }
-        return;
-    }
-
-	if (!is_found)
+		if ((navigator->contents == value) &&
+			(navigator->bank == bank))
+		{
+			if(force)
+			{
+				if(navigator->sub_type != TYPE_WORD &&
+				   navigator->sub_type != TYPE_RAWWORD ||
+				   type == TYPE_CODE)
+				{
+					navigator->type = type;
+					navigator->sub_type = sub_type;
+					navigator->jump_base_table = base;
+				}
+			}
+			else
+			{
+				if(type == TYPE_CODE && navigator->type != TYPE_CODE)
+				{
+					// Replace the label if the new one is of CODE type
+				// Since it must be disassembled (code have precedence).
+					navigator->type = TYPE_CODE;
+					navigator->sub_type = sub_type;
+				}
+			}
+			return;
+		}
+	}
+	else
 	{
 		__NEW (new_label, s_label_node);
-		nes->o_mapper->create_label (new_label, value, type, sub_type, base);
+		nes->o_mapper->create_label (new_label, value, type, sub_type, base, nes->o_cpu->get_rom_offset(value), ref_bank);
 		new_label->Next = NULL;
-		navigator->Next = new_label;
+		PrevNode->Next = new_label;
 	}
 }
 
 // Return 0 if label has been found.
-int c_label_holder :: insert_label_bank (__UINT_8 bank, __UINT_16 value, __UINT_8 type, __UINT_8 sub_type, int force, int base)
+int c_label_holder :: insert_label_bank (__UINT_8 bank,
+										 __UINT_16 value,
+										 e_dattype type,
+										 e_dattype sub_type,
+										 int force,
+										 int base,
+										 int ref_bank,
+										 int offset,
+										 int old_bank,
+										 int jmp_pos)
 {
 	s_label_node *new_label;
 
@@ -1038,25 +1425,40 @@ int c_label_holder :: insert_label_bank (__UINT_8 bank, __UINT_16 value, __UINT_
 	{
 		__NEW (head, s_label_node);
 		head->contents = value;
-        head->bank = bank;
+		head->offset = offset;
+		head->address = value;
+		head->bank = bank;
+		head->real_bank = bank;
+		head->alias = get_bank_alias(bank, value);
+        head->bank_lo = get_bank_alias(bank, value);
+        head->bank_hi = get_bank_alias(bank, value);
 		head->type = type;
 		head->sub_type = sub_type;
 		head->jump_base_table = base;
+		head->rom_offset = offset;
+		if(old_bank == -1)
+		{
+			head->ref_bank = bank;
+		}
+		else
+		{
+			head->ref_bank = old_bank;
+		}
 		head->Next = NULL;
 		return 1;
 	}
 	
 	s_label_node *navigator = head;
     s_label_node *PrevNode = head;
-    bank = nes->o_mapper->get_bank_alias(bank, value);
-    if(bank == 0xff) return(0);
 
 	__BOOL is_found = FALSE;
 
-	while ((NULL != navigator->Next) && !is_found)
+	while ((NULL != navigator) && !is_found)
 	{
+		PrevNode = navigator;
 		if ((navigator->contents == value)
-			&& (navigator->bank == bank))
+			&& (get_bank_alias(navigator->ref_bank, value) == ref_bank)
+		   )
 	    {
 	        is_found = TRUE;
 	        break;
@@ -1064,53 +1466,69 @@ int c_label_holder :: insert_label_bank (__UINT_8 bank, __UINT_16 value, __UINT_
 		navigator = navigator->Next;
 	}
 	
-	if ((navigator->contents == value) &&
-		(navigator->bank == bank))
+	if(is_found)
 	{
-        if(navigator->sub_type != TYPE_WORD ||
-           type == TYPE_CODE)
-        {
-	        if(force)
-	        {
-	            if(navigator->sub_type != TYPE_WORD &&
-	               navigator->sub_type != TYPE_RAWWORD ||
-	               type == TYPE_CODE)
-	            {
-	                navigator->type = type;
-	                navigator->bank = bank;
-	                navigator->sub_type = sub_type;
-		            navigator->offset = 0;
-		            navigator->jump_base_table = base;
-                }
-	        }
-	        else
-	        {
-	            if(type == TYPE_CODE && navigator->type != TYPE_CODE)
-	            {
-	                // Replace the label if the new one is of CODE type
-	                // Since it must be disassembled (code have precedence).
-	                navigator->type = TYPE_CODE;
-	                navigator->bank = bank;
-	                navigator->sub_type = sub_type;
-	                navigator->jump_base_table = base;
-	            }
-            }
-        }
-        return 0;
-    }
-
-	if (!is_found)
+		if ((navigator->contents == value) &&
+			(navigator->offset == offset))
+		{
+			if(navigator->sub_type != TYPE_WORD || type == TYPE_CODE)
+			{
+				if(force)
+				{
+					if(navigator->sub_type != TYPE_WORD && navigator->sub_type != TYPE_RAWWORD || type == TYPE_CODE)
+					{
+						navigator->type = type;
+						navigator->sub_type = sub_type;
+						navigator->jump_base_table = base;
+					}
+				}
+				else
+				{
+					if(type == TYPE_CODE && navigator->type != TYPE_CODE)
+					{
+						// Replace the label if the new one is of CODE type
+						// Since it must be disassembled (code have precedence).
+						navigator->type = TYPE_CODE;
+						navigator->sub_type = TYPE_CODE;
+						navigator->jump_base_table = base;
+						if(jmp_pos != -1 &&
+						   (old_bank == navigator->real_bank))
+						{
+							if(jmp_pos > value)
+								return -1;
+						}
+					}
+				}
+			}
+			return 0;
+		}
+	}
+	else
 	{
 		__NEW (new_label, s_label_node);
 
 		new_label->contents = value;
+		new_label->address = value;
+		new_label->offset = offset;
         new_label->bank = bank;
+        new_label->alias = ref_bank;
+        new_label->bank_lo = ref_bank;
+        new_label->bank_hi = ref_bank;
+		new_label->real_bank = bank;
 		new_label->type = type;
 		new_label->sub_type = sub_type;
         new_label->jump_base_table = base;
-
+		new_label->rom_offset = offset;
+		if(old_bank == -1)
+		{
+			new_label->ref_bank = bank;
+		}
+		else
+		{
+			new_label->ref_bank = old_bank;
+		}
 		new_label->Next = NULL;
-		navigator->Next = new_label;
+		PrevNode->Next = new_label;
         return 1;
 	}
     return 0;

@@ -191,8 +191,8 @@ void __al_linux_restore_text_mode (void);
 int __al_linux_init_vtswitch (void);
 int __al_linux_done_vtswitch (void);
 
-void __al_linux_acquire_bitmap (BITMAP *bmp);
-void __al_linux_release_bitmap (BITMAP *bmp);
+void __al_linux_acquire_bitmap (BITMAP_ *bmp);
+void __al_linux_release_bitmap (BITMAP_ *bmp);
 
 int __al_linux_set_display_switch_mode (int mode);
 void __al_linux_display_switch_lock (int lock, int foreground);
@@ -210,7 +210,7 @@ typedef struct GFX_MODE_INFO {
 	void *data;  /* data for driver's use in setting the mode */
 } GFX_MODE_INFO;
 
-BITMAP *__al_linux_gfx_mode_set_helper (
+BITMAP_ *__al_linux_gfx_mode_set_helper (
 	int w, int h, int v_w, int v_h, int c,
 	GFX_DRIVER *driver, GFX_MODE_INFO *mode,
 	int (*set_video_mode) (GFX_MODE_INFO *mode),

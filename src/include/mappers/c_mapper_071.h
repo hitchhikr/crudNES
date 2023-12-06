@@ -35,6 +35,23 @@ class c_mapper_071 : public c_mapper
 
 		void reset (void);
 		void write_byte (__UINT_16, __UINT_8);
+
+		__UINT_8 get_prg_bank_number (__UINT_16 address)
+		{
+			if (address < 0xc000)
+			{
+				return last_page_switched_8000;
+			}
+			else
+			{
+				return last_page_switched;
+			}
+		}
+
+private:
+		int last_page_switched_8000;
+		int last_prg_page;
+
 };
 
 #endif

@@ -81,7 +81,16 @@ c_nes_cpu :: c_nes_cpu (void)
 	PRGROM.resize (nes->o_rom->information ().prg_pages * _16K_);
 	nes->o_rom->transfer_block (&PRGROM [0], 0x10, nes->o_rom->information ().prg_pages * _16K_);
 
-	memset (pages, 0x00, 8);
+	memset (pages, 0x00, sizeof(pages));
+
+	nes->o_rom->HEADER.resize (0x10);
+	nes->o_rom->ROM.resize ((nes->o_rom->information ().prg_pages * _16K_) +
+							(nes->o_rom->information ().chr_pages * _8K_));
+	nes->o_rom->load_ROM(nes->o_rom->info.filename, 0,
+						(__UINT_32) &nes->o_rom->HEADER[0],
+						(__UINT_32) &nes->o_rom->ROM[0],
+						(nes->o_rom->information ().prg_pages * _16K_) +
+						(nes->o_rom->information ().chr_pages * _8K_));
 
 	audio_stream = NULL;
 	load_config ();
@@ -128,14 +137,6 @@ void c_nes_cpu :: reset (void)
 /** Frame limiter stuff.                                                    **/
 /******************************************************************************/
 
-volatile __BOOL can_emulate_new_frame;
-
-void alleg_speed_throtle (void)
-{
-	can_emulate_new_frame = TRUE;
-}
-END_OF_FUNCTION (alleg_speed_throtle);
-
 __INT_32 c_nes_cpu :: earliest_event_before (__INT_32 iEndTime)
 {
 	if (!_2A03_get_interrupt_flag ())
@@ -172,14 +173,6 @@ void c_nes_cpu :: run_cycles (__INT_32 cycles)
 
 void c_nes_cpu :: run_accurate (void)
 {
-	can_emulate_new_frame = FALSE;
-	LOCK_VARIABLE(iThrotle); 
-	LOCK_FUNCTION(alleg_speed_throtle); 
-	install_int_ex(alleg_speed_throtle, BPS_TO_TIMER(frame_rate)); 
-
-	//Waste half a second here... Beautiful.
-	//rest (500);
-
 	if(audio_stream) voice_start (audio_stream->voice);
 
     nes->o_mapper->set_vectors();
@@ -197,7 +190,7 @@ void c_nes_cpu :: run_accurate (void)
 		}
 
 		//Scanline #0
-		//if (is_tracer_on ()) nes->general_log.f_write ("s", "--------------------------------- PROCESSING *__NEW FRAME* -----------------------------------\r\n");
+		if (is_logtracer_on ()) nes->general_log.f_write ("s", "--------------------------------- PROCESSING *__NEW FRAME* -----------------------------------\r\n");
 
 		//New frame. Adjust a few flags.
 		nes->o_gfx->lock_buffer ();
@@ -209,7 +202,7 @@ void c_nes_cpu :: run_accurate (void)
 				nes->o_ppu->information ().scanline ++)
 		{
 			//Clear the current Scanline if background rendering is disabled.
-			//if (is_tracer_on ()) nes->general_log.f_write ("sds", "---------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------\r\n");				
+			if (is_logtracer_on ()) nes->general_log.f_write ("sds", "---------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------\r\n");				
 
 			nes->o_ppu->run_accurate ();
 
@@ -217,7 +210,7 @@ void c_nes_cpu :: run_accurate (void)
 		}
 
 		//Scanline #240
-		//if (is_tracer_on ()) nes->general_log.f_write ("sds", "--------------------------------- PROCESSING *HBLANK* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+		if (is_logtracer_on ()) nes->general_log.f_write ("sds", "--------------------------------- PROCESSING *HBLANK* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
 		run_cycles (260);
 		nes->o_mapper->h_blank ();
 		run_cycles (81);
@@ -227,7 +220,7 @@ void c_nes_cpu :: run_accurate (void)
 		nes->o_ppu->information ().scanline++;
 
 		//Scanline #241 - VBlank
-		//if (is_tracer_on ()) nes->general_log.f_write ("s", "----------------------------------- PROCESSING *VBLANK* ------------------------------------\r\n");
+		if (is_logtracer_on ()) nes->general_log.f_write ("s", "----------------------------------- PROCESSING *VBLANK* ------------------------------------\r\n");
 		nes->o_ppu->information ().is_v_blank = TRUE;
 
 		//TODO: Should there be a delay here? In theory, no.
@@ -245,16 +238,16 @@ void c_nes_cpu :: run_accurate (void)
 		//Scanlines #242-262
 		for (nes->o_ppu->information ().scanline = 242;
 			 nes->o_ppu->information ().scanline < last_line;
-				nes->o_ppu->information ().scanline ++)
+			 nes->o_ppu->information ().scanline ++)
 		{
-			//if (is_tracer_on ()) nes->general_log.f_write ("sds", "------------------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+			if (is_logtracer_on ()) nes->general_log.f_write ("sds", "------------------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
 			run_cycles (341);
 			nes->o_mapper->h_blank ();
 
 			apu_catch_up ();
 		}
 
-		//if (is_tracer_on ()) nes->general_log.f_write ("sds", "------------------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+		if (is_logtracer_on ()) nes->general_log.f_write ("sds", "------------------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
 		nes->o_ppu->end_frame ();
 		run_cycles (260);
 		nes->o_mapper->h_blank ();
@@ -274,7 +267,7 @@ void c_nes_cpu :: run_accurate (void)
 		//handle input
 	}	
 
-	if (limit_frame_rate && audio_stream) voice_stop (audio_stream->voice);
+	if (audio_stream) voice_stop (audio_stream->voice);
 }
 
 void c_nes_cpu :: output_video_sound (void)
@@ -286,7 +279,7 @@ void c_nes_cpu :: output_video_sound (void)
 	{
 		blip_sample_t * sound_buffer = NULL;
 
-		if (sound_enabled && limit_frame_rate)
+		if (sound_enabled)
 		{
 			do
 			{
@@ -297,32 +290,18 @@ void c_nes_cpu :: output_video_sound (void)
 			nes->o_blip.read_samples (sound_buffer, (sampling_rate / frame_rate) * 5, FALSE);
 			free_audio_stream_buffer (audio_stream);
 		} else
-		nes->o_blip.remove_samples ((sampling_rate / frame_rate) * 5);
+			nes->o_blip.remove_samples ((sampling_rate / frame_rate) * 5);
 //		skip_sync = TRUE;
 	}
-//	if (sound_enabled && limit_frame_rate)
+//	if (sound_enabled)
   //  {
     //    get_audio_stream_buffer (audio_stream);
 //        skip_sync = TRUE;
 	//}
 
-	//Crappy frame limiter... Does the job though.
-	if (!nes->o_gfx->is_v_sync_enabled () && limit_frame_rate)
-	{
-		while (!can_emulate_new_frame)
-		{
-			if (sound_enabled) { if (get_audio_stream_buffer (audio_stream)) break; }
-			rest (10); //Just kill some time.
-		}
-		can_emulate_new_frame = FALSE;
-	}
-
 	//Graphics
-	if (!skip_sync && nes->o_gfx->is_v_sync_enabled ()) 
-	{
-	    vsync ();
-    }
 	nes->o_gfx->draw_frame ();
+	vsync ();
 }
 
 void c_nes_cpu :: swap_page (__UINT_16 dest_where, __UINT_16 page_number, e_page_sizes size)
@@ -426,7 +405,6 @@ void c_nes_cpu :: load_config (void)
     bits_per_sample = 0;
 	set_label_holder(1);
 	set_instruction_dumper(1);
-	limit_frame_rate = 1;
 
 	switch (sampling_rate)
 	{
@@ -460,7 +438,7 @@ void c_nes_cpu :: load_config (void)
 
 	sound_enabled = TRUE;
 
-	if (sound_enabled && limit_frame_rate)
+	if (sound_enabled)
 	{
 		audio_stream = play_audio_stream ((sampling_rate / frame_rate) * 5, bits_per_sample, 0, sampling_rate, 255, 127);
 		voice_start (audio_stream->voice);

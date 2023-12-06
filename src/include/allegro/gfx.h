@@ -72,22 +72,22 @@ typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
    AL_CONST char *name;
    AL_CONST char *desc;
    AL_CONST char *ascii_name;
-   AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
-   AL_METHOD(void, exit, (struct BITMAP *b));
+   AL_METHOD(struct BITMAP_ *, init, (int w, int h, int v_w, int v_h, int color_depth));
+   AL_METHOD(void, exit, (struct BITMAP_ *b));
    AL_METHOD(int, scroll, (int x, int y));
    AL_METHOD(void, vsync, (void));
    AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync));
    AL_METHOD(int, request_scroll, (int x, int y));
    AL_METHOD(int, poll_scroll, (void));
    AL_METHOD(void, enable_triple_buffer, (void));
-   AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height));
-   AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap));
-   AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap));
-   AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
-   AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height));
-   AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap));
-   AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
-   AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y));
+   AL_METHOD(struct BITMAP_ *, create_video_bitmap, (int width, int height));
+   AL_METHOD(void, destroy_video_bitmap, (struct BITMAP_ *bitmap));
+   AL_METHOD(int, show_video_bitmap, (struct BITMAP_ *bitmap));
+   AL_METHOD(int, request_video_bitmap, (struct BITMAP_ *bitmap));
+   AL_METHOD(struct BITMAP_ *, create_system_bitmap, (int width, int height));
+   AL_METHOD(void, destroy_system_bitmap, (struct BITMAP_ *bitmap));
+   AL_METHOD(int, set_mouse_sprite, (struct BITMAP_ *sprite, int xfocus, int yfocus));
+   AL_METHOD(int, show_mouse, (struct BITMAP_ *bmp, int x, int y));
    AL_METHOD(void, hide_mouse, (void));
    AL_METHOD(void, move_mouse, (int x, int y));
    AL_METHOD(void, drawing_mode, (void));
@@ -156,64 +156,64 @@ typedef struct GFX_VTABLE        /* functions for drawing onto bitmaps */
    int color_depth;
    int mask_color;
    void *unwrite_bank;  /* C function on some machines, asm on i386 */
-   AL_METHOD(void, set_clip, (struct BITMAP *bmp));
-   AL_METHOD(void, acquire, (struct BITMAP *bmp));
-   AL_METHOD(void, release, (struct BITMAP *bmp));
-   AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height));
-   AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent));
-   AL_METHOD(int,  getpixel, (struct BITMAP *bmp, int x, int y));
-   AL_METHOD(void, putpixel, (struct BITMAP *bmp, int x, int y, int color));
-   AL_METHOD(void, vline, (struct BITMAP *bmp, int x, int y_1, int y2, int color));
-   AL_METHOD(void, hline, (struct BITMAP *bmp, int x1, int y, int x2, int color));
-   AL_METHOD(void, hfill, (struct BITMAP *bmp, int x1, int y, int x2, int color));
-   AL_METHOD(void, line, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
-   AL_METHOD(void, fastline, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
-   AL_METHOD(void, rectfill, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
-   AL_METHOD(void, triangle, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color));
-   AL_METHOD(void, draw_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
-   AL_METHOD(void, draw_256_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
-   AL_METHOD(void, draw_sprite_v_flip, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
-   AL_METHOD(void, draw_sprite_h_flip, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
-   AL_METHOD(void, draw_sprite_vh_flip, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
-   AL_METHOD(void, draw_trans_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
-   AL_METHOD(void, draw_trans_rgba_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
-   AL_METHOD(void, draw_lit_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int color));
-   AL_METHOD(void, draw_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
-   AL_METHOD(void, draw_trans_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
-   AL_METHOD(void, draw_trans_rgba_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
-   AL_METHOD(void, draw_lit_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y, int color));
-   AL_METHOD(void, draw_character, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int color, int bg));
-   AL_METHOD(void, draw_glyph, (struct BITMAP *bmp, AL_CONST struct FONT_GLYPH *glyph, int x, int y, int color, int bg));
-   AL_METHOD(void, blit_from_memory, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, blit_to_memory, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, blit_from_system, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, blit_to_system, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, blit_to_self, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, blit_to_self_forward, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, blit_to_self_backward, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, blit_between_formats, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, masked_blit, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
-   AL_METHOD(void, clear_to_color, (struct BITMAP *bitmap, int color));
-   AL_METHOD(void, pivot_scaled_sprite_flip, (struct BITMAP *bmp, struct BITMAP *sprite, fixed x, fixed y, fixed cx, fixed cy, fixed angle, fixed scale, int v_flip));
-   AL_METHOD(void, do_stretch_blit, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked));
-   AL_METHOD(void, draw_gouraud_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4));
+   AL_METHOD(void, set_clip, (struct BITMAP_ *bmp));
+   AL_METHOD(void, acquire, (struct BITMAP_ *bmp));
+   AL_METHOD(void, release, (struct BITMAP_ *bmp));
+   AL_METHOD(struct BITMAP_ *, create_sub_bitmap, (struct BITMAP_ *parent, int x, int y, int width, int height));
+   AL_METHOD(void, created_sub_bitmap, (struct BITMAP_ *bmp, struct BITMAP_ *parent));
+   AL_METHOD(int,  getpixel, (struct BITMAP_ *bmp, int x, int y));
+   AL_METHOD(void, putpixel, (struct BITMAP_ *bmp, int x, int y, int color));
+   AL_METHOD(void, vline, (struct BITMAP_ *bmp, int x, int y_1, int y2, int color));
+   AL_METHOD(void, hline, (struct BITMAP_ *bmp, int x1, int y, int x2, int color));
+   AL_METHOD(void, hfill, (struct BITMAP_ *bmp, int x1, int y, int x2, int color));
+   AL_METHOD(void, line, (struct BITMAP_ *bmp, int x1, int y_1, int x2, int y2, int color));
+   AL_METHOD(void, fastline, (struct BITMAP_ *bmp, int x1, int y_1, int x2, int y2, int color));
+   AL_METHOD(void, rectfill, (struct BITMAP_ *bmp, int x1, int y_1, int x2, int y2, int color));
+   AL_METHOD(void, triangle, (struct BITMAP_ *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color));
+   AL_METHOD(void, draw_sprite, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y));
+   AL_METHOD(void, draw_256_sprite, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y));
+   AL_METHOD(void, draw_sprite_v_flip, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y));
+   AL_METHOD(void, draw_sprite_h_flip, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y));
+   AL_METHOD(void, draw_sprite_vh_flip, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y));
+   AL_METHOD(void, draw_trans_sprite, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y));
+   AL_METHOD(void, draw_trans_rgba_sprite, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y));
+   AL_METHOD(void, draw_lit_sprite, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y, int color));
+   AL_METHOD(void, draw_rle_sprite, (struct BITMAP_ *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
+   AL_METHOD(void, draw_trans_rle_sprite, (struct BITMAP_ *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
+   AL_METHOD(void, draw_trans_rgba_rle_sprite, (struct BITMAP_ *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y));
+   AL_METHOD(void, draw_lit_rle_sprite, (struct BITMAP_ *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y, int color));
+   AL_METHOD(void, draw_character, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y, int color, int bg));
+   AL_METHOD(void, draw_glyph, (struct BITMAP_ *bmp, AL_CONST struct FONT_GLYPH *glyph, int x, int y, int color, int bg));
+   AL_METHOD(void, blit_from_memory, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, blit_to_memory, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, blit_from_system, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, blit_to_system, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, blit_to_self, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, blit_to_self_forward, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, blit_to_self_backward, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, blit_between_formats, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, masked_blit, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, clear_to_color, (struct BITMAP_ *bitmap, int color));
+   AL_METHOD(void, pivot_scaled_sprite_flip, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, fixed x, fixed y, fixed cx, fixed cy, fixed angle, fixed scale, int v_flip));
+   AL_METHOD(void, do_stretch_blit, (struct BITMAP_ *source, struct BITMAP_ *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked));
+   AL_METHOD(void, draw_gouraud_sprite, (struct BITMAP_ *bmp, struct BITMAP_ *sprite, int x, int y, int c1, int c2, int c3, int c4));
    AL_METHOD(void, draw_sprite_end, (void));
    AL_METHOD(void, blit_end, (void));
-   AL_METHOD(void, polygon, (struct BITMAP *bmp, int vertices, AL_CONST int *points, int color));
-   AL_METHOD(void, rect, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
-   AL_METHOD(void, circle, (struct BITMAP *bmp, int x, int y, int radius, int color));
-   AL_METHOD(void, circlefill, (struct BITMAP *bmp, int x, int y, int radius, int color));
-   AL_METHOD(void, ellipse, (struct BITMAP *bmp, int x, int y, int rx, int ry, int color));
-   AL_METHOD(void, ellipsefill, (struct BITMAP *bmp, int x, int y, int rx, int ry, int color));
-   AL_METHOD(void, arc, (struct BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int color));
-   AL_METHOD(void, spline, (struct BITMAP *bmp, AL_CONST int points[8], int color));
-   AL_METHOD(void, floodfill, (struct BITMAP *bmp, int x, int y, int color));
-   AL_METHOD(void, polygon3d, (struct BITMAP *bmp, int type, struct BITMAP *texture, int vc, V3D *vtx[]));
-   AL_METHOD(void, polygon3d_f, (struct BITMAP *bmp, int type, struct BITMAP *texture, int vc, V3D_f *vtx[]));
-   AL_METHOD(void, triangle3d, (struct BITMAP *bmp, int type, struct BITMAP *texture, V3D *v1, V3D *v2, V3D *v3));
-   AL_METHOD(void, triangle3d_f, (struct BITMAP *bmp, int type, struct BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3));
-   AL_METHOD(void, quad3d, (struct BITMAP *bmp, int type, struct BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4));
-   AL_METHOD(void, quad3d_f, (struct BITMAP *bmp, int type, struct BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4));
+   AL_METHOD(void, polygon, (struct BITMAP_ *bmp, int vertices, AL_CONST int *points, int color));
+   AL_METHOD(void, rect, (struct BITMAP_ *bmp, int x1, int y_1, int x2, int y2, int color));
+   AL_METHOD(void, circle, (struct BITMAP_ *bmp, int x, int y, int radius, int color));
+   AL_METHOD(void, circlefill, (struct BITMAP_ *bmp, int x, int y, int radius, int color));
+   AL_METHOD(void, ellipse, (struct BITMAP_ *bmp, int x, int y, int rx, int ry, int color));
+   AL_METHOD(void, ellipsefill, (struct BITMAP_ *bmp, int x, int y, int rx, int ry, int color));
+   AL_METHOD(void, arc, (struct BITMAP_ *bmp, int x, int y, fixed ang1, fixed ang2, int r, int color));
+   AL_METHOD(void, spline, (struct BITMAP_ *bmp, AL_CONST int points[8], int color));
+   AL_METHOD(void, floodfill, (struct BITMAP_ *bmp, int x, int y, int color));
+   AL_METHOD(void, polygon3d, (struct BITMAP_ *bmp, int type, struct BITMAP_ *texture, int vc, V3D *vtx[]));
+   AL_METHOD(void, polygon3d_f, (struct BITMAP_ *bmp, int type, struct BITMAP_ *texture, int vc, V3D_f *vtx[]));
+   AL_METHOD(void, triangle3d, (struct BITMAP_ *bmp, int type, struct BITMAP_ *texture, V3D *v1, V3D *v2, V3D *v3));
+   AL_METHOD(void, triangle3d_f, (struct BITMAP_ *bmp, int type, struct BITMAP_ *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3));
+   AL_METHOD(void, quad3d, (struct BITMAP_ *bmp, int type, struct BITMAP_ *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4));
+   AL_METHOD(void, quad3d_f, (struct BITMAP_ *bmp, int type, struct BITMAP_ *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4));
 } GFX_VTABLE;
 
 
@@ -258,7 +258,7 @@ AL_ARRAY(_VTABLE_INFO, _vtable_list);
    {  32,   &__linear_vtable32   },
 
 
-typedef struct BITMAP            /* a bitmap structure */
+typedef struct BITMAP_            /* a bitmap structure */
 {
    int w, h;                     /* width and height in pixels */
    int clip;                     /* flag if clipping is turned on */
@@ -273,7 +273,7 @@ typedef struct BITMAP            /* a bitmap structure */
    int y_ofs;                    /* vertical offset (for sub-bitmaps) */
    int seg;                      /* bitmap segment */
    ZERO_SIZE_ARRAY(unsigned char *, line);
-} BITMAP;
+} BITMAP_;
 
 
 #define BMP_ID_VIDEO       0x80000000
@@ -286,7 +286,7 @@ typedef struct BITMAP            /* a bitmap structure */
 #define BMP_ID_MASK        0x01FFFFFF
 
 
-AL_VAR(BITMAP *, screen);
+AL_VAR(BITMAP_ *, screen);
 
 #define SCREEN_W     (gfx_driver ? gfx_driver->w : 0)
 #define SCREEN_H     (gfx_driver ? gfx_driver->h : 0)
@@ -400,18 +400,18 @@ AL_FUNC(int, set_gfx_mode, (int card, int w, int h, int v_w, int v_h));
 AL_FUNC(int, scroll_screen, (int x, int y));
 AL_FUNC(int, request_scroll, (int x, int y));
 AL_FUNC(int, poll_scroll, (void));
-AL_FUNC(int, show_video_bitmap, (BITMAP *bitmap));
-AL_FUNC(int, request_video_bitmap, (BITMAP *bitmap));
+AL_FUNC(int, show_video_bitmap, (BITMAP_ *bitmap));
+AL_FUNC(int, request_video_bitmap, (BITMAP_ *bitmap));
 AL_FUNC(int, enable_triple_buffer, (void));
-AL_FUNC(BITMAP *, create_bitmap, (int width, int height));
-AL_FUNC(BITMAP *, create_bitmap_ex, (int color_depth, int width, int height));
-AL_FUNC(BITMAP *, create_sub_bitmap, (BITMAP *parent, int x, int y, int width, int height));
-AL_FUNC(BITMAP *, create_video_bitmap, (int width, int height));
-AL_FUNC(BITMAP *, create_system_bitmap, (int width, int height));
-AL_FUNC(void, destroy_bitmap, (BITMAP *bitmap));
-AL_FUNC(void, set_clip_rect, (BITMAP *bitmap, int x1, int y_1, int x2, int y2));
-AL_FUNC(void, add_clip_rect, (BITMAP *bitmap, int x1, int y_1, int x2, int y2));
-AL_FUNC(void, clear_bitmap, (BITMAP *bitmap));
+AL_FUNC(BITMAP_ *, create_bitmap, (int width, int height));
+AL_FUNC(BITMAP_ *, create_bitmap_ex, (int color_depth, int width, int height));
+AL_FUNC(BITMAP_ *, create_sub_bitmap, (BITMAP_ *parent, int x, int y, int width, int height));
+AL_FUNC(BITMAP_ *, create_video_bitmap, (int width, int height));
+AL_FUNC(BITMAP_ *, create_system_bitmap, (int width, int height));
+AL_FUNC(void, destroy_bitmap, (BITMAP_ *bitmap));
+AL_FUNC(void, set_clip_rect, (BITMAP_ *bitmap, int x1, int y_1, int x2, int y2));
+AL_FUNC(void, add_clip_rect, (BITMAP_ *bitmap, int x1, int y_1, int x2, int y2));
+AL_FUNC(void, clear_bitmap, (BITMAP_ *bitmap));
 AL_FUNC(void, vsync, (void));
 
 
@@ -430,7 +430,7 @@ AL_FUNC(int, get_display_switch_mode, (void));
 AL_FUNC(int, set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void))));
 AL_FUNC(void, remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
 
-AL_FUNC(void, lock_bitmap, (struct BITMAP *bmp));
+AL_FUNC(void, lock_bitmap, (struct BITMAP_ *bmp));
 
 #ifdef __cplusplus
    }

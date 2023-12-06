@@ -25,7 +25,7 @@
    extern "C" {
 #endif
 
-struct BITMAP;
+struct BITMAP_;
 struct DIALOG;
 
 typedef AL_METHOD(int, DIALOG_PROC, (int msg, struct DIALOG *d, int c));
@@ -78,7 +78,7 @@ typedef struct MENU_PLAYER
    int sel;                         /* selected item */
    int x, y, w, h;                  /* screen position of the menu */
    int (*proc)(void);               /* callback function */
-   BITMAP *saved;                   /* saved what was underneath it */
+   BITMAP_ *saved;                   /* saved what was underneath it */
    
    int mouse_button_was_pressed;    /* set if mouse button pressed on last iteration */
    int back_from_child;             /* set if a child was activated on last iteration */    
@@ -193,9 +193,9 @@ AL_FUNCPTR(int, gui_mouse_y, (void));
 AL_FUNCPTR(int, gui_mouse_z, (void));
 AL_FUNCPTR(int, gui_mouse_b, (void));
 
-AL_FUNC(void, gui_set_screen, (BITMAP *bmp));
-AL_FUNC(BITMAP *, gui_get_screen, (void));
-AL_FUNC(int, gui_textout_ex, (struct BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int bg, int centre));
+AL_FUNC(void, gui_set_screen, (BITMAP_ *bmp));
+AL_FUNC(BITMAP_ *, gui_get_screen, (void));
+AL_FUNC(int, gui_textout_ex, (struct BITMAP_ *bmp, AL_CONST char *s, int x, int y, int color, int bg, int centre));
 AL_FUNC(int, gui_strlen, (AL_CONST char *s));
 AL_FUNC(void, position_dialog, (DIALOG *dialog, int x, int y));
 AL_FUNC(void, centre_dialog, (DIALOG *dialog));

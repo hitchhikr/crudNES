@@ -45,35 +45,35 @@ AL_INLINE(int, _default_ds, (void),
     * (for which ALLEGRO_NO_ASM is not defined) with Borland C++ compiled programs for
     * which ALLEGRO_NO_ASM is defined. As a result, Borland C++ compiled programs can't
     * use the inlined version of bmp_write_line(), bmp_read_line() and bmp_unwrite_line()
-    * because the write_bank() and read_bank() methods of the BITMAP class don't expect
+    * because the write_bank() and read_bank() methods of the BITMAP_ class don't expect
     * the same calling convention on both sides.
     */
 
-AL_FUNC(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne));
-AL_FUNC(uintptr_t, bmp_read_line, (BITMAP *bmp, int lyne));
-AL_FUNC(void, bmp_unwrite_line, (BITMAP *bmp));
+AL_FUNC(uintptr_t, bmp_write_line, (BITMAP_ *bmp, int lyne));
+AL_FUNC(uintptr_t, bmp_read_line, (BITMAP_ *bmp, int lyne));
+AL_FUNC(void, bmp_unwrite_line, (BITMAP_ *bmp));
 
 #else
 
-typedef AL_METHOD(uintptr_t, _BMP_BANK_SWITCHER, (BITMAP *bmp, int lyne));
-typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP *bmp));
+typedef AL_METHOD(uintptr_t, _BMP_BANK_SWITCHER, (BITMAP_ *bmp, int lyne));
+typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP_ *bmp));
 
 
-AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne),
+AL_INLINE(uintptr_t, bmp_write_line, (BITMAP_ *bmp, int lyne),
 {
    _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->write_bank;
    return switcher(bmp, lyne);
 })
 
 
-AL_INLINE(uintptr_t, bmp_read_line, (BITMAP *bmp, int lyne),
+AL_INLINE(uintptr_t, bmp_read_line, (BITMAP_ *bmp, int lyne),
 {
    _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->read_bank;
    return switcher(bmp, lyne);
 })
 
 
-AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
+AL_INLINE(void, bmp_unwrite_line, (BITMAP_ *bmp),
 {
    _BMP_UNBANK_SWITCHER switcher = (_BMP_UNBANK_SWITCHER)bmp->vtable->unwrite_bank;
    switcher(bmp);
@@ -93,7 +93,7 @@ AL_INLINE(int, is_windowed_mode, (void),
 
 
 
-AL_INLINE(void, clear_to_color, (BITMAP *bitmap, int color),
+AL_INLINE(void, clear_to_color, (BITMAP_ *bitmap, int color),
 {
    ASSERT(bitmap);
 
@@ -101,7 +101,7 @@ AL_INLINE(void, clear_to_color, (BITMAP *bitmap, int color),
 })
 
 
-AL_INLINE(int, bitmap_color_depth, (BITMAP *bmp),
+AL_INLINE(int, bitmap_color_depth, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -109,7 +109,7 @@ AL_INLINE(int, bitmap_color_depth, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, bitmap_mask_color, (BITMAP *bmp),
+AL_INLINE(int, bitmap_mask_color, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -117,7 +117,7 @@ AL_INLINE(int, bitmap_mask_color, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_same_bitmap, (BITMAP *bmp1, BITMAP *bmp2),
+AL_INLINE(int, is_same_bitmap, (BITMAP_ *bmp1, BITMAP_ *bmp2),
 {
    unsigned long m1;
    unsigned long m2;
@@ -135,7 +135,7 @@ AL_INLINE(int, is_same_bitmap, (BITMAP *bmp1, BITMAP *bmp2),
 })
 
 
-AL_INLINE(int, is_linear_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_linear_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -143,7 +143,7 @@ AL_INLINE(int, is_linear_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_planar_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_planar_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -151,7 +151,7 @@ AL_INLINE(int, is_planar_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_memory_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_memory_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -159,7 +159,7 @@ AL_INLINE(int, is_memory_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_screen_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_screen_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -167,7 +167,7 @@ AL_INLINE(int, is_screen_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_video_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_video_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -175,7 +175,7 @@ AL_INLINE(int, is_video_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_system_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_system_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -183,7 +183,7 @@ AL_INLINE(int, is_system_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_sub_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_sub_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -200,7 +200,7 @@ AL_INLINE(int, is_sub_bitmap, (BITMAP *bmp),
 
 #else
 
-AL_INLINE(void, acquire_bitmap, (BITMAP *bmp),
+AL_INLINE(void, acquire_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -209,7 +209,7 @@ AL_INLINE(void, acquire_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(void, release_bitmap, (BITMAP *bmp),
+AL_INLINE(void, release_bitmap, (BITMAP_ *bmp),
 {
    ASSERT(bmp);
 
@@ -232,7 +232,7 @@ AL_INLINE(void, release_screen, (void),
 #endif
 
 
-AL_INLINE(int, is_inside_bitmap, (BITMAP *bmp, int x, int y, int clip),
+AL_INLINE(int, is_inside_bitmap, (BITMAP_ *bmp, int x, int y, int clip),
 {
    ASSERT(bmp);
 
@@ -249,7 +249,7 @@ AL_INLINE(int, is_inside_bitmap, (BITMAP *bmp, int x, int y, int clip),
 })
 
 
-AL_INLINE(void, get_clip_rect, (BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2),
+AL_INLINE(void, get_clip_rect, (BITMAP_ *bitmap, int *x1, int *y_1, int *x2, int *y2),
 {
    ASSERT(bitmap);
 
@@ -260,14 +260,14 @@ AL_INLINE(void, get_clip_rect, (BITMAP *bitmap, int *x1, int *y_1, int *x2, int 
    *y2 = bitmap->cb-1;
 })
 
-AL_INLINE(void, set_clip_state, (BITMAP *bitmap, int state),
+AL_INLINE(void, set_clip_state, (BITMAP_ *bitmap, int state),
 {
    ASSERT(bitmap);
 
    bitmap->clip = state;
 })
 
-AL_INLINE(int, get_clip_state, (BITMAP *bitmap),
+AL_INLINE(int, get_clip_state, (BITMAP_ *bitmap),
 {
    ASSERT(bitmap);
 

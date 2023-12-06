@@ -130,7 +130,7 @@
 extern __UINT_16 nes_palette [512];
 extern __UINT_16 mirroring_modes [][4];
 
-enum e_registers { CTL_1 = 0, CTL_2 = 1, STAT = 2, SPR = 4 };	
+enum e_registers { CTL_1 = 0, CTL_2 = 1, STAT = 2, SPRMEM = 3, SPR = 4, SCROLL = 5, MEM = 6 };	
 
 enum e_event_list { POC = 0 };
 

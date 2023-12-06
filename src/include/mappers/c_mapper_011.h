@@ -24,13 +24,19 @@
 
 #include "c_mapper.h"
 
-class c_mapper_011 : public c_mapper {
-
+class c_mapper_011 : public c_mapper
+{
 	public:
+		c_mapper_011 (void);
+		~c_mapper_011 (void);
+
+		__UINT_8 get_bank_number (__UINT_16 address)
+		{
+			return get_last_page_switched ();
+		}
 
 		void reset (void);
 		void write_byte (__UINT_16, __UINT_8);
-
 };
 
 #endif

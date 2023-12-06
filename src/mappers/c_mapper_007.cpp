@@ -49,13 +49,13 @@ c_mapper_007 :: c_mapper_007 (void)
     // All 32k pages start at 0x8000
     // No chr pages
     s_label_node *pages = NULL;
-    pages = pages->Create(pages, 0x8000, _32K_, start, 0, 0, 0);
+    pages = pages->create_page(pages, 0, 0x8000, _32K_, start, 0, 0, 0, 0);
     max_pages++;
     start += _32K_;
     nes->prg_pages = pages;
     for(i = 1; i < (int) nes->o_rom->information ().prg_pages - 1; i++)
     {
-        pages = pages->Create(pages, 0x8000, _32K_, start, i, i, i);
+        pages = pages->create_page(pages, i, 0x8000, _32K_, start, i, i, i, start >> 12);
         max_pages++;
         start += _32K_;
     }

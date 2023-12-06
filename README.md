@@ -6,14 +6,37 @@ Obviously, the more the user plays a game, the more accurate the tracing & disas
 
 crudNES is a heavily modified version of aNESe v4.0a from Sadai Sarmiento (Hyde).
 
-TODO:
+Currrently handled mappers:
+
+NROM (0) *
+SxROM, MMC1 (1)
+UxROM (2) *
+CNROM (3 87 185) *
+TxROM, MMC3, MMC6 (4 118 119 220)
+ExROM, MMC5 (5)
+AxROM (7) *
+PxROM, MMC2 (9)
+FxROM, MMC4 (10)
+Color Dreams (11) *
+Bandai EPROM (24C02) (16)
+VRC4a, VRC4c (21)
+BxROM, NINA-001 (34) *
+After Burner (68)
+FME-7, Sunsoft 5B (69)
+Camerica/Codemasters (71) *
+HK-SF3 (91) *
+
+* Handled by the builtin disassembler.
+
+It's a work in progress so there's still a lot to do:
 
        - Create bitmap files with the decoded chr roms.
        - Problem with NMI triggering in emulation (DW III & DW IV).
        - Add more mapping to the disassembler (especially MMC1).
 
-       - Need to add these mappers:
+       - Need to implement these mappers:
 
+           - 66 (GxROM, MxROM) almost the same as color dreams.
            - 19 (NAMCO106) (Erika to Satoru no Yumebouken, Final Lap,
                        King of Kings, Mappy Kids, Megami Tensei II,
                        Sangokushi 2, Youkai).
@@ -25,7 +48,7 @@ TODO:
                        Rolling Thunder).
            - 85 (VRC7) (Lagrange Point).
 
-       - Problems with these games:
+       - Known problems with these games:
 
            - Akira (hangs) (04/MMC3).
            - Alien Syndrome
@@ -48,6 +71,7 @@ TODO:
            - Jesus - Kyoufu no Bio Monster (Hangs after title screen) (1/MMC1).
            - Just Breed (Completely bugged visuals) (05/MMC5).
            - Parodius Da! (Unknown mapper) (23/VRC2 type B).
-           - SD Gundam Gaiden (???) (???/???).
            - Rolling Thunder (Unknown mapper) (19/Namcot 106).
            - Ys III (gfx problems) (118/MMC3).
+           - Dragon Ball Z II - Gekishin Freeza!! (hangs after a while) (19/Bandai).
+

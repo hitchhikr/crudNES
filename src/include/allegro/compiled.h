@@ -25,7 +25,7 @@
    extern "C" {
 #endif
 
-struct BITMAP;
+struct BITMAP_;
 
 #if (defined ALLEGRO_I386) && (!defined ALLEGRO_NO_ASM)
 
@@ -49,9 +49,9 @@ typedef struct RLE_SPRITE COMPILED_SPRITE;
 
 #endif
 
-AL_FUNC(COMPILED_SPRITE *, get_compiled_sprite, (struct BITMAP *bitmap, int planar));
+AL_FUNC(COMPILED_SPRITE *, get_compiled_sprite, (struct BITMAP_ *bitmap, int planar));
 AL_FUNC(void, destroy_compiled_sprite, (COMPILED_SPRITE *sprite));
-AL_FUNC(void, draw_compiled_sprite, (struct BITMAP *bmp, AL_CONST COMPILED_SPRITE *sprite, int x, int y));
+AL_FUNC(void, draw_compiled_sprite, (struct BITMAP_ *bmp, AL_CONST COMPILED_SPRITE *sprite, int x, int y));
 
 #ifdef __cplusplus
    }

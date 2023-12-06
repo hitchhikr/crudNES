@@ -32,20 +32,6 @@ class c_mapper_000 : public c_mapper
 
 		void reset (void);
 		void write_byte (__UINT_16, __UINT_8);
-
-		void create_label (s_label_node *o_label, __UINT_16 address, __UINT_8 type, __UINT_8 sub_type, int base)
-		{
-			o_label->contents = address;
-			o_label->bank = get_bank_number(address);
-			o_label->type = type;
-			o_label->sub_type = sub_type;
-			o_label->jump_base_table = base;
-		}
-
-		int get_bank_alias(int bank, int address)
-		{
-		    return bank;
-		}
 };
 
 #endif

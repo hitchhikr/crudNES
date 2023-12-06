@@ -38,6 +38,7 @@ extern c_machine *o_machine;
 c_mapper_021 :: c_mapper_021 (void)
 {
 	__DBG_INSTALLING ("Mapper #021");
+
 	__DBG_INSTALLED ();
 }
 

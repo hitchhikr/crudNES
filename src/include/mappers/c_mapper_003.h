@@ -42,11 +42,6 @@ class c_mapper_003 : public c_mapper {
 		    }
 		}
 
-		int get_bank_alias(int bank, int address)
-		{
-		    return bank;
-		}
-
 };
 
 #endif

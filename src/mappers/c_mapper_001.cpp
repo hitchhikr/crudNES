@@ -81,9 +81,15 @@ void c_mapper_001 :: write_byte (__UINT_16 address, __UINT_8 value)
 {
     __UINT_16 uiReadAddr;
 
-	if (address < 0x8000) { nes->o_sram->write_byte (address, value); return; }
+	if (address < 0x8000)
+	{
+		nes->o_sram->write_byte (address, value);
+		return;
+	}
 	
-    uiReadAddr = (address & 0x7fff) >> 13;
+	uiReadAddr = (address & 0x7fff) >> 13;
+	// "Writing a value with bit 7 set ($80 through $FF) to any address in $8000-$FFFF
+	//  clears the shift register to its initial state."
 	if (value & BIT_7)
 	{
 		bit_shifter = 0;

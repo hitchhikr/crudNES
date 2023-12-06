@@ -43,7 +43,7 @@ AL_INLINE(int, _default_ds, (void),
 /* bmp_write_line:
  *  Bank switch function.
  */
-AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne),
+AL_INLINE(uintptr_t, bmp_write_line, (BITMAP_ *bmp, int lyne),
 {
    uintptr_t result;
 
@@ -65,7 +65,7 @@ AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne),
 /* bmp_read_line:
  *  Bank switch function.
  */
-AL_INLINE(uintptr_t, bmp_read_line, (BITMAP *bmp, int lyne),
+AL_INLINE(uintptr_t, bmp_read_line, (BITMAP_ *bmp, int lyne),
 {
    uintptr_t result;
 
@@ -87,7 +87,7 @@ AL_INLINE(uintptr_t, bmp_read_line, (BITMAP *bmp, int lyne),
 /* bmp_unwrite_line:
  *  Terminate bank switch function.
  */
-AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
+AL_INLINE(void, bmp_unwrite_line, (BITMAP_ *bmp),
 {
    __asm__ volatile (
       "  call *%1 "

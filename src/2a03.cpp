@@ -44,7 +44,6 @@
 #define REL 11
 #define JMP 12
 #define NIL 13
-#define AB_2 14
 
 void _2A03_disassembleInstruction(__INT_32);
 void _2A03_disassemblePRGROM(void);
@@ -56,41 +55,58 @@ int idx_addr;
 int jump_addr;
 int last_y = 0x12345678;
 int last_x = 0x12345678;
-int flipflop_addr;
+int warnings;
 
 static const char *_2A03_instructionSet[] =
 {
-	"brk",	   "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)",
+	"brk",	   "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)", // $00
 	"php",     "ora",   "asl a", "(undef)", "(undef)",     "ora",     "asl", "(undef)",
-	"bpl",     "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)",
+
+	"bpl",     "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)", // $10
 	"clc",     "ora", "(undef)", "(undef)", "(undef)",     "ora",     "asl", "(undef)",
-	"jsr",     "and", "(undef)", "(undef)",     "bit",     "and",     "rol", "(undef)",
+
+	"jsr",     "and", "(undef)", "(undef)",     "bit",     "and",     "rol", "(undef)", // $20
 	"plp",     "and",   "rol a", "(undef)",     "bit",     "and",     "rol", "(undef)",
-    "bmi",     "and", "(undef)", "(undef)", "(undef)",     "and",     "rol", "(undef)",
+
+	"bmi",     "and", "(undef)", "(undef)", "(undef)",     "and",     "rol", "(undef)", // $30
 	"sec",     "and", "(undef)", "(undef)", "(undef)",     "and",     "rol", "(undef)",
-	"rti",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)",
+
+	"rti",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)", // $40
 	"pha",     "eor",   "lsr a", "(undef)",     "jmp",     "eor",     "lsr", "(undef)",
-	"bvc",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)",
+
+	"bvc",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)", // $50
 	"cli",     "eor", "(undef)", "(undef)", "(undef)",     "eor",     "lsr", "(undef)",
-    "rts",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", 
+
+	"rts",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", // $60
 	"pla",     "adc",   "ror a", "(undef)",     "jmp",     "adc",     "ror", "(undef)", 
-	"bvs",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", 
+
+	"bvs",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", // $70
 	"sei",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", 
+
+	"bvs",     "adc", "(undef)", "(undef)", "(undef)",     "adc",     "ror", "(undef)", // $80
 	"(undef)", "sta", "(undef)", "(undef)",     "sty",     "sta",     "stx", "(undef)",
-	"dey", "(undef)",     "txa", "(undef)",     "sty",     "sta",     "stx", "(undef)",
+
+	"dey", "(undef)",     "txa", "(undef)",     "sty",     "sta",     "stx", "(undef)", // $90
 	"bcc",     "sta", "(undef)", "(undef)",     "sty",     "sta",     "stx", "(undef)",
-	"tya",     "sta",     "txs", "(undef)", "(undef)",     "sta", "(undef)", "(undef)",
+
+	"tya",     "sta",     "txs", "(undef)", "(undef)",     "sta", "(undef)", "(undef)", // $a0
 	"ldy",     "lda",     "ldx", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", 
-	"tay",     "lda",     "tax", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", 
+
+	"tay",     "lda",     "tax", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", // $b0
 	"bcs",     "lda", "(undef)", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", 
-	"clv",     "lda",     "tsx", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", 
+
+	"clv",     "lda",     "tsx", "(undef)",     "ldy",     "lda",     "ldx", "(undef)", // $c0
 	"cpy",     "cmp", "(undef)", "(undef)",     "cpy",     "cmp",     "dec", "(undef)", 
-	"iny",     "cmp",     "dex", "(undef)",     "cpy",     "cmp",     "dec", "(undef)", 
+
+	"iny",     "cmp",     "dex", "(undef)",     "cpy",     "cmp",     "dec", "(undef)", // $d0
 	"bne",     "cmp", "(undef)", "(undef)", "(undef)",     "cmp",     "dec", "(undef)", 
-	"cld",     "cmp", "(undef)", "(undef)", "(undef)",     "cmp",     "dec", "(undef)", 
+
+	"cld",     "cmp", "(undef)", "(undef)", "(undef)",     "cmp",     "dec", "(undef)", // $e0
 	"cpx",     "sbc", "(undef)", "(undef)",     "cpx",     "sbc",     "inc", "(undef)", 
-	"inx",     "sbc",     "nop", "(undef)",     "cpx",     "sbc",     "inc", "(undef)", 
+
+	"inx",     "sbc",     "nop", "(undef)",     "cpx",     "sbc",     "inc", "(undef)", // $f0
     "beq",     "sbc", "(undef)", "(undef)", "(undef)",     "sbc",     "inc", "(undef)", 
+
 	"sed",     "sbc", "(undef)", "(undef)", "(undef)",     "sbc",     "inc", "(undef)"
 };
 
@@ -209,7 +225,8 @@ extern c_machine *o_machine;
 /** Description:															 **/
 /******************************************************************************/
 
-__BOOL _2A03_instructionDumper, _2A03_labelHolder,
+__BOOL _2A03_instructionDumper, _2A03_instructionLog,
+								_2A03_labelHolder,
                                 _2A03_IRQLine,
                                 _2A03_IRQRequested,
                                 _2A03_NMIRequested,
@@ -724,6 +741,7 @@ void _2A03_run(void)
 {
     int old_pc;
     int zp_addr;
+    int return_address;
     register __UINT_16 value;
 	if(iCurrentTime == iEndTime) return;
 
@@ -738,22 +756,34 @@ void _2A03_run(void)
 		{
 			if(_2A03_NMIRequested) { _2A03_NMI(); _2A03_NMIRequested = FALSE; continue; }
 			if(_2A03_NMISecondRequested) { _2A03_NMIRequested = TRUE; _2A03_NMISecondRequested = FALSE; }
-			if(_2A03_IRQRequested || (_2A03_IRQLine && !(S & I))) { _2A03_IRQ(); _2A03_IRQRequested = FALSE; continue; }
+			if(_2A03_IRQRequested || (_2A03_IRQLine && !(S & I)))
+			{
+				_2A03_IRQ();
+				_2A03_IRQRequested = FALSE;
+				continue;
+			}
 		}
 
 		register __UINT_8 _2A03_instruction = NESCTL_ReadByte (PC.W);
-		if(_2A03_instructionDumper && !_2A03_unfinishedOp)
+		if(_2A03_instructionLog && !_2A03_unfinishedOp)
 		{
-//		    _2A03_disassembleInstruction (PC.W);
+		    _2A03_disassembleInstruction (PC.W);
         }
 		
-		if(!_2A03_unfinishedOp) iCurrentTime += _2A03_cycleCounts [_2A03_instruction];
+		if(!_2A03_unfinishedOp)
+		{
+			iCurrentTime += _2A03_cycleCounts [_2A03_instruction];
+		}
 
 		if((iCurrentTime > iEndTime) && _2A03_accessCycles[_2A03_instruction])
 		{
 			_2A03_unfinishedOp = TRUE;
 			return;
-		} else _2A03_unfinishedOp = FALSE;
+		}
+		else
+		{
+			_2A03_unfinishedOp = FALSE;
+		}
 	
 		switch (_2A03_instruction)
 		{
@@ -777,21 +807,6 @@ void _2A03_run(void)
                     // Next part of the address
                     jump_addr = NESPRGRAM_readWord(idx_addr);
                     last_x = 0x12345678;
-/*                    if((int) jump_addr > 0x7fff && (int) base_addr > 0x7fff)
-                    {
-                        nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(base_addr),
-                                                            base_addr,
-                                                            TYPE_DATA,
-                                                            TYPE_RAWWORD,
-                                                            1,
-                                                            base_addr);
-                        nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(jump_addr),
-                                                            jump_addr,
-                                                            TYPE_DATA,
-                                                            TYPE_BYTE,
-                                                            1,
-                                                            jump_addr);
-	                }*/
 	            }
 	            else
 	            {
@@ -803,21 +818,6 @@ void _2A03_run(void)
                         // Next part of the address
                         jump_addr = NESPRGRAM_readWord(idx_addr);
                         last_x = 0x12345678;
-/*                        if((int) jump_addr > 0x7fff && (int) base_addr > 0x7fff)
-                        {
-                            nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(base_addr),
-                                                                base_addr,
-                                                                TYPE_DATA,
-                                                                TYPE_RAWWORD,
-                                                                1,
-                                                                base_addr);
-                            nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(jump_addr),
-                                                                jump_addr,
-                                                                TYPE_DATA,
-                                                                TYPE_BYTE,
-                                                                1,
-                                                                jump_addr);
-                        }*/
                     }
                     else
                     {
@@ -835,21 +835,6 @@ void _2A03_run(void)
                     // Next part of the address
                     jump_addr = NESPRGRAM_readWord(idx_addr);
                     last_y = 0x12345678;
-/*                    if((int) jump_addr > 0x7fff && (int) base_addr > 0x7fff)
-                    {
-                        nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(base_addr),
-                                                            base_addr,
-                                                            TYPE_DATA,
-                                                            TYPE_RAWWORD,
-                                                            1,
-                                                            base_addr);
-                        nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(jump_addr),
-                                                            jump_addr,
-                                                            TYPE_DATA,
-                                                            TYPE_BYTE,
-                                                            1,
-                                                            jump_addr);
-	                }*/
 	            }
 	            else
 	            {
@@ -861,21 +846,6 @@ void _2A03_run(void)
                         // Next part of the address
                         jump_addr = NESPRGRAM_readWord(idx_addr);
                         last_y = 0x12345678;
-/*                        if((int) jump_addr > 0x7fff && (int) base_addr > 0x7fff)
-                        {
-                            nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(base_addr),
-                                                                base_addr,
-                                                                TYPE_DATA,
-                                                                TYPE_RAWWORD,
-                                                                1,
-                                                                base_addr);
-                            nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(jump_addr),
-                                                                jump_addr,
-                                                                TYPE_DATA,
-                                                                TYPE_BYTE,
-                                                                1,
-                                                                jump_addr);
-                        }*/
                     }
                     else
                     {
@@ -947,139 +917,289 @@ void _2A03_run(void)
 			    break;
 
 			//ADC - Add memory to accumulator with carry//
-			case 0x69: _2A03_ADC(NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0x65: _2A03_ADC(NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0x75: _2A03_ADC(NESRAM_ReadByte, _2A03_zpIndexed(X)); break;
-			case 0x6d: _2A03_ADC(NESCTL_ReadByte, _2A03_absolute()); break;
-			case 0x7d: _2A03_ADC(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); break;
-			case 0x79: _2A03_ADC(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); break;
-			case 0x61: _2A03_ADC(NESCTL_ReadByte, _2A03_preIndexed()); break;
-			case 0x71: _2A03_ADC(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); break;
+			case 0x69:
+				_2A03_ADC(NESPRGRAM_ReadByte, _2A03_immediate());
+				break;
+			case 0x65:
+				_2A03_ADC(NESRAM_ReadByte, _2A03_zpAbsolute());
+				break;
+			case 0x75:
+				_2A03_ADC(NESRAM_ReadByte, _2A03_zpIndexed(X));
+				break;
+			case 0x6d:
+				_2A03_ADC(NESCTL_ReadByte, _2A03_absolute());
+				break;
+			case 0x7d:
+				_2A03_ADC(NESCTL_ReadByte, _2A03_indexedCheckBounds(X));
+				break;
+			case 0x79:
+				_2A03_ADC(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y));
+				break;
+			case 0x61:
+				_2A03_ADC(NESCTL_ReadByte, _2A03_preIndexed());
+				break;
+			case 0x71:
+				_2A03_ADC(NESCTL_ReadByte, _2A03_postIndexedCheckBounds());
+				break;
 
 			//AND - AND memory with accumulator//
-			case 0x29: _2A03_AND(NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0x25: _2A03_AND(NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0x35: _2A03_AND(NESRAM_ReadByte, _2A03_zpIndexed(X)); break;
-			case 0x2d: _2A03_AND(NESCTL_ReadByte, _2A03_absolute()); break;
-			case 0x3d: _2A03_AND(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); break;
-			case 0x39: _2A03_AND(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); break;
-			case 0x21: _2A03_AND(NESCTL_ReadByte, _2A03_preIndexed()); break;
-			case 0x31: _2A03_AND(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); break; 
+			case 0x29:
+				_2A03_AND(NESPRGRAM_ReadByte, _2A03_immediate());
+				break;
+			case 0x25:
+				_2A03_AND(NESRAM_ReadByte, _2A03_zpAbsolute());
+				break;
+			case 0x35:
+				_2A03_AND(NESRAM_ReadByte, _2A03_zpIndexed(X));
+				break;
+			case 0x2d:
+				_2A03_AND(NESCTL_ReadByte, _2A03_absolute());
+				break;
+			case 0x3d:
+				_2A03_AND(NESCTL_ReadByte, _2A03_indexedCheckBounds(X));
+				break;
+			case 0x39:
+				_2A03_AND(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y));
+				break;
+			case 0x21:
+				_2A03_AND(NESCTL_ReadByte, _2A03_preIndexed());
+				break;
+			case 0x31:
+				_2A03_AND(NESCTL_ReadByte, _2A03_postIndexedCheckBounds());
+				break; 
 
 			//ASL - Shift left one bit (memory or accumulator)//
-			case 0x0a: _2A03_ASLA(); break;
-			case 0x06: _2A03_ASL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); break;
-			case 0x16: _2A03_ASL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); break;
-			case 0x0e: _2A03_ASL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); break;
-			case 0x1e: _2A03_ASL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); break;
+			case 0x0a:
+				_2A03_ASLA();
+				break;
+			case 0x06:
+				_2A03_ASL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute());
+				break;
+			case 0x16:
+				_2A03_ASL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X));
+				break;
+			case 0x0e:
+				_2A03_ASL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute());
+				break;
+			case 0x1e:
+				_2A03_ASL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X));
+				break;
 			
 			//BCC - Branch on carry clear//
-			case 0x90: _2A03_BRANCH(!(S & C)); continue;
+			case 0x90:
+				_2A03_BRANCH(!(S & C));
+				continue;
 
 			//BCS - Branch on carry set//
-			case 0xb0: _2A03_BRANCH(S & C); continue;
+			case 0xb0:
+				_2A03_BRANCH(S & C);
+				continue;
 
 			//BEQ - Branch on result zero//
-			case 0xf0: _2A03_BRANCH(S & Z); continue;
+			case 0xf0:
+				_2A03_BRANCH(S & Z);
+				continue;
 
 			//BIT - Test bit in memory with accumulator//
-			case 0x24: _2A03_BIT(NESRAM_ReadByte, _2A03_zpAbsolute ()); break;
-			case 0x2c: _2A03_BIT(NESCTL_ReadByte, _2A03_absolute ()); break;
+			case 0x24:
+				_2A03_BIT(NESRAM_ReadByte, _2A03_zpAbsolute ());
+				break;
+			case 0x2c:
+				_2A03_BIT(NESCTL_ReadByte, _2A03_absolute ());
+				break;
 
 			//BMI - Branch on result minus//
-			case 0x30: _2A03_BRANCH(S & N); continue;
+			case 0x30:
+				_2A03_BRANCH(S & N);
+				continue;
 
 			//BNE - Branch on result not zero//
-			case 0xd0: _2A03_BRANCH(!(S & Z)); continue;
+			case 0xd0:
+				_2A03_BRANCH(!(S & Z));
+				continue;
 
 			//BPL - Branch on result plus//
-			case 0x10: _2A03_BRANCH(!(S & N)); continue;
+			case 0x10:
+				_2A03_BRANCH(!(S & N));
+				continue;
 
 			//BVC - Branch on overflow clear//
-			case 0x50: _2A03_BRANCH(!(S & V)); continue;
+			case 0x50:
+				_2A03_BRANCH(!(S & V));
+				continue;
 
 			//BVS - Branch on overflow set//
-			case 0x70: _2A03_BRANCH(S & V); continue;
+			case 0x70:
+				_2A03_BRANCH(S & V);
+				continue;
 
 			//CLC - Clear carry flag//
-			case 0x18: S &= ~C; break;
+			case 0x18:
+				S &= ~C;
+				break;
 		
 			//CLD - Clear decimal flag//
 			//Note: There is no such thing as a decimal mode on the NES.
-			case 0xd8: S &= ~D; break; 
+			case 0xd8:
+				S &= ~D; 
+				break; 
 
 			//CLI - Clear interrupt disable bit//
-			case 0x58: if(S & I) { S &= ~I; PC.W++; return; } break;
+			case 0x58:
+				if(S & I)
+				{
+					S &= ~I; PC.W++; return;
+				}
+				break;
 
 			//CLV - Clear overflow flag//
-			case 0xb8: S &= ~V; break;
+			case 0xb8:
+				S &= ~V;
+				break;
 
 			//CMP - Compare memory and accumulator//
-			case 0xc9: _2A03_COMPARE(A, NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0xc5: _2A03_COMPARE(A, NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0xd5: _2A03_COMPARE(A, NESRAM_ReadByte, _2A03_zpIndexed(X)); break;
-			case 0xcd: _2A03_COMPARE(A, NESCTL_ReadByte, _2A03_absolute()); break;
-			case 0xdd: _2A03_COMPARE(A, NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); break;
-			case 0xd9: _2A03_COMPARE(A, NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); break;
-			case 0xc1: _2A03_COMPARE(A, NESCTL_ReadByte, _2A03_preIndexed()); break;
-			case 0xd1: _2A03_COMPARE(A, NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); break; 
+			case 0xc9:
+				_2A03_COMPARE(A, NESPRGRAM_ReadByte, _2A03_immediate());
+				break;
+			case 0xc5:
+				_2A03_COMPARE(A, NESRAM_ReadByte, _2A03_zpAbsolute());
+				break;
+			case 0xd5:
+				_2A03_COMPARE(A, NESRAM_ReadByte, _2A03_zpIndexed(X));
+				break;
+			case 0xcd:
+				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_absolute());
+				break;
+			case 0xdd:
+				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_indexedCheckBounds(X));
+				break;
+			case 0xd9:
+				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_indexedCheckBounds(Y));
+				break;
+			case 0xc1:
+				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_preIndexed());
+				break;
+			case 0xd1:
+				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_postIndexedCheckBounds());
+				break; 
 
 			//CPX - Compare memory and index X//
-			case 0xe0: _2A03_COMPARE(X, NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0xe4: _2A03_COMPARE(X, NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0xec: _2A03_COMPARE(X, NESCTL_ReadByte, _2A03_absolute()); break;
+			case 0xe0:
+				_2A03_COMPARE(X, NESPRGRAM_ReadByte, _2A03_immediate());
+				break;
+			case 0xe4:
+				_2A03_COMPARE(X, NESRAM_ReadByte, _2A03_zpAbsolute());
+				break;
+			case 0xec:
+				_2A03_COMPARE(X, NESCTL_ReadByte, _2A03_absolute());
+				break;
 
 			//CPY - Compare memory and index Y//
-			case 0xc0: _2A03_COMPARE(Y, NESPRGRAM_ReadByte, _2A03_immediate ()); break;
-			case 0xc4: _2A03_COMPARE(Y, NESRAM_ReadByte, _2A03_zpAbsolute ()); break;
-			case 0xcc: _2A03_COMPARE(Y, NESCTL_ReadByte, _2A03_absolute ()); break;
+			case 0xc0: 
+				_2A03_COMPARE(Y, NESPRGRAM_ReadByte, _2A03_immediate ());
+				break;
+			case 0xc4:
+				_2A03_COMPARE(Y, NESRAM_ReadByte, _2A03_zpAbsolute ());
+				break;
+			case 0xcc: 
+				_2A03_COMPARE(Y, NESCTL_ReadByte, _2A03_absolute ()); 
+				break;
 
 			//DEC - Decrement memory by one//
-			case 0xc6: _2A03_DEC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); break;
-			case 0xd6: _2A03_DEC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); break;
-			case 0xce: _2A03_DEC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); break;
-			case 0xde: _2A03_DEC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); break;
+			case 0xc6: 
+				_2A03_DEC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
+				break;
+			case 0xd6: 
+				_2A03_DEC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
+				break;
+			case 0xce: 
+				_2A03_DEC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
+				break;
+			case 0xde: 
+				_2A03_DEC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
+				break;
 
 			//DEX - Decrement index X by one//
-			case 0xca: S &= ~(N | Z); X--; _2A03_SET_NZ(X); break;
+			case 0xca:
+				S &= ~(N | Z);
+				X--;
+				_2A03_SET_NZ(X);
+				break;
 
 			//DEY - Decrement index Y by one//
-			case 0x88: S &= ~(N | Z); Y--; _2A03_SET_NZ(Y); break;
+			case 0x88: 
+				S &= ~(N | Z); 
+				Y--; 
+				_2A03_SET_NZ(Y); 
+				break;
 
 			//EOR - Exclusive OR memory with accumulator//
-			case 0x49: _2A03_EOR(NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0x45: _2A03_EOR(NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0x55: _2A03_EOR(NESRAM_ReadByte, _2A03_zpIndexed(X)); break;
-			case 0x4d: _2A03_EOR(NESCTL_ReadByte, _2A03_absolute()); break;
-			case 0x5d: _2A03_EOR(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); break;
-			case 0x59: _2A03_EOR(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); break;
-			case 0x41: _2A03_EOR(NESCTL_ReadByte, _2A03_preIndexed()); break;
-			case 0x51: _2A03_EOR(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); break;	
+			case 0x49: 
+				_2A03_EOR(NESPRGRAM_ReadByte, _2A03_immediate()); 
+				break;
+			case 0x45: 
+				_2A03_EOR(NESRAM_ReadByte, _2A03_zpAbsolute()); 
+				break;
+			case 0x55: 
+				_2A03_EOR(NESRAM_ReadByte, _2A03_zpIndexed(X)); 
+				break;
+			case 0x4d: 
+				_2A03_EOR(NESCTL_ReadByte, _2A03_absolute()); 
+				break;
+			case 0x5d: 
+				_2A03_EOR(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); 
+				break;
+			case 0x59: 
+				_2A03_EOR(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); 
+				break;
+			case 0x41: 
+				_2A03_EOR(NESCTL_ReadByte, _2A03_preIndexed()); 
+				break;
+			case 0x51: 
+				_2A03_EOR(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); 
+				break;
 
 			//INC - Increment memory by one//
-			case 0xe6: _2A03_INC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); break;
-			case 0xf6: _2A03_INC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); break;
-			case 0xee: _2A03_INC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); break;
-			case 0xfe: _2A03_INC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); break;
+			case 0xe6: 
+				_2A03_INC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
+				break;
+			case 0xf6: 
+				_2A03_INC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
+				break;
+			case 0xee: 
+				_2A03_INC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
+				break;
+			case 0xfe: 
+				_2A03_INC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
+				break;
 
 			//INX - Increment index X by one//
-			case 0xe8: S &= ~(N | Z); X++; _2A03_SET_NZ(X); break;
+			case 0xe8: 
+				S &= ~(N | Z); 
+				X++; 
+				_2A03_SET_NZ(X); 
+				break;
 
 			//INY - Increment index Y by one//
-			case 0xc8: S &= ~(N | Z); Y++; _2A03_SET_NZ(Y); break;
+			case 0xc8: 
+				S &= ~(N | Z); 
+				Y++; 
+				_2A03_SET_NZ(Y); 
+				break;
 
 			//JMP abs - Jump to new location//
 			case 0x4c: 
-		        old_pc = PC.W + 3;
+		        old_pc = PC.W;
+		        return_address = PC.W + 3;
 			    PC.W = _2A03_absolute();
 				if(_2A03_labelHolder)
 				{
 					if(PC.W > 0x7fff)
 					{
-						nes->BankJMPList->insert_label(PC.W, TYPE_CODE, TYPE_CODE, 0, 0);
+						nes->BankJMPList->insert_label(PC.W, TYPE_CODE, TYPE_CODE, 0, 0, nes->o_mapper->get_real_prg_bank_number(old_pc));
                     }
                     // Terminate it
-                    nes->BankJMPList->insert_label(old_pc, TYPE_DATA, TYPE_BYTE, 0, 0);
+                    nes->BankJMPList->insert_label(return_address, TYPE_DATA, TYPE_BYTE, 0, 0);
                 }
                 last_x = 0x12345678;
                 last_y = 0x12345678;
@@ -1087,7 +1207,8 @@ void _2A03_run(void)
 
 		    // JMP (ind)
 			case 0x6c:
-		        old_pc = PC.W + 3;
+		        old_pc = PC.W;
+		        return_address = PC.W + 3;
 	            value = NESPRGRAM_readWord(PC.W + 1);
 				if(_2A03_labelHolder)
 				{
@@ -1097,9 +1218,11 @@ void _2A03_run(void)
                         while((idx_addr >= base_addr))
                         {
                             // Fill the previous entries of the table
-                            nes->BankJMPList->insert_label_bank(nes->o_mapper->get_bank_number(NESPRGRAM_readWord(value)),
-                                                                idx_addr, TYPE_DATA, TYPE_WORD, 1, base_addr);
-                            nes->BankJMPList->insert_label(NESPRGRAM_readWord(idx_addr), TYPE_CODE, TYPE_CODE, 1, 0);
+                            nes->BankJMPList->insert_label_bank(nes->o_mapper->get_real_prg_bank_number(NESPRGRAM_readWord(value)),
+                                                                idx_addr, TYPE_DATA, TYPE_WORD, 1, base_addr,
+																nes->BankJMPList->get_bank_alias(nes->o_mapper->get_real_prg_bank_number(old_pc), old_pc),
+																nes->o_cpu->get_rom_offset(value), nes->o_mapper->get_real_prg_bank_number(old_pc));
+                            nes->BankJMPList->insert_label(NESPRGRAM_readWord(idx_addr), TYPE_CODE, TYPE_CODE, 1, 0, nes->o_mapper->get_real_prg_bank_number(old_pc));
                             idx_addr -= 2;
                         }
                         idx_addr = 0x12345678;
@@ -1111,7 +1234,7 @@ void _2A03_run(void)
 				{
                     if((int) value > 0x7fff)
                     {
-                        nes->BankJMPList->insert_label(value, TYPE_DATA, TYPE_WORD, 0, 0);
+                        nes->BankJMPList->insert_label(value, TYPE_DATA, TYPE_WORD, 0, 0, nes->o_mapper->get_real_prg_bank_number(old_pc));
                     }
                 }
 
@@ -1121,13 +1244,13 @@ void _2A03_run(void)
 					// Dest address
                     if(PC.W > 0x7fff)
                     {
-                        nes->BankJMPList->insert_label(PC.W, TYPE_CODE, TYPE_CODE, 0, 0);
+                        nes->BankJMPList->insert_label(PC.W, TYPE_CODE, TYPE_CODE, 0, 0, nes->o_mapper->get_real_prg_bank_number(old_pc));
                     }
                     // Next byte is undefined
                     // Note: if a table word pointers is right after
-                    // the the jmp the label is already added above
+                    // the jmp the label is already added above
                     // (no overwriting occurs).
-                    nes->BankJMPList->insert_label(old_pc, TYPE_DATA, TYPE_BYTE, 0, 0);
+                    nes->BankJMPList->insert_label(return_address, TYPE_DATA, TYPE_BYTE, 0, 0);
                 }
                 last_x = 0x12345678;
                 last_y = 0x12345678;
@@ -1135,6 +1258,7 @@ void _2A03_run(void)
 
 			//JSR - Jump to new location saving continue address//
 			case 0x20:
+		        old_pc = PC.W;
 			    _2A03_PUSH((PC.W + 2) >> 8);
 			    _2A03_PUSH((__UINT_8)(PC.W) + 2);
 			    PC.W = _2A03_absolute();
@@ -1142,7 +1266,7 @@ void _2A03_run(void)
 				{
 					if(PC.W > 0x7fff)
 					{
-						nes->BankJMPList->insert_label(PC.W, TYPE_CODE, TYPE_CODE, 0, 0);
+						nes->BankJMPList->insert_label(PC.W, TYPE_CODE, TYPE_CODE, 0, 0, nes->o_mapper->get_real_prg_bank_number(old_pc));
                     }
                 }
                 last_x = 0x12345678;
@@ -1150,64 +1274,145 @@ void _2A03_run(void)
 				continue;
 
 			//LDX - load index X with memory//
-			case 0xa2: _2A03_LOAD(X, NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0xa6: _2A03_LOAD(X, NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0xb6: _2A03_LOAD(X, NESRAM_ReadByte, _2A03_zpIndexed(Y)); break;
-			case 0xae: _2A03_LOAD(X, NESCTL_ReadByte, _2A03_absolute()); break;
-			case 0xbe: _2A03_LOAD(X, NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); break;
+			case 0xa2: 
+				_2A03_LOAD(X, NESPRGRAM_ReadByte, _2A03_immediate()); 
+				break;
+			case 0xa6: 
+				_2A03_LOAD(X, NESRAM_ReadByte, _2A03_zpAbsolute()); 
+				break;
+			case 0xb6: 
+				_2A03_LOAD(X, NESRAM_ReadByte, _2A03_zpIndexed(Y)); 
+				break;
+			case 0xae: 
+				_2A03_LOAD(X, NESCTL_ReadByte, _2A03_absolute()); 
+				break;
+			case 0xbe: 
+				_2A03_LOAD(X, NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); 
+				break;
 
 			//LDY - load index Y with memory//
-			case 0xa0: _2A03_LOAD(Y, NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0xa4: _2A03_LOAD(Y, NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0xb4: _2A03_LOAD(Y, NESRAM_ReadByte, _2A03_zpIndexed(X)); break;
-			case 0xac: _2A03_LOAD(Y, NESCTL_ReadByte, _2A03_absolute()); break;
-			case 0xbc: _2A03_LOAD(Y, NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); break;
+			case 0xa0: 
+				_2A03_LOAD(Y, NESPRGRAM_ReadByte, _2A03_immediate()); 
+				break;
+			case 0xa4: 
+				_2A03_LOAD(Y, NESRAM_ReadByte, _2A03_zpAbsolute()); 
+				break;
+			case 0xb4: 
+				_2A03_LOAD(Y, NESRAM_ReadByte, _2A03_zpIndexed(X)); 
+				break;
+			case 0xac: 
+				_2A03_LOAD(Y, NESCTL_ReadByte, _2A03_absolute()); 
+				break;
+			case 0xbc: 
+				_2A03_LOAD(Y, NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); 
+				break;
 
 			//LSR - Shift right one bit (memory or accumulator)//
-			case 0x4a: _2A03_LSRA(); break;
-			case 0x46: _2A03_LSR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); break;
-			case 0x56: _2A03_LSR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); break;
-			case 0x4e: _2A03_LSR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); break;
-			case 0x5e: _2A03_LSR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); break;
+			case 0x4a: 
+				_2A03_LSRA(); 
+				break;
+			case 0x46: 
+				_2A03_LSR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
+				break;
+			case 0x56: 
+				_2A03_LSR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
+				break;
+			case 0x4e: 
+				_2A03_LSR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
+				break;
+			case 0x5e: 
+				_2A03_LSR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
+				break;
 
 			//NOP - No operation//
-			case 0xea: break;
+			case 0xea: 
+				break;
 			
 			//ORA - OR memory with accumulator//
-			case 0x09: _2A03_ORA(NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0x05: _2A03_ORA(NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0x15: _2A03_ORA(NESRAM_ReadByte, _2A03_zpIndexed(X)); break;
-			case 0x0d: _2A03_ORA(NESCTL_ReadByte, _2A03_absolute()); break;
-			case 0x1d: _2A03_ORA(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); break;
-			case 0x19: _2A03_ORA(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); break;
-			case 0x01: _2A03_ORA(NESCTL_ReadByte, _2A03_preIndexed()); break;
-			case 0x11: _2A03_ORA(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); break;
+			case 0x09: 
+				_2A03_ORA(NESPRGRAM_ReadByte, _2A03_immediate()); 
+				break;
+			case 0x05: 
+				_2A03_ORA(NESRAM_ReadByte, _2A03_zpAbsolute()); 
+				break;
+			case 0x15: 
+				_2A03_ORA(NESRAM_ReadByte, _2A03_zpIndexed(X)); 
+				break;
+			case 0x0d: 
+				_2A03_ORA(NESCTL_ReadByte, _2A03_absolute()); 
+				break;
+			case 0x1d: 
+				_2A03_ORA(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); 
+				break;
+			case 0x19: 
+				_2A03_ORA(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); 
+				break;
+			case 0x01: 
+				_2A03_ORA(NESCTL_ReadByte, _2A03_preIndexed()); 
+				break;
+			case 0x11: 
+				_2A03_ORA(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); 
+				break;
 
 			//PHA - Push accumulator on stack//
-			case 0x48: _2A03_PUSH((__UINT_8)(A)); break;
+			case 0x48: 
+				_2A03_PUSH((__UINT_8)(A)); 
+				break;
 
 			//PHP - Push processor status on stack//
-			case 0x08: S |= FLAG_B; _2A03_PUSH (S); break;
+			case 0x08: 
+				S |= FLAG_B; 
+				_2A03_PUSH (S); 
+				break;
 
 			//PLA - Pull accumulator from stack//
-			case 0x68: S &= ~(N | Z); _2A03_POP(A); if(A & BIT_7) S |= N; else if(A == 0) S |= Z; break;
+			case 0x68: 
+				S &= ~(N | Z); 
+				_2A03_POP(A); 
+				if(A & BIT_7) S |= N; 
+				else if(A == 0) S |= Z; 
+				break;
 
 			//PLP - Pull processor status from stack//
-			case 0x28: _2A03_POP(S); S &= ~FLAG_B; S |= BIT_5; break;
+			case 0x28: 
+				_2A03_POP(S); 
+				S &= ~FLAG_B; 
+				S |= BIT_5; 
+				break;
 
 			//ROL - Rotate one bit left//
-			case 0x2a: _2A03_ROLA(); break;
-			case 0x26: _2A03_ROL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); break;
-			case 0x36: _2A03_ROL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); break;
-			case 0x2e: _2A03_ROL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); break;
-			case 0x3e: _2A03_ROL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); break;
+			case 0x2a: 
+				_2A03_ROLA(); 
+				break;
+			case 0x26: 
+				_2A03_ROL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
+				break;
+			case 0x36: 
+				_2A03_ROL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
+				break;
+			case 0x2e: 
+				_2A03_ROL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
+				break;
+			case 0x3e: 
+				_2A03_ROL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
+				break;
 
 			//ROR - Rotate one bit right//
-			case 0x6a: _2A03_RORA(); break;
-			case 0x66: _2A03_ROR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); break;
-			case 0x76: _2A03_ROR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); break;
-			case 0x6e: _2A03_ROR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); break;
-			case 0x7e: _2A03_ROR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); break;
+			case 0x6a: 
+				_2A03_RORA(); 
+				break;
+			case 0x66: 
+				_2A03_ROR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
+				break;
+			case 0x76: 
+				_2A03_ROR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
+				break;
+			case 0x6e: 
+				_2A03_ROR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
+				break;
+			case 0x7e: 
+				_2A03_ROR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
+				break;
 
 			//RTI - Return from interrupt//
 			case 0x40:
@@ -1215,8 +1420,11 @@ void _2A03_run(void)
                 last_y = 0x12345678;
 				if(_2A03_labelHolder)
 				{
-					nes->BankJMPList->insert_label(PC.W + 1, TYPE_DATA, TYPE_BYTE, 0, 0);
-                }
+					if(PC.W > 0x7fff)
+					{
+						nes->BankJMPList->insert_label(PC.W + 1, TYPE_DATA, TYPE_BYTE, 0, 0);
+					}
+				}
 			    _2A03_POP(S);
 			    S |= BIT_5;
 			    _2A03_POP(PC.B.L);
@@ -1230,7 +1438,10 @@ void _2A03_run(void)
  
  				if(_2A03_labelHolder)
 				{
-					nes->BankJMPList->insert_label(PC.W + 1, TYPE_DATA, TYPE_BYTE, 0, 0);
+					if(PC.W > 0x7fff)
+					{
+						nes->BankJMPList->insert_label(PC.W + 1, TYPE_DATA, TYPE_BYTE, 0, 0);
+					}
                 }
 			    _2A03_POP(PC.B.L);
 			    _2A03_POP(PC.B.H);
@@ -1238,61 +1449,120 @@ void _2A03_run(void)
 				continue;
 
 			//SBC - Subtract memory from accumulator with borrow//
-			case 0xe9: _2A03_SBC(NESPRGRAM_ReadByte, _2A03_immediate()); break;
-			case 0xe5: _2A03_SBC(NESRAM_ReadByte, _2A03_zpAbsolute()); break;
-			case 0xf5: _2A03_SBC(NESRAM_ReadByte, _2A03_zpIndexed(X)); break;
-			case 0xed: _2A03_SBC(NESCTL_ReadByte, _2A03_absolute()); break;
-			case 0xfd: _2A03_SBC(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); break;
-			case 0xf9: _2A03_SBC(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); break;
-			case 0xe1: _2A03_SBC(NESCTL_ReadByte, _2A03_preIndexed()); break;
-			case 0xf1: _2A03_SBC(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); break;
+			case 0xe9: 
+				_2A03_SBC(NESPRGRAM_ReadByte, _2A03_immediate()); 
+				break;
+			case 0xe5: 
+				_2A03_SBC(NESRAM_ReadByte, _2A03_zpAbsolute()); 
+				break;
+			case 0xf5: 
+				_2A03_SBC(NESRAM_ReadByte, _2A03_zpIndexed(X)); 
+				break;
+			case 0xed: 
+				_2A03_SBC(NESCTL_ReadByte, _2A03_absolute()); 
+				break;
+			case 0xfd: 
+				_2A03_SBC(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); 
+				break;
+			case 0xf9: 
+				_2A03_SBC(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); 
+				break;
+			case 0xe1: 
+				_2A03_SBC(NESCTL_ReadByte, _2A03_preIndexed()); 
+				break;
+			case 0xf1: 
+				_2A03_SBC(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); 
+				break;
 
  			//SEC - Set carry flag//
-			case 0x38: S |= C; break;
+			case 0x38: 
+				S |= C; 
+				break;
 
 			//SED - Set decimal flag//
 			case 0xf8: 
 				S |= D;
-				if(_2A03_instructionDumper) nes->general_log.f_write("s", "2A03: WARNING - This processor does not support decimal mode operations.\r\n");
+				if(_2A03_instructionDumper)
+				{
+					nes->general_log.f_write("sws", "2A03: WARNING - unsupported decimal mode operations at ", PC.W , ".\r\n");
+				}
 				break;
 
 			//SEI - Set interrupt disable status//
-			case 0x78: S |= I; break;
+			case 0x78: 
+				S |= I; 
+				break;
 			
 			//STX - Store index X in memory//
-			case 0x86: _2A03_STORE(X, NESRAM_write_byte, _2A03_zpAbsolute()); break;
-			case 0x96: _2A03_STORE(X, NESRAM_write_byte, _2A03_zpIndexed(Y)); break;
-			case 0x8e: _2A03_STORE(X, NESCTL_write_byte, _2A03_absolute()); break;
+			case 0x86: 
+				_2A03_STORE(X, NESRAM_write_byte, _2A03_zpAbsolute()); 
+				break;
+			case 0x96: 
+				_2A03_STORE(X, NESRAM_write_byte, _2A03_zpIndexed(Y)); 
+				break;
+			case 0x8e: 
+				_2A03_STORE(X, NESCTL_write_byte, _2A03_absolute()); 
+				break;
 
 			//STY - Store index Y in memory//
-			case 0x84: _2A03_STORE(Y, NESRAM_write_byte, _2A03_zpAbsolute()); break;
-			case 0x94: _2A03_STORE(Y, NESRAM_write_byte, _2A03_zpIndexed(X)); break;
-			case 0x8c: _2A03_STORE(Y, NESCTL_write_byte, _2A03_absolute()); break;
+			case 0x84: 
+				_2A03_STORE(Y, NESRAM_write_byte, _2A03_zpAbsolute()); 
+				break;
+			case 0x94: 
+				_2A03_STORE(Y, NESRAM_write_byte, _2A03_zpIndexed(X)); 
+				break;
+			case 0x8c: 
+				_2A03_STORE(Y, NESCTL_write_byte, _2A03_absolute()); 
+				break;
 
 			//TAX - Transfer accumulator to index X//
-			case 0xaa: S &= ~(N | Z); X = (__UINT_8)(A); _2A03_SET_NZ(X); break;
+			case 0xaa: 
+				S &= ~(N | Z); 
+				X = (__UINT_8)(A); 
+				_2A03_SET_NZ(X); 
+				break;
 
 			//TAY - Transfer accumulator to index Y//
-			case 0xa8: S &= ~(N | Z); Y = (__UINT_8)(A); _2A03_SET_NZ(Y); break;
+			case 0xa8: 
+				S &= ~(N | Z); 
+				Y = (__UINT_8)(A); 
+				_2A03_SET_NZ(Y); 
+				break;
 
 			//TSX - Transfer stack pointer to index X//
-			case 0xba: S &= ~(N | Z); X = (__UINT_8)(SP); _2A03_SET_NZ(X); break;
+			case 0xba: 
+				S &= ~(N | Z); 
+				X = (__UINT_8)(SP); 
+				_2A03_SET_NZ(X); 
+				break;
 
 			//TXA - Transfer index X to accumulator//
-			case 0x8a: S &= ~(N | Z); A = X; _2A03_SET_NZ(A); break;
+			case 0x8a: 
+				S &= ~(N | Z); 
+				A = X; 
+				_2A03_SET_NZ(A); 
+				break;
 
 			//TXS - Transfer index X to stack pointer//
-			case 0x9a: SP = X; break;
+			case 0x9a: 
+				SP = X; 
+				break;
 
 			//TYA - Transfer index Y to accumulator//
-			case 0x98: S &= ~(N | Z); A = Y; _2A03_SET_NZ(A); break;
+			case 0x98: 
+				S &= ~(N | Z); 
+				A = Y; 
+				_2A03_SET_NZ(A); 
+				break;
 
 			//BRK - Force break (produce a NMI) //
 			case 0x00: 
 				if(_2A03_labelHolder)
 				{
-					nes->BankJMPList->insert_label(PC.W + 1, TYPE_DATA, TYPE_BYTE, 0, 0);
-					nes->BankJMPList->insert_label(PC.W + 2, TYPE_CODE, TYPE_CODE, 0, 0);
+					if(PC.W > 0x7fff)
+					{
+						nes->BankJMPList->insert_label(PC.W + 1, TYPE_DATA, TYPE_BYTE, 0, 0);
+					}
                 }
 				S |= (FLAG_B | I);
 				_2A03_PUSH((PC.W + 2) >> 8);
@@ -1302,7 +1572,12 @@ void _2A03_run(void)
 				continue;
 
 			default:
-				if(_2A03_instructionDumper) nes->general_log.f_write("sbs", "2A03: Invalid Instruction: ", NESPRGRAM_ReadByte(PC.W), "\r\n");
+				if(_2A03_instructionDumper)
+				{
+					nes->general_log.f_write("swsbs", ">>> 2A03: Invalid Instruction at: ", PC.W, " (", NESPRGRAM_ReadByte(PC.W), ")\r\n");
+					printf("Error encountered during emulation, check log file.\n");
+					exit(-1);
+				}
 				break;
 		}
 
@@ -1313,9 +1588,12 @@ void _2A03_run(void)
 }
 void _2A03_toggle_label_holder(void) { _2A03_labelHolder = (_2A03_labelHolder) ? FALSE : TRUE; }
 void _2A03_toggle_tracer(void) { _2A03_instructionDumper = (_2A03_instructionDumper) ? FALSE : TRUE; }
+void _2A03_toggle_logtracer(void) { _2A03_instructionLog = (_2A03_instructionLog) ? FALSE : TRUE; }
 void _2A03_set_label_holder(__BOOL status) { _2A03_labelHolder = status; }
 void _2A03_set_tracer(__BOOL status) { _2A03_instructionDumper = status; }
 __BOOL _2A03_get_tracer(void) { return _2A03_instructionDumper; }
+void _2A03_set_logtracer(__BOOL status) { _2A03_instructionLog = status; }
+__BOOL _2A03_get_logtracer(void) { return _2A03_instructionLog; }
 
 /******************************************************************************/
 /** Timing                                                                   **/
@@ -1382,7 +1660,7 @@ void _2A03_load_state(c_tracer &TDump)
 
 void _2A03_disassembleInstruction(__INT_32 iROMOffset)
 {
-	nes->general_log.f_write("ws", iROMOffset, " ");
+	nes->general_log.f_write("bsws", nes->o_mapper->get_real_prg_bank_number(iROMOffset), ":", iROMOffset, " ");
 	nes->general_log.f_write("sbsbsbsb", "A=", A, " X=", X, " Y=", Y, " SP=", SP);
 	nes->general_log.f_write("s", " F= ");
 	nes->general_log.f_write("s", (S & BIT_7) ? "N " : "  ");
@@ -1401,6 +1679,8 @@ void _2A03_disassembleInstruction(__INT_32 iROMOffset)
 		__UINT_16 w;
 	} read;
 
+	NESROMData addr;
+
 	switch(_2A03_instructionAddrMode[NESPRGRAM_ReadByte(iROMOffset)])
 	{
 		case IMM:
@@ -1409,44 +1689,57 @@ void _2A03_disassembleInstruction(__INT_32 iROMOffset)
 			break;
 		case ZPA:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
-			nes->general_log.f_write("b", read.b);
+			nes->general_log.f_write("bsbs", read.b, " (", NESPRGRAM_ReadByte(read.b), ")");
 			break;
 		case ZPX:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
-			nes->general_log.f_write("bs", read.b, ", x");
+			nes->general_log.f_write("bsbs", read.b, ", x (", NESPRGRAM_ReadByte((read.b + X) & 0xff), ")");
 			break;
 		case ZPY:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
-			nes->general_log.f_write("bs", read.b, ", y");
+			nes->general_log.f_write("bsbs", read.b, ", y (", NESPRGRAM_ReadByte((read.b + Y) & 0xff), ")");
 			break;
 		case JMP:
-		case AB_:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
 			nes->general_log.f_write("w", read.w);
 			break;
+		case AB_:
+			read.w = NESPRGRAM_ReadByte(++iROMOffset);
+			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
+			nes->general_log.f_write("wsbs", read.w, " (", NESPRGRAM_ReadByte(read.w), ")");
+			break;
 		case ABX:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
-			nes->general_log.f_write("ws", read.w, ", x");
+			addr.w = read.w + X;
+			nes->general_log.f_write("wswsbs", read.w, ", x (", addr.w, ") (", NESPRGRAM_ReadByte(addr.w), "))");
 			break;
 		case ABY:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
-			nes->general_log.f_write("ws", read.w, ", y");
+			addr.w = read.w + Y;
+			nes->general_log.f_write("wswsbs", read.w, ", y (", addr.w, ") (", NESPRGRAM_ReadByte(addr.w), "))");
 			break;
 		case IDR:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
-			nes->general_log.f_write("sws", "(", read.w, ")");
+			addr.w = NESPRGRAM_ReadByte(read.w);
+			addr.w += NESPRGRAM_ReadByte(read.w + 1) << 8;
+			nes->general_log.f_write("swsws", "(", read.w, ") (", addr.w, ")");
 			break;
 		case PRE:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
-			nes->general_log.f_write("sbs", "(", read.b, ", x)");
+			addr.w = NESPRGRAM_ReadByte((read.b + X) & 0xff);
+			addr.w += NESPRGRAM_ReadByte((read.b + 1 + X) & 0xff) << 8;
+			nes->general_log.f_write("sbswsbs", "(", read.b, ", x) (", addr.w, " (", NESPRGRAM_ReadByte(addr.w), "))");
 			break;
 		case POS:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
-			nes->general_log.f_write("sbs", "(", read.b, "), y");
+			addr.w = NESPRGRAM_ReadByte(read.b);
+			addr.w += NESPRGRAM_ReadByte((read.b + 1) & 0xff) << 8;
+			addr.w += Y;
+			nes->general_log.f_write("sbswsbs", "(", read.b, "), y (", addr.w, " (", NESPRGRAM_ReadByte(addr.w), "))");
 			break;
 		case IMP:
 			break;
@@ -1471,21 +1764,23 @@ int _2A03_Check_Code_Sanity(char *operands,
     char constant[1024];
 	s_label_node *label1;
 	s_label_node *label2;
-	int offset = 0;
+	int index = 0;
 
-    label1 = nes->BankJMPList->search_label(bank_lo, bank_hi, address);
+    label1 = nes->BankJMPList->search_label(bank_lo, bank_hi, address, bank_alias);
     if(label1->type == TYPE_DATA)
     {
         do
         {
-            offset++;
-            label2 = nes->BankJMPList->search_label(bank_lo, bank_hi, address + offset);
+            index++;
+            label2 = nes->BankJMPList->search_label(bank_lo, bank_hi, address + index, bank_alias);
         }
         while(label2->type == TYPE_UNK);
-        sprintf(constant, "\nLbl_%.04x = Lbl_%.04x - %d",
-                          address,
-                          address + offset,
-                          offset);
+        sprintf(constant, "\nLbl_%.02x%.04x = Lbl_%.02x%.04x - %d",
+                          label1->alias,
+						  address,
+                          label2->alias,
+						  address + index,
+                          index);
         strcat(operands, constant);
         return(1);
     }
@@ -1496,16 +1791,27 @@ int get_cross_ref_validity(int address,
                            int bank_alias,
                            int bank_lo,
                            int bank_hi,
-                           int code_jmp)
+                           int code_jmp,
+						   int label_ref)
 {
 	s_label_node *label;
+	int min_alias;
+	min_alias = 0;
 
-    label = nes->BankJMPList->search_label(0,
+search_again:
+    label = nes->BankJMPList->search_label(min_alias,
 		                                  nes->o_mapper->get_max_pages(),
-			                              address);
-    // Didn't found it anywhere
-    if(label->alias == -2) return(0);
-
+			                              address, bank_alias, nes->BankJMPList->get_bank_alias(label_ref, address));
+	if(label->ref_bank <= label_ref) goto stop_search;
+	if(min_alias == nes->o_mapper->get_max_pages())
+	{
+		return 0;
+	}
+	min_alias++;
+	goto search_again;
+stop_search:
+	if(label->sub_type == TYPE_DEAD) return -1;
+	if(label->type == TYPE_UNK) return 0;
 	if(code_jmp)
 	{
 		if(label->type == TYPE_CODE)
@@ -1530,7 +1836,10 @@ int _2A03_get_instruction(int base_addr,
                           int bank_hi,
                           __INT_32 iROMOffset,
                           char *instruction,
-                          int bank_alias)
+                          int bank_alias,
+						  int label_bank,
+						  int label_ref,
+						  int real_bank)
 {
     char operands[1024];
     int length = 1;
@@ -1538,7 +1847,7 @@ int _2A03_get_instruction(int base_addr,
     int offset;
     int writing;
     int addr;
-	s_label_node *label;
+	int cur_bank;
 	
 	union NESROMData
 	{
@@ -1546,6 +1855,7 @@ int _2A03_get_instruction(int base_addr,
 		__UINT_16 w;
 	} read;
 
+	cur_bank = bank_alias;
     sprintf(operands, "");
 
     if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address, bank_alias)) return(0);
@@ -1554,7 +1864,9 @@ int _2A03_get_instruction(int base_addr,
 	if(strcmp(instruction, "        (undef)") == 0)
     {
         // Shouldn't occur under normal circumstances.
-        nes->BankJMPList->insert_label_bank(bank_lo, address, TYPE_DATA, TYPE_BYTE, 1, 0);
+		nes->general_log.f_write("swslsbs", ">>> 2A03: Invalid Instruction at: ", address, " (Offset: ", iROMOffset, ") (", nes->o_cpu->PRGROM[iROMOffset], ")\r\n");
+		printf("Error encountered during emulation, check log file.\n");
+        exit(-1);
         return(0);
     }
 
@@ -1605,72 +1917,117 @@ int _2A03_get_instruction(int base_addr,
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
-		case AB_2:   // OK
+		case JMP:
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
-		        if(writing)
-		        {
-		            write_address(operands, read.w);
-			    }
-			    else
-			    {
-			        if(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp))
-			        {
-			            sprintf(operands, " Lbl_%.04x", read.w);
-			        }
-			        else
-			        {
-			            sprintf(operands, " $%.04x ; --- WARNING: unknown switchable bank location !", read.w);
-                    }
-                }
+				label_ref = nes->BankJMPList->get_real_bank(bank_alias);
+				bank_alias = nes->BankJMPList->fix_var_bank(read.w, bank_alias);
+				if(bank_alias == -1)
+				{
+					sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
+					warnings = 1;
+				}
+				else
+				{
+					switch(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp, label_ref))
+					{
+						case 1:
+							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
+							break;
+						case 0:
+							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
+							(read.w < address))
+							{
+								sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
+								warnings = 1;
+								break;
+							}
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
+							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+																read.w,
+																TYPE_CODE,
+																TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref);
+							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
+							break;
+						default:
+							sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
+							warnings = 1;
+							break;
+					}
+				}
 			}
 			else
 			{
-			    // Optimizing can produce shifts if not all
-			    // pointers are decoded.
-			    // (Ca65 will optimize that anyway).
-			    //if((int) read.w < 0x100) 
-			    //sprintf(operands, " $%.02x", read.w);
-			    //else 
-		        write_address(operands, read.w);
-		    }
+				if(read.w < 0x100)
+				{
+					sprintf(operands, " $%.04x ; <<< WARNING: assembler will optimize this to zero page !", read.w);
+					warnings = 1;
+				}
+				else
+				{
+    				write_address(operands, read.w);
+				}
+			}
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
 		    length += 2;
 			break;
-		case JMP:
 		case AB_:   // OK
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
-			if((int) read.w > 0x7fff)
+   			if((int) read.w > 0x7fff)
 			{
-		        if(writing)
-		        {
-		            write_address(operands, read.w);
-			    }
-			    else
-			    {
-			        if(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp))
-			        {
-			            sprintf(operands, " Lbl_%.04x", read.w);
-			        }
-			        else
-			        {
-                        sprintf(operands, " $%.04x ; --- WARNING: unknown switchable bank location !", read.w);
-                    }
-                }
+				label_ref = nes->BankJMPList->get_real_bank(bank_alias);
+				bank_alias = nes->BankJMPList->fix_var_bank(read.w, bank_alias);
+				if(bank_alias == -1)
+				{
+					sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
+					warnings = 1;
+				}
+				else
+				{
+					switch(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp, label_ref))
+					{
+						case 1:
+							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
+							break;
+						case 0:
+							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
+							(read.w < address))
+							{
+								sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
+								warnings = 1;
+								break;
+							}
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
+							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+																read.w,
+																TYPE_DATA,
+																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
+							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
+							break;
+						default:
+							sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
+							warnings = 1;
+							break;
+					}
+				}
 			}
 			else
 			{
-			    // Optimizing can produce shifts if not all
-			    // pointers are decoded.
-			    // (Ca65 will optimize that anyway).
-			    //if((int) read.w < 0x100) 
-			    //sprintf(operands, " $%.02x", read.w);
-			    //else 
-    		    write_address(operands, read.w);
+				if(read.w < 0x100)
+				{
+					sprintf(operands, " $%.04x ; <<< WARNING: assembler will optimize this to zero page !", read.w);
+					warnings = 1;
+				}
+				else
+				{
+    				write_address(operands, read.w);
+				}
 			}
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
@@ -1678,26 +2035,45 @@ int _2A03_get_instruction(int base_addr,
 			break;
 		case ABX: // OK
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
-            label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1);
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
-		        if(writing)
-		        {
-    		        write_address(operands, read.w);
-			        strcat(operands, ", x");
-			    }
-			    else
-			    {
-			        if(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp))
-			        {
-    			        sprintf(operands, " Lbl_%.04x, x", read.w);
-			        }
-			        else
-			        {
-                        sprintf(operands, " $%.04x, x ; --- WARNING: unknown switchable bank location !", read.w);
-                    }
-                }
+				label_ref = nes->BankJMPList->get_real_bank(bank_alias);
+				bank_alias = nes->BankJMPList->fix_var_bank(read.w, bank_alias);
+				if(bank_alias == -1)
+				{
+					sprintf(operands, " $%.04x, x ; <<< WARNING: This location was never reached !", read.w);
+					warnings = 1;
+				}
+				else
+				{
+					switch(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp, label_ref))
+					{
+						case 1:
+							sprintf(operands, " Lbl_%.02x%.04x, x", bank_alias, read.w);
+							break;
+						case 0:
+							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
+							(read.w < address))
+							{
+								sprintf(operands, " $%.04x, x ; <<< WARNING: This location was never reached !", read.w);
+								warnings = 1;
+								break;
+							}
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
+							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+																read.w,
+																TYPE_DATA,
+																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
+							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							sprintf(operands, " Lbl_%.02x%.04x, x", bank_alias, read.w);
+							break;
+						default:
+							sprintf(operands, " $%.04x, x ; <<< WARNING: This location was never reached !", read.w);
+							warnings = 1;
+							break;
+					}
+				}
 			}
 			else
 			{
@@ -1720,22 +2096,42 @@ int _2A03_get_instruction(int base_addr,
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
-		        if(writing)
-		        {
-		            write_address(operands, read.w);
-			        strcat(operands, ", y");
-			    }
-			    else
-			    {
-			        if(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp))
-			        {
-			            sprintf(operands, " Lbl_%.04x, y", read.w);
-			        }
-			        else
-			        {
-                        sprintf(operands, " $%.04x, y ; --- WARNING: unknown switchable bank location !", read.w);
-                    }
-                }
+				label_ref = nes->BankJMPList->get_real_bank(bank_alias);
+				bank_alias = nes->BankJMPList->fix_var_bank(read.w, bank_alias);
+				if(bank_alias == -1)
+				{
+					sprintf(operands, " $%.04x, y ; <<< WARNING: This location was never reached !", read.w);
+					warnings = 1;
+				}
+				else
+				{
+					switch(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp, label_ref))
+					{
+						case 1:
+							sprintf(operands, " Lbl_%.02x%.04x, y", bank_alias, read.w);
+							break;
+						case 0:
+							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
+							(read.w < address))
+							{
+								sprintf(operands, " $%.04x, y ; <<< WARNING: This location was never reached !", read.w);
+								warnings = 1;
+								break;
+							}
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
+							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+																read.w,
+																TYPE_DATA,
+																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
+							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							sprintf(operands, " Lbl_%.02x%.04x, y", bank_alias, read.w);
+							break;
+						default:
+							sprintf(operands, " $%.04x, y ; <<< WARNING: This location was never reached !", read.w);
+							warnings = 1;
+							break;
+					}
+				}
 			}
 			else
 			{
@@ -1758,20 +2154,59 @@ int _2A03_get_instruction(int base_addr,
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
-			    if(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp))
-			    {
-			        sprintf(operands, " (Lbl_%.04x)", read.w);
-			    }
-			    else
-			    {
-			        sprintf(operands, " ($%.04x) ; --- WARNING: unknown switchable bank location !", read.w);
-                }
+				label_ref = nes->BankJMPList->get_real_bank(bank_alias);
+				bank_alias = nes->BankJMPList->fix_var_bank(read.w, bank_alias);
+				if(bank_alias == -1)
+				{
+					sprintf(operands, " ($%.04x) ; <<< WARNING: This location was never reached !", read.w);
+					warnings = 1;
+				}
+				else
+				{
+					switch(get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, code_jmp, label_ref))
+					{
+						case 1:
+							sprintf(operands, " (Lbl_%.02x%.04x)", bank_alias, read.w);
+							break;
+						case 0:
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
+							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
+							(read.w < address))
+							{
+								sprintf(operands, " ($%.04x) ; <<< WARNING: This location was never reached !", read.w);
+								warnings = 1;
+								break;
+							}
+							if(code_jmp)
+							{
+								nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+																	read.w,
+																	TYPE_CODE,
+																	TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref);
+							}
+							else
+							{
+								nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+																	read.w,
+																	TYPE_DATA,
+																	TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
+							}
+							if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							sprintf(operands, " (Lbl_%.02x%.04x)", bank_alias, read.w);
+							break;
+						default:
+							sprintf(operands, " ($%.04x) ; <<< WARNING: This location was never reached !", read.w);
+							warnings = 1;
+							break;
+					}
+				}
 			}
 			else
 			{
 			    if((int) read.w < 0x100)
 			    {
-					sprintf(operands, " ($%.02x) ; --- WARNING: unknown switchable bank location !", read.b);
+					sprintf(operands, " ($%.02x) ; <<< WARNING: unknown switchable bank location !", read.b);
+					warnings = 1;
 			    }
 			    else
 			    {
@@ -1786,7 +2221,6 @@ int _2A03_get_instruction(int base_addr,
 		    // In zero page
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " ($%.02x, x)", read.b);
-
 			if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
@@ -1794,7 +2228,6 @@ int _2A03_get_instruction(int base_addr,
 		    // In zero page
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " ($%.02x), y", read.b);
-
 			if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
@@ -1804,7 +2237,15 @@ int _2A03_get_instruction(int base_addr,
 		    offset = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w = address;
 			read.w += (int) ((short) ((char) offset)) + 2;
-			sprintf(operands, " Lbl_%.04x", read.w);
+			label_ref = nes->BankJMPList->get_real_bank(bank_alias);
+			if(!get_cross_ref_validity(read.w, bank_alias, bank_lo, bank_hi, 1, label_ref))
+			{
+				nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(bank_alias),
+													read.w,
+													TYPE_CODE,
+													TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref);
+			}
+			sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
@@ -1821,13 +2262,16 @@ int _2A03_map_instruction(int base_addr,
                           int address,
                           int bank,
                           __INT_32 iROMOffset,
-                          int bank_alias)
+                          int bank_alias,
+						  int ref_bank,
+						  int sub_type)
 {
     char operands[1024];
     int length = 1;
     int code_jmp = 0;
     int offset;
     int writing;
+	int label_ref;
 
 	union NESROMData
 	{
@@ -1838,8 +2282,10 @@ int _2A03_map_instruction(int base_addr,
     sprintf(operands, "%s", _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
     if(strcmp(operands, "(undef)") == 0)
     {
-        nes->BankJMPList->insert_label_bank(bank_alias, address, TYPE_DATA, TYPE_BYTE, 1, 0);
-        return(-1);
+		nes->general_log.f_write("swslsbs", ">>> 2A03: Invalid Instruction at: ", address, " (Offset: ", iROMOffset, ") (", nes->o_cpu->PRGROM[iROMOffset], ")\r\n");
+		printf("Error encountered during emulation, check log file.\n");
+        exit(-1);
+		return(-1);
     }
 
     switch(nes->o_cpu->PRGROM[iROMOffset])
@@ -1881,28 +2327,75 @@ int _2A03_map_instruction(int base_addr,
 		    length++;
 			break;
 		case JMP:
+			read.w = nes->o_cpu->PRGROM[++iROMOffset];
+			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
+			if((int) read.w > 0x7fff)
+			{
+				label_ref = nes->BankJMPList->get_real_bank(ref_bank);
+				ref_bank = nes->BankJMPList->fix_var_bank(read.w, ref_bank);
+				if(ref_bank != -1)
+				{
+					if(!get_cross_ref_validity(read.w, ref_bank, ref_bank, ref_bank, code_jmp, label_ref))
+					{
+						if(ref_bank >= bank_alias)
+						{
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, ref_bank, iROMOffset);
+							if(code_jmp)
+							{
+								if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_CODE, TYPE_CODE, 0, 0, ref_bank, iROMOffset, label_ref, address))
+								{
+									return(-1);
+								}
+							}
+							else
+							{
+								if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_BYTE, 1, 0, ref_bank, iROMOffset, label_ref))
+								{
+									return(-1);
+								}
+							}
+						}
+						else
+						{
+							if(code_jmp)
+							{
+								nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_CODE, TYPE_DEAD, 0, 0, ref_bank, iROMOffset, label_ref);
+							}
+							else
+							{
+								nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_DEAD, 0, 0, ref_bank, iROMOffset, label_ref);
+							}
+						}
+					}
+				}
+			}
+		    length += 2;
+			break;
 		case AB_:
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
-                if(code_jmp)
-                {
-                    if(nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_CODE, TYPE_CODE, 0, 0))
-                    {
-                        return(-1);
-                    }
-			    }
-			    else
-			    {
-			        if(!writing)
-			        {
-                        if(nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_DATA, TYPE_BYTE, 1, 0))
-                        {
-                            return(-1);
-                        }
-                    }
-			    }
+				label_ref = nes->BankJMPList->get_real_bank(ref_bank);
+				ref_bank = nes->BankJMPList->fix_var_bank(read.w, ref_bank);
+				if(ref_bank != -1)
+				{
+					if(!get_cross_ref_validity(read.w, ref_bank, ref_bank, ref_bank, code_jmp, label_ref))
+					{
+						if(ref_bank >= bank_alias)
+						{
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, ref_bank, iROMOffset);
+							if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_BYTE, 1, 0, ref_bank, iROMOffset, label_ref))
+							{
+								return(-1);
+							}
+						}
+						else
+						{
+							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_DEAD, 0, 0, ref_bank, iROMOffset, label_ref);
+						}
+					}
+				}
 			}
 		    length += 2;
 			break;
@@ -1911,23 +2404,26 @@ int _2A03_map_instruction(int base_addr,
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
-                if(code_jmp)
-                {
-                    if(nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_CODE, TYPE_CODE, 0, 0))
-                    {
-                        return(-1);
-                    }
-			    }
-			    else
-			    {
-			        if(!writing)
-			        {
-                        if(nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_DATA, TYPE_BYTE, 1, 0))
-                        {
-                            return(-1);
-                        }
-                    }
-			    }
+				label_ref = nes->BankJMPList->get_real_bank(ref_bank);
+				ref_bank = nes->BankJMPList->fix_var_bank(read.w, ref_bank);
+				if(ref_bank != -1)
+				{
+					if(!get_cross_ref_validity(read.w, ref_bank, ref_bank, ref_bank, code_jmp, label_ref))
+					{
+						if(ref_bank >= bank_alias)
+						{
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, ref_bank, iROMOffset);
+							if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_BYTE, 1, 0, ref_bank, iROMOffset, label_ref))
+							{
+								return(-1);
+							}
+						}
+						else
+						{
+							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_DEAD, 0, 0, ref_bank, iROMOffset, label_ref);
+						}
+					}
+				}
 			}
 		    length += 2;
 			break;
@@ -1937,23 +2433,26 @@ int _2A03_map_instruction(int base_addr,
 
 			if((int) read.w > 0x7fff)
 			{
-                if(code_jmp)
-                {
-                    if(nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_CODE, TYPE_CODE, 0, 0))
-                    {
-                        return(-1);
-                    }
-			    }
-			    else
-			    {
-			        if(!writing)
-			        {
-                        if(nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_DATA, TYPE_BYTE, 1, 0))
-                        {
-                            return(-1);
-                        }
-                    }
-			    }
+				label_ref = nes->BankJMPList->get_real_bank(ref_bank);
+				ref_bank = nes->BankJMPList->fix_var_bank(read.w, ref_bank);
+				if(ref_bank != -1)
+				{
+					if(!get_cross_ref_validity(read.w, ref_bank, ref_bank, ref_bank, code_jmp, label_ref))
+					{
+						if(ref_bank >= bank_alias)
+						{
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, ref_bank, iROMOffset);
+							if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_BYTE, 1, 0, ref_bank, iROMOffset, label_ref))
+							{
+								return(-1);
+							}
+						}
+						else
+						{
+							nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_DEAD, 0, 0, ref_bank, iROMOffset, label_ref);
+						}
+					}
+				}
 			}
 		    length += 2;
 			break;
@@ -1962,20 +2461,43 @@ int _2A03_map_instruction(int base_addr,
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
-                if(code_jmp)
-                {
-                    if(nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_CODE, TYPE_CODE, 0, 0))
-                    {
-                        return(-1);
-                    }
-                }
-			    else
-			    {
-                    if(nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_DATA, TYPE_BYTE, 1, 0))
-                    {
-                        return(-1);
-                    }
-			    }
+				label_ref = nes->BankJMPList->get_real_bank(ref_bank);
+				ref_bank = nes->BankJMPList->fix_var_bank(read.w, ref_bank);
+				if(ref_bank != -1)
+				{
+					if(!get_cross_ref_validity(read.w, ref_bank, ref_bank, ref_bank, code_jmp, label_ref))
+					{
+						if(ref_bank >= bank_alias)
+						{
+							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, ref_bank, iROMOffset);
+							if(code_jmp)
+							{
+								if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_CODE, TYPE_CODE, 0, 0, ref_bank, iROMOffset, label_ref))
+								{
+									return(-1);
+								}
+							}
+							else
+							{
+								if(nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_BYTE, 1, 0, ref_bank, iROMOffset, label_ref))
+								{
+									return(-1);
+								}
+							}
+						}
+						else
+						{
+							if(code_jmp)
+							{
+								nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_CODE, TYPE_DEAD, 0, 0, ref_bank, iROMOffset, label_ref);
+							}
+							else
+							{
+								nes->BankJMPList->insert_label_bank(nes->BankJMPList->get_real_bank(ref_bank), read.w, TYPE_DATA, TYPE_DEAD, 0, 0, ref_bank, iROMOffset, label_ref);
+							}
+						}
+					}
+				}
 			}
 		    length += 2;
 			break;
@@ -1995,7 +2517,13 @@ int _2A03_map_instruction(int base_addr,
 		    offset = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w = address;
 			read.w += (int) ((short) ((char) offset)) + 2;
-            nes->BankJMPList->insert_label_bank(bank_alias, read.w, TYPE_CODE, TYPE_RELCODE, 0, 0);
+			if(read.w == 0xc03d)
+			{
+				int t;
+				t=0;
+			}
+			
+            nes->BankJMPList->insert_label_bank(bank, read.w, TYPE_CODE, TYPE_CODE, 0, 0, ref_bank, (iROMOffset - 1) + (int) ((short) ((char) offset)) + 2);
 		    length++;
 			break;
     	case NIL:
@@ -2106,6 +2634,22 @@ int write_address(char *operands, int dat)
 		    sprintf(temp, " APU_NOISE_REG4");
             strcat(operands, temp);
 		    return 0;
+		case 0x4010:
+		    sprintf(temp, " DMC_CTRL");
+            strcat(operands, temp);
+		    return 0;
+		case 0x4011:
+		    sprintf(temp, " DMC_LEV");
+            strcat(operands, temp);
+		    return 0;
+		case 0x4012:
+		    sprintf(temp, " DMC_ADDR");
+            strcat(operands, temp);
+		    return 0;
+		case 0x4013:
+		    sprintf(temp, " DMC_LEN");
+            strcat(operands, temp);
+		    return 0;
 	    case 0x4014:
 		    sprintf(temp, " PPU_SPR_DMA");
             strcat(operands, temp);
@@ -2123,7 +2667,14 @@ int write_address(char *operands, int dat)
             strcat(operands, temp);
 		    return 0;
         default:
-		    sprintf(temp, " $%.04x", dat);
+			if(dat >= 0x2000)
+			{
+				sprintf(temp, " $%.04x ; <<< WARNING: unknown register !", dat);
+			}
+			else
+			{
+				sprintf(temp, " $%.04x", dat);
+			}
             strcat(operands, temp);
 		    return 1;
     }

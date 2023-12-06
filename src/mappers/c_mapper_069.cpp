@@ -37,6 +37,7 @@ extern c_machine *o_machine;
 c_mapper_069 :: c_mapper_069 (void)
 {
 	__DBG_INSTALLING ("Mapper #069");
+
 	__DBG_INSTALLED ();
 }
 
@@ -53,7 +54,7 @@ void c_mapper_069 :: reset (void)
 	iIRQCounter = 0;
 	bControl = 0;
 
-	last_page_switched = 0x00;
+	last_page_switched = 0;
 	nes->o_cpu->swap_page (0x8000, 0, _16K_);
 	nes->o_cpu->swap_page (0xc000, nes->o_rom->information ().prg_pages - 1, _16K_);
 }

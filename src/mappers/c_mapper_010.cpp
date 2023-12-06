@@ -37,6 +37,7 @@ extern c_machine *o_machine;
 c_mapper_010 :: c_mapper_010 (void)
 {
 	__DBG_INSTALLING ("Mapper #010");
+
 	__DBG_INSTALLED ();
 }
 

@@ -71,7 +71,7 @@ AL_FUNC(void, disable_hardware_cursor, (void));
 #define MOUSE_CURSOR_EDIT        5
 #define AL_NUM_MOUSE_CURSORS        6
 
-AL_VAR(struct BITMAP *, mouse_sprite);
+AL_VAR(struct BITMAP_ *, mouse_sprite);
 AL_VAR(int, mouse_x_focus);
 AL_VAR(int, mouse_y_focus);
 
@@ -96,7 +96,7 @@ AL_VAR(volatile int, freeze_mouse_flag);
 
 AL_FUNCPTR(void, mouse_callback, (int flags));
 
-AL_FUNC(void, show_mouse, (struct BITMAP *bmp));
+AL_FUNC(void, show_mouse, (struct BITMAP_ *bmp));
 AL_FUNC(void, scare_mouse, (void));
 AL_FUNC(void, scare_mouse_area, (int x, int y, int w, int h));
 AL_FUNC(void, unscare_mouse, (void));
@@ -106,10 +106,10 @@ AL_FUNC(void, position_mouse_w, (int w));
 AL_FUNC(void, set_mouse_range, (int x1, int y_1, int x2, int y2));
 AL_FUNC(void, set_mouse_speed, (int xspeed, int yspeed));
 AL_FUNC(void, select_mouse_cursor, (int cursor));
-AL_FUNC(void, set_mouse_cursor_bitmap, (int cursor, struct BITMAP *bmp));
+AL_FUNC(void, set_mouse_cursor_bitmap, (int cursor, struct BITMAP_ *bmp));
 AL_FUNC(void, set_mouse_sprite_focus, (int x, int y));
 AL_FUNC(void, get_mouse_mickeys, (int *mickeyx, int *mickeyy));
-AL_FUNC(void, set_mouse_sprite, (struct BITMAP *sprite));
+AL_FUNC(void, set_mouse_sprite, (struct BITMAP_ *sprite));
 AL_FUNC(int, show_os_cursor, (int cursor));
 #ifdef __cplusplus
    }

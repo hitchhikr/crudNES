@@ -26,14 +26,14 @@
 
 #ifndef ALLEGRO_LIB_BUILD
 
-   #ifndef ALLEGRO_NO_CLEAR_BITMAP_ALIAS
+   #ifndef ALLEGRO_NO_CLEAR_BITMAP__ALIAS
       #if (defined ALLEGRO_GCC)
-         static __attribute__((unused)) __inline__ void clear(BITMAP *bmp)
+         static __attribute__((unused)) __inline__ void clear(BITMAP_ *bmp)
          {
             clear_bitmap(bmp);
          }
       #else
-         static INLINE void clear(BITMAP *bmp)
+         static INLINE void clear(BITMAP_ *bmp)
          {
             clear_bitmap(bmp);
          }
@@ -154,37 +154,37 @@ AL_FUNC_DEPRECATED(long, file_size, (AL_CONST char *filename));
 AL_VAR(int, _textmode);
 AL_FUNC_DEPRECATED(int, text_mode, (int mode));
 
-AL_INLINE_DEPRECATED(void, textout, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
+AL_INLINE_DEPRECATED(void, textout, (struct BITMAP_ *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
 {
    textout_ex(bmp, f, str, x, y, color, _textmode);
 })
 
-AL_INLINE_DEPRECATED(void, textout_centre, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
+AL_INLINE_DEPRECATED(void, textout_centre, (struct BITMAP_ *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
 {
    textout_centre_ex(bmp, f, str, x, y, color, _textmode);
 })
 
-AL_INLINE_DEPRECATED(void, textout_right, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
+AL_INLINE_DEPRECATED(void, textout_right, (struct BITMAP_ *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color),
 {
    textout_right_ex(bmp, f, str, x, y, color, _textmode);
 })
 
-AL_INLINE_DEPRECATED(void, textout_justify, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff, int color),
+AL_INLINE_DEPRECATED(void, textout_justify, (struct BITMAP_ *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff, int color),
 {
    textout_justify_ex(bmp, f, str, x1, x2, y, diff, color, _textmode);
 })
 
-AL_PRINTFUNC_DEPRECATED(void, textprintf, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC_DEPRECATED(void, textprintf_centre, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC_DEPRECATED(void, textprintf_right, (struct BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
-AL_PRINTFUNC_DEPRECATED(void, textprintf_justify, (struct BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, int diff, int color, AL_CONST char *format, ...), 8, 9);
+AL_PRINTFUNC_DEPRECATED(void, textprintf, (struct BITMAP_ *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
+AL_PRINTFUNC_DEPRECATED(void, textprintf_centre, (struct BITMAP_ *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
+AL_PRINTFUNC_DEPRECATED(void, textprintf_right, (struct BITMAP_ *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...), 6, 7);
+AL_PRINTFUNC_DEPRECATED(void, textprintf_justify, (struct BITMAP_ *bmp, AL_CONST FONT *f, int x1, int x2, int y, int diff, int color, AL_CONST char *format, ...), 8, 9);
 
-AL_INLINE_DEPRECATED(void, draw_character, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color),
+AL_INLINE_DEPRECATED(void, draw_character, (BITMAP_ *bmp, BITMAP_ *sprite, int x, int y, int color),
 {
    draw_character_ex(bmp, sprite, x, y, color, _textmode);
 })
 
-AL_INLINE_DEPRECATED(int, gui_textout, (struct BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int centre),
+AL_INLINE_DEPRECATED(int, gui_textout, (struct BITMAP_ *bmp, AL_CONST char *s, int x, int y, int color, int centre),
 {
    return gui_textout_ex(bmp, s, x, y, color, _textmode, centre);
 })
@@ -204,7 +204,7 @@ AL_INLINE_DEPRECATED(void, set_window_close_hook, (void (*proc)(void)),
 
 
 /* the weird old clipping API */
-AL_FUNC_DEPRECATED(void, set_clip, (BITMAP *bitmap, int x1, int y_1, int x2, int y2));
+AL_FUNC_DEPRECATED(void, set_clip, (BITMAP_ *bitmap, int x1, int y_1, int x2, int y2));
 
 
 /* unnecessary, can use rest(0) */

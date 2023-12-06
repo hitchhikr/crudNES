@@ -36,17 +36,17 @@
 
 /*macsbmp.c*/
 extern void _mac_init_system_bitmap(void);
-extern BITMAP *_mac_create_system_bitmap(int w, int h);
-extern void _mac_destroy_system_bitmap(BITMAP *bmp);
-extern void _mac_sys_set_clip(struct BITMAP *dst);
-extern void _mac_sys_clear_to_color8(BITMAP *bmp, int color);
-extern void _mac_sys_blit8(BITMAP *src, BITMAP *dst, int src_x, int src_y, int dst_x, int dst_y, int w, int h);
-extern void _mac_sys_selfblit8(BITMAP *src, BITMAP *dst, int src_x, int src_y, int dst_x, int dst_y, int w, int h);
-extern int _mac_sys_triangle(struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color);
-extern void _mac_sys_rectfill8(struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color);
-extern void _mac_sys_hline8(struct BITMAP *bmp, int x1, int y, int x2, int color);
-extern void _mac_sys_vline8(struct BITMAP *bmp, int x, int y_1, int y2, int color);
-extern BITMAP *_CGrafPtr_to_system_bitmap(CGrafPtr cg);
+extern BITMAP_ *_mac_create_system_bitmap(int w, int h);
+extern void _mac_destroy_system_bitmap(BITMAP_ *bmp);
+extern void _mac_sys_set_clip(struct BITMAP_ *dst);
+extern void _mac_sys_clear_to_color8(BITMAP_ *bmp, int color);
+extern void _mac_sys_blit8(BITMAP_ *src, BITMAP_ *dst, int src_x, int src_y, int dst_x, int dst_y, int w, int h);
+extern void _mac_sys_selfblit8(BITMAP_ *src, BITMAP_ *dst, int src_x, int src_y, int dst_x, int dst_y, int w, int h);
+extern int _mac_sys_triangle(struct BITMAP_ *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color);
+extern void _mac_sys_rectfill8(struct BITMAP_ *bmp, int x1, int y_1, int x2, int y2, int color);
+extern void _mac_sys_hline8(struct BITMAP_ *bmp, int x1, int y, int x2, int color);
+extern void _mac_sys_vline8(struct BITMAP_ *bmp, int x, int y_1, int y2, int color);
+extern BITMAP_ *_CGrafPtr_to_system_bitmap(CGrafPtr cg);
 
 /*macdraw.c*/
 extern GDHandle MainGDevice;

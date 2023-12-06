@@ -41,6 +41,7 @@ extern c_machine *o_machine;
 c_mapper_004 :: c_mapper_004 (void)
 {
 	__DBG_INSTALLING ("Mapper #004");
+
 	__DBG_INSTALLED ();
 }
 
@@ -221,9 +222,13 @@ void c_mapper_004 :: h_blank (void)
 		iIRQCounter --;
 	}
 	
-	if (!iIRQCounter) {
+	if (!iIRQCounter)
+	{
 		bNeedsReload = TRUE;
-		if (bIRQEnabled) { nes->o_cpu->request_irq (); }
+		if (bIRQEnabled)
+		{
+			nes->o_cpu->request_irq ();
+		}
 	}
 
 lblDone:

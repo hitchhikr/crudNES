@@ -45,21 +45,21 @@ typedef struct BMP_EXTRA_INFO {
 
 #define BMP_EXTRA(bmp) ((BMP_EXTRA_INFO *)(bmp->extra))
 
-AL_VAR(BITMAP *, ph_frontbuffer);
+AL_VAR(BITMAP_ *, ph_frontbuffer);
 
-AL_FUNC(uintptr_t, ph_write_line, (BITMAP *bmp, int lyne));
-AL_FUNC(uintptr_t, ph_write_line_asm, (BITMAP *bmp, int lyne));
-AL_FUNC(void, ph_unwrite_line, (BITMAP *bmp, int lyne));
-AL_FUNC(void, ph_unwrite_line_asm, (BITMAP *bmp, int lyne));
-AL_FUNC(void, ph_acquire, (BITMAP *bmp));
-AL_FUNC(void, ph_release, (BITMAP *bmp));
-AL_FUNC(BITMAP *, make_photon_bitmap, (PdOffscreenContext_t *context, int w, int h, int id));
-AL_FUNC(void, destroy_photon_bitmap, (BITMAP *bmp));
-AL_FUNC(void, qnx_ph_created_sub_bitmap, (BITMAP *bmp, BITMAP *parent));
-AL_FUNC(BITMAP *, qnx_ph_create_video_bitmap, (int width, int height));
-AL_FUNC(void, qnx_ph_destroy_video_bitmap, (BITMAP *bmp));
-AL_FUNC(int, qnx_ph_show_video_bitmap, (BITMAP *bmp));
-AL_FUNC(int, qnx_ph_request_video_bitmap, (BITMAP *bmp));
+AL_FUNC(uintptr_t, ph_write_line, (BITMAP_ *bmp, int lyne));
+AL_FUNC(uintptr_t, ph_write_line_asm, (BITMAP_ *bmp, int lyne));
+AL_FUNC(void, ph_unwrite_line, (BITMAP_ *bmp, int lyne));
+AL_FUNC(void, ph_unwrite_line_asm, (BITMAP_ *bmp, int lyne));
+AL_FUNC(void, ph_acquire, (BITMAP_ *bmp));
+AL_FUNC(void, ph_release, (BITMAP_ *bmp));
+AL_FUNC(BITMAP_ *, make_photon_bitmap, (PdOffscreenContext_t *context, int w, int h, int id));
+AL_FUNC(void, destroy_photon_bitmap, (BITMAP_ *bmp));
+AL_FUNC(void, qnx_ph_created_sub_bitmap, (BITMAP_ *bmp, BITMAP_ *parent));
+AL_FUNC(BITMAP_ *, qnx_ph_create_video_bitmap, (int width, int height));
+AL_FUNC(void, qnx_ph_destroy_video_bitmap, (BITMAP_ *bmp));
+AL_FUNC(int, qnx_ph_show_video_bitmap, (BITMAP_ *bmp));
+AL_FUNC(int, qnx_ph_request_video_bitmap, (BITMAP_ *bmp));
 
 
 /* from qphoton.c */
@@ -77,7 +77,7 @@ AL_FUNC(void, setup_driver, (GFX_DRIVER *drv, int w, int h, int color_depth));
 
 
 /* from qphwin.c */
-AL_VAR(BITMAP *, pseudo_screen);
+AL_VAR(BITMAP_ *, pseudo_screen);
 
 AL_FUNCPTR(void, ph_update_window, (PhRect_t* rect));
 

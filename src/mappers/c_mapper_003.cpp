@@ -46,12 +46,11 @@ c_mapper_003:: c_mapper_003(void)
 
     // Only the chr pages are switchable (at ppu:0000)
     // the prg is either 16k (c000) or 32k (8000)
-
     s_label_node *pages = NULL;
     if(nes->o_rom->information().prg_pages == 1)
     {
         // 16k
-        pages = pages->Create(pages, 0xc000, _16K_, start, 0, 0, 0);
+        pages = pages->create_page(pages, 0, 0xc000, _16K_, start, 0, 0, 0, 0);
         nes->prg_pages = pages;
         start += _16K_;
         max_pages++;
@@ -60,24 +59,25 @@ c_mapper_003:: c_mapper_003(void)
     {
         // 32k
         start = 0;
-        pages = pages->Create(pages, 0x8000, _32K_, start, 0, 1, 0);
+        pages = pages->create_page(pages, 0, 0x8000, _32K_, start, 0, 1, 0, 0);
         nes->prg_pages = pages;
         start += _32K_;
         max_pages += 2;
     }
     
     // Chr pages
-    pages = NULL;
-    pages = pages->Create(pages, 0x0000, _8K_, start, 0, 0, 0);
+//    pages = NULL;
+    pages = pages->create_page(pages, 0, 0x0000, _8K_, start, 0, 0, 0, start >> 12);
     max_pages++;
     start += _8K_;
     nes->chr_pages = pages;
     for(i = 1; i < (int) nes->o_rom->information().chr_pages; i++)
     {
-        pages = pages->Create(pages, 0x0000, _8K_, start, i, i, i);
+        pages = pages->create_page(pages, i, 0x0000, _8K_, start, i, i, i, start >> 12);
         max_pages++;
         start += _8K_;
     }
+
 	__DBG_INSTALLED ();
 }
 

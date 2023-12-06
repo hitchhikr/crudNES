@@ -41,8 +41,8 @@
 
 extern c_machine *o_machine;
 
-class c_input {
-
+class c_input
+{
 	public:
 		c_input (void);
 		~c_input (void);

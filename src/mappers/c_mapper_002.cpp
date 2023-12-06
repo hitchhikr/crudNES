@@ -49,17 +49,17 @@ c_mapper_002:: c_mapper_002(void)
     // except the last one which starts at 0xc000
     // No chr pages
     s_label_node *pages = NULL;
-    pages = pages->Create(pages, 0x8000, _16K_, start, 0, 0, 0);
+    pages = pages->create_page(pages, 0, 0x8000, _16K_, start, 0, 0, 0, 0);
     max_pages++;
     start += _16K_;
     nes->prg_pages = pages;
     for(i = 1; i < (int) nes->o_rom->information ().prg_pages - 1; i++)
     {
-        pages = pages->Create(pages, 0x8000, _16K_, start, i, i, i);
+        pages = pages->create_page(pages, i, 0x8000, _16K_, start, i, i, i, start);
         max_pages++;
         start += _16K_;
     }
-    pages->Create(pages, 0xc000, _16K_, start, i, i, i);
+    pages->create_page(pages, i, 0xc000, _16K_, start, i, i, i, start);
     max_pages++;
 
 	__DBG_INSTALLED ();

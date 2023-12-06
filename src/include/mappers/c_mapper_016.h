@@ -34,9 +34,16 @@ class c_mapper_016 : public c_mapper {
 		void write_byte (__UINT_16, __UINT_8);
 		void h_blank (void);
 
+		__UINT_8 get_prg_bank_number (__UINT_16 address)
+		{
+		    return last_prg_page;
+		}
+
 	private:
+		__UINT_16 bLatch;
 		__BOOL bIRQEnabled;
 		__INT_32 iIRQCounter;
+		int last_prg_page;
 		
 };
 

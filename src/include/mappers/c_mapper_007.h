@@ -34,25 +34,9 @@ class c_mapper_007 : public c_mapper
 		void reset (void);
 		void write_byte (__UINT_16, __UINT_8);
 
-		void create_label (s_label_node *o_label, __UINT_16 address, __UINT_8 type, __UINT_8 sub_type, int base)
-		{
-			o_label->contents = address;
-            o_label->bank = get_bank_number (address);
-			o_label->type = type;
-			o_label->sub_type = sub_type;
-			o_label->jump_base_table = base;
-		}
-
 		__UINT_8 get_bank_number (__UINT_16 address)
 		{
 			return get_last_page_switched ();
-		}
-
-		int get_bank_alias(int bank, int address)
-		{
-            // Case where there's jumps lower bank from the last one.
-            //if((nes->o_rom->information ().prg_pages - 1) == bank) return -1;
-            return bank;
 		}
 
 };

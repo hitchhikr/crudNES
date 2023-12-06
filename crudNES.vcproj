@@ -28,7 +28,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="3"
 				OptimizeForWindowsApplication="TRUE"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWSWS;__CRUDNES_ALLEGRO_GUI;__CRUDNES_ALLEGRO;__CRUDNES_NES_LOGGING_LABELS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWSWS;__CRUDNES_ALLEGRO"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="4"
@@ -46,7 +46,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="alleg.lib"
+				AdditionalDependencies="alleg.lib zlib.lib"
 				OutputFile=".\bin/crudNES.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -93,7 +93,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;__CRUDNES_ALLEGRO;__CRUDNES_NES_LOGGING_LABELS;__CRUDNES_ALLEGRO_GUI"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;__CRUDNES_ALLEGRO"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
 				UsePrecompiledHeader="2"
@@ -108,7 +108,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="alleg.lib"
+				AdditionalDependencies="alleg.lib zlib.lib"
 				OutputFile=".\bin/crudNES.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -171,24 +171,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Src\2xSai.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="Src\c_control.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -226,24 +208,6 @@
 			</File>
 			<File
 				RelativePath="Src\c_graphics.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Src\c_gui.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -430,9 +394,6 @@
 				RelativePath="Src\Include\2a03.h">
 			</File>
 			<File
-				RelativePath="Src\Include\2xSai.h">
-			</File>
-			<File
 				RelativePath="Src\Include\c_control.h">
 			</File>
 			<File
@@ -440,9 +401,6 @@
 			</File>
 			<File
 				RelativePath="Src\Include\c_graphics.h">
-			</File>
-			<File
-				RelativePath="Src\Include\c_gui.h">
 			</File>
 			<File
 				RelativePath="Src\Include\c_input.h">
@@ -470,6 +428,9 @@
 			</File>
 			<File
 				RelativePath="Src\Include\c_tracer.h">
+			</File>
+			<File
+				RelativePath=".\src\include\clist.h">
 			</File>
 			<File
 				RelativePath="Src\Include\datatypes.h">

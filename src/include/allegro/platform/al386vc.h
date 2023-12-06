@@ -44,11 +44,11 @@ END_OF_INLINE(_default_ds);
 /* bmp_write_line:
  *  Bank switch function.
  */
-INLINE _AL_DLL uintptr_t bmp_write_line(BITMAP *bmp, int lyne)
+INLINE _AL_DLL uintptr_t bmp_write_line(BITMAP_ *bmp, int lyne)
 { 
    _asm { 
       mov edx, bmp
-      mov ecx, [edx]BITMAP.write_bank
+      mov ecx, [edx]BITMAP_.write_bank
       mov eax, lyne
       call ecx
    }
@@ -61,11 +61,11 @@ END_OF_INLINE(bmp_write_line);
 /* bmp_read_line:
  *  Bank switch function.
  */
-INLINE _AL_DLL uintptr_t bmp_read_line(BITMAP *bmp, int lyne)
+INLINE _AL_DLL uintptr_t bmp_read_line(BITMAP_ *bmp, int lyne)
 {
    _asm {
       mov edx, bmp
-      mov ecx, [edx]BITMAP.read_bank
+      mov ecx, [edx]BITMAP_.read_bank
       mov eax, lyne
       call ecx
    }
@@ -78,11 +78,11 @@ END_OF_INLINE(bmp_read_line);
 /* bmp_unwrite_line:
  *  Terminate bank switch function.
  */
-INLINE _AL_DLL void bmp_unwrite_line(BITMAP *bmp)
+INLINE _AL_DLL void bmp_unwrite_line(BITMAP_ *bmp)
 {
    _asm {
       mov edx, bmp
-      mov ecx, [edx]BITMAP.vtable
+      mov ecx, [edx]BITMAP_.vtable
       mov ecx, [ecx]GFX_VTABLE.unwrite_bank
       call ecx
    }

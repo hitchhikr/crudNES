@@ -22,7 +22,7 @@
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
-//#include <unzip.h>
+#include <unzip.h>
 
 #include "include/c_tracer.h"
 #include "include/c_ppu.h"
@@ -43,10 +43,11 @@ c_nes_rom :: c_nes_rom (const char *filename)
 {
 	info.filename = new char [strlen (filename) + 1];
 	strcpy (info.filename, filename);
-	//char *extension = strrchr (filename, '.');
-	//if (!strcmp (extension, ".zip")) FileType = __ZIP;
-	//else 
-	FileType = __REGULAR;
+	char *extension = strrchr (filename, '.');
+	if (!strcmp (extension, ".zip"))
+		FileType = __ZIP;
+	else 
+		FileType = __REGULAR;
 
 	nes->general_log.f_write ("sss", "ROM: Loaded ", filename, "\r\n");
 }
@@ -66,13 +67,13 @@ void c_nes_rom :: close (void)
 {
 	if (info.handle)
 	{
-		//if (__REGULAR == FileType) 
-		fclose ((FILE *)(info.handle));
-		/*else
+		if (__REGULAR == FileType) 
+			fclose ((FILE *)(info.handle));
+		else
 		{
 			unzCloseCurrentFile (info.handle);
 			unzClose (info.handle);
-		}*/
+		}
 		info.handle = NULL;
 	}
 }
@@ -90,20 +91,21 @@ __BOOL c_nes_rom :: check_header (int PAL)
 {
 	char bNESHeader [16];
 
-/*	if (__REGULAR == FileType)
-	{*/
+	if (__REGULAR == FileType)
+	{
 		info.handle = (FILE *)(fopen (info.filename, "rb"));
 		if (!info.handle) return TRUE;
 		info.Size = filelength (fileno ((FILE *)(info.handle)));
 		fread (bNESHeader, 1, 8, (FILE *)(info.handle));
-/*	}
-	else {
+	}
+	else
+	{
 		info.handle = unzOpen (info.filename);
 		if (!info.handle) return TRUE;
 		unzGoToFirstFile (info.handle);
 		unzOpenCurrentFile (info.handle);
 		unzReadCurrentFile (info.handle, bNESHeader, 16);
-	}*/
+	}
 
 	if (!strncmp (bNESHeader, "NES\x1a", 4))
 	{
@@ -120,8 +122,8 @@ __BOOL c_nes_rom :: check_header (int PAL)
         info.pal = PAL;
 
 		nes->general_log.f_write ("s", "ROM: Cartridge information:\r\n");
-		nes->general_log.f_write ("sbs", "PRG-ROM pages: ", info.prg_pages, "\r\n");
-		nes->general_log.f_write ("sbs", "CHR-ROM pages: ", info.chr_pages, "\r\n");
+		nes->general_log.f_write ("sds", "PRG-ROM pages: ", info.prg_pages, "\r\n");
+		nes->general_log.f_write ("sds", "CHR-ROM pages: ", info.chr_pages, "\r\n");
 
 		nes->general_log.f_write ("s", "mirroring: ");
 
@@ -136,7 +138,7 @@ __BOOL c_nes_rom :: check_header (int PAL)
 
 		nes->general_log.f_write ("sss", "SRAM: ", (info.o_sram) ? "available" : "not available", "\r\n");
 		nes->general_log.f_write ("sss", "Trainer: ", (info.trainer) ? "available" : "not available", ".\r\n");
-		nes->general_log.f_write ("sbs", "Mapper: ", info.mapper, "\r\n");
+		nes->general_log.f_write ("sds", "Mapper: ", info.mapper, "\r\n");
 
 	}
 	else return TRUE;
@@ -149,11 +151,12 @@ __BOOL c_nes_rom :: check_header (int PAL)
 
 __UINT_8 c_nes_rom :: read_byte (__UINT_32 address)
 {
-	/*if (__REGULAR == FileType)
-	{*/
+	if (__REGULAR == FileType)
+	{
 		fseek ((FILE *)(info.handle), address, SEEK_SET);
 		return fgetc ((FILE *)(info.handle));
-//	}
+	}
+	return 0;
 }
 
 /******************************************************************************/
@@ -164,14 +167,41 @@ __UINT_8 c_nes_rom :: read_byte (__UINT_32 address)
 
 void c_nes_rom :: transfer_block (__UINT_8 *destination, __UINT_32 where, __UINT_32 length)
 {
-/*	if (__REGULAR == FileType)
-	{*/
+	if (__REGULAR == FileType)
+	{
 		fseek ((FILE *)(info.handle), where, SEEK_SET);
 		fread (destination, 1, length, (FILE *)(info.handle));
-/*	}
+	}
 	else
 	{
 		unzReadCurrentFile (info.handle, destination, length);
-	}*/
+	}
 }
 
+void c_nes_rom :: load_ROM(const char *filename, __UINT_32 where_in_source, __UINT_32 header_buffer, __UINT_32 rom_buffer,__UINT_32 size)
+{
+	if (__REGULAR == FileType)
+	{
+		FILE *handle = fopen (filename, "rb");
+		if (!handle) { return; }
+
+		fseek (handle, where_in_source, SEEK_SET);
+		fread ((void *) header_buffer, 1, 0x10, handle);
+		fread ((void *) rom_buffer, 1, size, handle);
+		
+		fclose (handle); 
+	}
+	else
+	{
+		void *handle;
+
+		handle = unzOpen (info.filename);
+		if (!handle) return;
+		unzGoToFirstFile (handle);
+		unzOpenCurrentFile (handle);
+		unzReadCurrentFile (handle, (voidp) header_buffer, 0x10);
+		unzReadCurrentFile (handle, (voidp) rom_buffer, size);
+		unzCloseCurrentFile (handle);
+		unzClose (handle);
+	}
+}

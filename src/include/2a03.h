@@ -65,18 +65,26 @@ extern void _2A03_set_label_holder (__BOOL);
 extern void _2A03_toggle_tracer (void);
 extern void _2A03_set_tracer (__BOOL);
 extern __BOOL _2A03_get_tracer (void);
+extern void _2A03_toggle_logtracer (void);
+extern void _2A03_set_logtracer (__BOOL);
+extern __BOOL _2A03_get_logtracer (void);
 extern int _2A03_get_instruction(int base_addr,
                                  int address,
                                  int bank_lo,
                                  int bank_hi,
                                  __INT_32 iROMOffset,
                                  char *instruction,
-                                 int bank_alias);
+                                 int bank_alias,
+								 int label_bank,
+								 int label_ref,
+								 int real_bank);
 extern int _2A03_map_instruction (int base_addr,
                                   int address,
                                   int bank,
                                   __INT_32 iROMOffset,
-                                  int bank_alias);
+                                  int bank_alias,
+								  int ref_bank,
+								  int sub_type);
 
 class c_tracer;
 

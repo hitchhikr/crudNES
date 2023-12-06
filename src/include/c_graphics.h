@@ -32,13 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "2xsai.h"
 #include "datatypes.h"
-
-#ifdef __CRUDNES_ALLEGRO_GUI
-	#include "c_gui.h"
-	extern NESGUIHandler NESGUI;
-#endif
 
 extern __UINT_16 nes_palette [512];
 
@@ -49,22 +43,15 @@ class c_graphics
 		c_graphics (void);
 		~c_graphics (void);
 
-		void set_full_screen (__BOOL status) { is_full_screen_mode = status; }
-		void toggle_full_screen (void) 
-		{
-			if (is_full_screen_mode) { set_gfx_mode (GFX_AUTODETECT_WINDOWED, display_w, display_h, 0, 0); is_full_screen_mode = FALSE; }
-			else { set_gfx_mode (GFX_AUTODETECT_FULLSCREEN, 320, 240, 0, 0); is_full_screen_mode = TRUE; }	
-		}
 		void lock_buffer (void) { acquire_bitmap (active_page); }
 		void unlock_buffer (void) { release_bitmap (active_page);	}
 
 		void put_pixel (__UINT_32 x_offset, __UINT_32 y_offset, __UINT_16 color)
 		{
 			#ifdef __CRUDNES_ALLEGRO
-				//if (8 == color_depth) ((__UINT_8 *)active_page->line[y_offset])[x_offset] = (__UINT_8)(color);
-				//else 
 				((__UINT_16 *)active_page->line[y_offset])[x_offset] = color;
 			#elif defined CRUDNES_SDL
+
 			#endif
 		}
 
@@ -85,16 +72,19 @@ class c_graphics
 		__BOOL is_config_requested (void) { return config_requested; }
 		void load_config (void);
 
-		__BOOL is_v_sync_enabled (void) { return v_sync_enabled; }
+		__BOOL is_v_sync_enabled (void)
+		{
+			return v_sync_enabled;
+		}
 
 	private:
 		#ifdef __CRUDNES_ALLEGRO
-			BITMAP *active_page, *filter_page;
+			BITMAP_ *active_page;
 		#elif defined (CRUDNES_SDL)
 			SDL_Surface *active_page;
 		#endif
 
-		__BOOL is_full_screen_mode, v_sync_enabled, config_requested;
+		__BOOL v_sync_enabled, config_requested;
 
 		__UINT_8 *dummy;
 

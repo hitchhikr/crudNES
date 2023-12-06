@@ -63,6 +63,7 @@ class c_nes : public c_machine
 
 		void set_instruction_dumper (__BOOL o_state);
 		void set_label_holder (__BOOL o_state);
+		void set_log_tracer (__BOOL o_state);
 
 		void set_sram (const char *Path);
 		void dump_header (const char *Path);

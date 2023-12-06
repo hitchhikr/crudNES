@@ -99,14 +99,12 @@ __UINT_8 c_input :: handle_key (void)
 	if (key [KEY_F7]) nes->o_state->DecrementSlot ();
 	if (key [KEY_F8]) nes->o_state->IncrementSlot ();
 	if (key [KEY_F10]) nes->o_cpu->reset ();
-	//if (key [KEY_F12]) nes->o_cpu->toggle_tracer ();
-	//if (key [KEY_ENTER] && (key_shifts & KB_ALT_FLAG)) { nes->o_gfx->toggle_full_screen (); }
-/*	if (key [KEY_P])
+	if (key [KEY_F12]) nes->o_cpu->toggle_logtracer ();
+	if (key [KEY_P])
 	{
 	    key [KEY_P] = FALSE;
 	    nes->pause ();
 	}
-*/
 
 	return CPU_INT_NONE;
 }

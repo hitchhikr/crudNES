@@ -56,8 +56,6 @@ class c_machine {
 
 		__BOOL bIsPowerOff, bis_running, bis_paused;
 		char *SRamPath;
-		
-
 };
 
 #endif

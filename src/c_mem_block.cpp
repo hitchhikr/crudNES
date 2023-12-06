@@ -57,6 +57,7 @@ void c_mem_block :: default_construction (__UINT_32 size)
 	this->size = size;
 	uiAccessMask = size - 1;
 	__NEW_MEM_BLOCK (valueBlock, __UINT_8, size);
+	memset (valueBlock, 0, size);
 }
 
 void c_mem_block :: load_from (const __UINT_8 *bSource, __UINT_32 where_in_source, __UINT_32 dest_where, __UINT_32 size)
@@ -93,7 +94,7 @@ void c_mem_block :: dump_to (c_tracer &TDump, char *dump_title, __UINT_32 where_
 	{
 		case BINARY:
 			TDump.write (valueBlock + where_in_source, size);
-		break;
+			break;
 
 		case BYTE_HEX:
 			TDump.f_write ("ss", dump_title, ":\r\n\r\n");
@@ -109,7 +110,12 @@ void c_mem_block :: dump_to (c_tracer &TDump, char *dump_title, __UINT_32 where_
 					TDump.f_write ("b", valueBlock [where_in_source]);
 					valueOnLine ++;
 				}
-				else if (valueOnLine == 0x10) { valueOnLine = 0; where_in_source --; TDump.f_write ("s", "\r\n"); }
+				else if (valueOnLine == 0x10)
+				{
+					valueOnLine = 0;
+					where_in_source --;
+					TDump.f_write ("s", "\r\n");
+				}
 				else 
 				{
 					TDump.f_write ("sb", ",", valueBlock [where_in_source]);

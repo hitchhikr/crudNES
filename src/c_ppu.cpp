@@ -65,7 +65,6 @@ __UINT_16 mirroring_modes [][4] =
 
 extern "C"
 {
-	//void clear (__UINT_8 *destination);
 	void RenderTileline (__UINT_8 *destination, __UINT_8 *Solid, __UINT_16 *Palette, __UINT_8 *VRam,  s_rendering_information *information, __UINT_16 Pattern, __UINT_16 Attribute);
 }
 
@@ -87,18 +86,19 @@ c_nes_ppu :: c_nes_ppu (void)
 	info.color_emphasis = 0;
 	info.is_collision_event_pending = FALSE;
 	
+	srand(time(NULL));
 	bwriteSwitch = FALSE;
-	memset (registers, 0x00, 8);
+	memset (registers, 0, sizeof(registers));
 
 	//Used by the cycle-accurate engine
 	is_frame_even = TRUE;
 	state_changed = TRUE;
 
 	accurate_tile_index = 0;
-	memset (nt_set, 0x00, 34);
-	memset (at_set, 0x00, 34);
-	memset (low_pattern_set, 0x00, 34);
-	memset (high_pattern_set, 0x00, 34);
+	memset (nt_set, 0x00, sizeof(nt_set));
+	memset (at_set, 0x00, sizeof(at_set));
+	memset (low_pattern_set, 0x00, sizeof(low_pattern_set));
+	memset (high_pattern_set, 0x00, sizeof(high_pattern_set));
 
 	//VRAM -> 16K bytes
 	//CHRROM -> Size is determined by the ROM header.
@@ -216,16 +216,10 @@ void c_nes_ppu :: run_accurate ()
 
 			if (!spr_tmp_index && is_primary_backup)
 			{
-				//if (nes->o_gfx->get_color_depth () == 8)
-				//	render_po_tileline (sprite_data [SPR_X], info.scanline, tileline, sprite_data [SPR_ATTRIBUTE] & 3, sprite_data [SPR_ATTRIBUTE] & BIT_6, sprite_data [SPR_ATTRIBUTE] & BIT_5);
-				//else 
 				render_po_tileline_16 (sprite_data [SPR_X], info.scanline, tileline, sprite_data [SPR_ATTRIBUTE] & 3, sprite_data [SPR_ATTRIBUTE] & BIT_6, sprite_data [SPR_ATTRIBUTE] & BIT_5);
 			}
 			else
 			{
-				//if (nes->o_gfx->get_color_depth () == 8)
-					//render_sp_tileline (sprite_data [SPR_X], tileline, sprite_data [SPR_ATTRIBUTE] & 3, sprite_data [SPR_ATTRIBUTE] & BIT_6, sprite_data [SPR_ATTRIBUTE] & BIT_5);
-				//else 
 				render_sp_tileline_16 (sprite_data [SPR_X], tileline, sprite_data [SPR_ATTRIBUTE] & 3, sprite_data [SPR_ATTRIBUTE] & BIT_6, sprite_data [SPR_ATTRIBUTE] & BIT_5);
 			}
 		}
@@ -243,21 +237,15 @@ void c_nes_ppu :: run_accurate ()
 
 	//Background rendering
 	bTile = 0;
-	//if (nes->o_gfx->get_color_depth () == 8) 
-	//render_bg_tileline ();
-	//else 
 
 	if (!get_flag (CTL_2, BIT_1))
 	{
-		//if (nes->o_gfx->get_color_depth () == 8) nes->o_gfx->clear (info.scanline, 0, 8, _2C02_NES_COLOR (__UINT_8, background_palette, 0));
-		//else 
 		nes->o_gfx->clear (info.scanline, 0, 8, _2C02_NES_COLOR (__UINT_16, background_palette, 0));
 	}
 
     if (nes->is_mmc2_vrom)
     {
-	    int changeline = info.bg_pattern_base |
-	                     (nt_set[0] << 4);
+	    int changeline = info.bg_pattern_base | (nt_set[0] << 4);
         if((changeline & 0xf00) == 0xf00)
         {
             nes->o_mapper->update (&changeline);
@@ -268,28 +256,20 @@ void c_nes_ppu :: run_accurate ()
 	accurate_tile_index ++;
 
 	//Memory fetch phase #2-128
-/*	if (nes->o_gfx->get_color_depth () == 8)
+	for (bTile = 1; bTile < 32; bTile ++, accurate_tile_index ++)
 	{
-		for (bTile = 1; bTile < 32; bTile ++, accurate_tile_index ++)
-			render_bg_tileline ();
-	}
-	else {*/
-		for (bTile = 1; bTile < 32; bTile ++, accurate_tile_index ++)
-		{
-            if (nes->is_mmc2_vrom)
+        if (nes->is_mmc2_vrom)
+        {
+	        int changeline = info.bg_pattern_base |
+	                            (nt_set[bTile + 1] << 4);
+            if((changeline & 0xf00) == 0xf00)
             {
-	            int changeline = info.bg_pattern_base |
-	                             (nt_set[bTile + 1] << 4);
-                if((changeline & 0xf00) == 0xf00)
-                {
-                    nes->o_mapper->update (&changeline);
-                }
+                nes->o_mapper->update (&changeline);
             }
-			render_bg_tileline16 ();
         }
+		render_bg_tileline16 ();
+    }
         
-//	}
-
 	//Memory fetch phase #129-160
 	//PPU CC #256 is when the PPU's scroll/address counters have their 
 	//horizontal values automatically updated
@@ -300,12 +280,9 @@ void c_nes_ppu :: run_accurate ()
 	//horizontal scroll counter, the PPU must render at least 256 pixels, thus it has got to render
 	//an extra tileline. Notice that 8 PPU cycles will be executed, and nametable data corresponding
 	//to the first two tiles of the next scanline is fetched.
-	//if (nes->o_gfx->get_color_depth () == 8) render_bg_tileline ();
-	//else 
     if (nes->is_mmc2_vrom)
     {
-	    int changeline = info.bg_pattern_base |
-	                    (nt_set[31] << 4);
+	    int changeline = info.bg_pattern_base | (nt_set[31] << 4);
         if((changeline & 0xf00) == 0xf00)
         {
             nes->o_mapper->update (&changeline);
@@ -381,7 +358,7 @@ void c_nes_ppu :: run_accurate ()
 	nes->o_cpu->run_cycles (4);
 
 	//Dead cycle
-	if (info.scanline||nes->o_cpu->is_pal ()) nes->o_cpu->run_cycles (1);
+	if (info.scanline || nes->o_cpu->is_pal ()) nes->o_cpu->run_cycles (1);
 	else 
 	{
 		if (is_frame_even) nes->o_cpu->run_cycles (1);
@@ -435,7 +412,6 @@ void c_nes_ppu :: render_bg_tileline16 (void)
 	}
 	else
 	{
-		//if (nes->o_cpu->is_tracer_on ()) nes->general_log.f_write ("s", "---------------------- Vertical Counter Updated -----------------------\r\n");
 		nes->o_cpu->run_cycles (1);
 		update_v_counter ();
 	}
@@ -682,6 +658,26 @@ __UINT_8 c_nes_ppu :: read_byte (__UINT_16 address)
 
 	switch (address & 7)
     {
+    	case 0x00:
+			value = registers [CTL_1];
+			break;
+
+    	case 0x01:
+			value = registers [CTL_2];
+			break;
+
+    	case 0x03:
+			value = registers [SPRMEM];
+			break;
+
+    	case 0x05:
+			value = registers [SCROLL];
+			break;
+
+    	case 0x06:
+			value = registers [MEM];
+			break;
+
     	case 0x02:
 			if (IsEventPending (POC) && (_2A03_get_current_time () >= info.po_collision_cycle))
 				AcknowledgeEvent (POC);
@@ -700,8 +696,16 @@ __UINT_8 c_nes_ppu :: read_byte (__UINT_16 address)
 				return 0x40;
 			}
 
-			register __UINT_16 address = reg.contents & 0x3fff;
-			value = read_read_buffer ();
+			if(nes->o_mapper->mapper_185 >= 1 && nes->o_mapper->mapper_185 < 3)
+			{
+				value = rand();
+				nes->o_mapper->mapper_185++;
+			}
+			else
+			{
+				register __UINT_16 address = reg.contents & 0x3fff;
+				value = read_read_buffer ();
+			}
 
 			if (address < 0x2000) set_read_buffer (read_chr_ram (address));
 			else if (address < 0x3000) set_read_buffer (read_nt_byte (address));
@@ -714,8 +718,7 @@ __UINT_8 c_nes_ppu :: read_byte (__UINT_16 address)
 
 		case 0x04: 
 			value = read_oam_byte ();
-			if (!info.is_v_blank
-				&& get_flag (CTL_2, BIT_4 | BIT_3))
+			if (!info.is_v_blank && get_flag (CTL_2, BIT_4 | BIT_3))
 				oam_address ++;
 			break;
 	}
@@ -836,7 +839,7 @@ void c_nes_ppu :: write_byte (__UINT_16 address, __UINT_8 value)
 void c_nes_ppu :: swap_page (__UINT_16 dest_where, __UINT_16 page_number, e_page_sizes size)
 {
 	if (!nes->o_rom->information ().chr_pages) return;
-	if (nes->o_cpu->is_tracer_on ()) nes->general_log.f_write ("sbsws", "PPU: Page ", page_number, " swapped at ", dest_where, "\r\n");
+//	if (nes->o_cpu->is_tracer_on ()) nes->general_log.f_write ("sbsws", "PPU: Page ", page_number, " swapped at ", dest_where, "\r\n");
 
     is_chr_rom = TRUE;
     // divide by 1024
@@ -855,7 +858,7 @@ void c_nes_ppu :: swap_page (__UINT_16 dest_where, __UINT_16 page_number, e_page
 void c_nes_ppu :: swap_page (__UINT_8 **destination, __UINT_16 dest_where, __UINT_16 page_number, e_page_sizes size)
 {
 	if (!nes->o_rom->information ().chr_pages) return;
-	if (nes->o_cpu->is_tracer_on ()) nes->general_log.f_write ("sbsws", "PPU: Page ", page_number, " swapped at ", dest_where, "\r\n");
+//	if (nes->o_cpu->is_tracer_on ()) nes->general_log.f_write ("sbsws", "PPU: Page ", page_number, " swapped at ", dest_where, "\r\n");
 
     is_chr_rom = TRUE;
 	dest_where >>= 10;
@@ -864,7 +867,7 @@ void c_nes_ppu :: swap_page (__UINT_8 **destination, __UINT_16 dest_where, __UIN
 
 	for (__UINT_8 page = 1; page < uiRealSize; page ++, dest_where ++)
 	{
-			destination [dest_where] = destination [dest_where - 1] + _1K_;
+		destination [dest_where] = destination [dest_where - 1] + _1K_;
     }	
 
 }
