@@ -2,7 +2,7 @@
     crudNES - A NES emulator for reverse engineering purposes
     NROM
     Copyright (C) 2003-2004 Sadai Sarmiento
-    Copyright (C) 2023 Franck "hitchhikr" Charlet
+    Copyright (C) 2023-2024 Franck "hitchhikr" Charlet
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,16 +52,8 @@ c_mapper_000 :: c_mapper_000 (void)
     
     if(nes->o_rom->information().prg_pages == 1)
     {
-        if(nes->o_rom->information().mirroring)
-        {
-            pages = pages->create_page(pages, 0, 0xc000, _16K_, start, 0, 1, 0, 0);
-        }
-        else
-        {
-            // Binary land starts at 0xc000 and Exerion at 0x8000
-            // we'll probably need crc32 checking.
-            pages = pages->create_page(pages, 0, 0x8000, _16K_, start, 0, 1, 0, 0);
-        }
+        // Binary land starts at 0xc000 and Exerion at 0x8000
+        pages = pages->create_page(pages, 0, 0xc000, _16K_, start, 0, 1, 0, 0);
         nes->prg_pages = pages;
         start += _16K_;
         max_pages++;
@@ -87,6 +79,7 @@ c_mapper_000 :: c_mapper_000 (void)
         max_pages++;
         start += _8K_;
     }
+    max_alias = 0;
 
 	__DBG_INSTALLED ();
 }
@@ -112,11 +105,15 @@ void c_mapper_000 :: reset (void)
 
 	nes->o_ppu->swap_page (0x0000, 0, _8K_);
 
-    // Vectors will be located here as the page is not mirrorred
-    if(nes->o_rom->information().prg_pages == 1 && !nes->o_rom->information().mirroring)
+    if((nes->o_control->read_word(0xfffc) & 0xf000) < 0xc000)
     {
+        nes->prg_pages->address = 0x8000;
         vectors_address = 0xbffa;
-    }       
+    }
+    else
+    {
+        vectors_address = 0xfffa;
+    }
 }
 
 /******************************************************************************/

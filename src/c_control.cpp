@@ -2,7 +2,7 @@
     crudNES - A NES emulator for reverse engineering purposes
     Hardware Controller
     Copyright (C) 2003-2004 Sadai Sarmiento
-    Copyright (C) 2023 Franck "hitchhikr" Charlet
+    Copyright (C) 2023-2024 Franck "hitchhikr" Charlet
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,6 +36,10 @@
 /******************************************************************************/
 
 extern c_machine *o_machine;
+extern int nbr_genies_6;
+extern GENIE_6 genies_6[1024];
+extern int nbr_genies_8;
+extern GENIE_8 genies_8[1024];
 
 /******************************************************************************/
 /** Installer                                                                **/
@@ -74,7 +78,39 @@ c_nes_control :: ~c_nes_control (void)
 
 __UINT_8 c_nes_control :: read_byte (__UINT_16 address)
 {
-	if (address > 0x7fff) return nes->o_cpu->read_byte (address);
+    int i;
+
+    if (address > 0x7fff)
+    {
+            if(nbr_genies_6)
+            {
+                for(i = 0; i < nbr_genies_6; i++)
+                {
+                    if(genies_6[i].address.W == address)
+                    {
+                        return genies_6[i].data;
+                    }
+                }
+            }
+            if(nbr_genies_8)
+            {
+                for(i = 0; i < nbr_genies_8; i++)
+                {
+                    if(genies_8[i].address.W == address)
+                    {
+                        if(nes->o_cpu->read_byte (address) == genies_8[i].compare)
+                        {
+                            return genies_8[i].data;
+                        }
+                        else
+                        {
+                            return nes->o_cpu->read_byte (address);
+                        }
+                    }
+                }
+            }
+            return nes->o_cpu->read_byte (address);
+    }
 	if (address < 0x2000) return nes->o_ram->read_byte (address);
 	if (address < 0x4000) return nes->o_ppu->read_byte (address);
 	if (address < 0x4020) return ApuDmaReadByte (address);

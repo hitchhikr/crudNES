@@ -2,7 +2,7 @@
     crudNES - A NES emulator for reverse engineering purposes
 
     Copyright (C) 2003-2004 Sadai Sarmiento
-    Copyright (C) 2023 Franck "hitchhikr" Charlet
+    Copyright (C) 2023-2024 Franck "hitchhikr" Charlet
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -1304,7 +1304,7 @@ Direct_Data:
 
 		s_label_node *navigator = head;
 
-		while(navigator)
+		while(navigator != NULL)
 		{
 			writer.f_write ("lsnsnsnsssnsns",
 							navigator->offset,
@@ -1356,16 +1356,18 @@ Direct_Data:
 
 void c_label_holder :: insert_label (__UINT_16 value, e_dattype type, e_dattype sub_type, int force, int base, int ref_bank)
 {
-	s_label_node *new_label;
+    int bank_alias;
+    int bank_num;
 	__UINT_8 bank = nes->o_mapper->get_real_prg_bank_number (value);
 
 	if(ref_bank == -1) ref_bank = bank;
 
 	if (!head)
 	{
-		__NEW (head, s_label_node);
-		nes->o_mapper->create_label (head, value, type, sub_type, base, nes->o_cpu->get_rom_offset(value), ref_bank);
-		head->Next = NULL;
+        bank_num = bank;
+        bank_alias = nes->BankJMPList->get_bank_alias(bank_num, value);
+		head = nes->o_mapper->create_label (head, value, type, sub_type, base, nes->o_cpu->get_rom_offset(value), ref_bank, 
+                                            bank_num, bank_alias);
 		return;
 	}
 	
@@ -1407,7 +1409,7 @@ void c_label_holder :: insert_label (__UINT_16 value, e_dattype type, e_dattype 
 				if(type == TYPE_CODE && navigator->type != TYPE_CODE)
 				{
 					// Replace the label if the new one is of CODE type
-				// Since it must be disassembled (code have precedence).
+				    // Since it must be disassembled (code have precedence).
 					navigator->type = TYPE_CODE;
 					navigator->sub_type = sub_type;
 				}
@@ -1417,10 +1419,10 @@ void c_label_holder :: insert_label (__UINT_16 value, e_dattype type, e_dattype 
 	}
 	else
 	{
-		__NEW (new_label, s_label_node);
-		nes->o_mapper->create_label (new_label, value, type, sub_type, base, nes->o_cpu->get_rom_offset(value), ref_bank);
-		new_label->Next = NULL;
-		PrevNode->Next = new_label;
+        bank_num = bank;
+        bank_alias = nes->BankJMPList->get_bank_alias(bank_num, value);
+		PrevNode->Next = nes->o_mapper->create_label (head, value, type, sub_type, base, nes->o_cpu->get_rom_offset(value), ref_bank,
+                                                      bank_num, bank_alias);
 	}
 }
 
@@ -1436,32 +1438,15 @@ int c_label_holder :: insert_label_bank (__UINT_8 bank,
 										 int old_bank,
 										 int jmp_pos)
 {
-	s_label_node *new_label;
-
 	if (!head)
 	{
-		__NEW (head, s_label_node);
-		head->contents = value;
-		head->offset = offset;
-		head->address = value;
-		head->bank = bank;
-		head->real_bank = bank;
-		head->alias = get_bank_alias(bank, value);
-        head->bank_lo = get_bank_alias(bank, value);
-        head->bank_hi = get_bank_alias(bank, value);
-		head->type = type;
-		head->sub_type = sub_type;
-		head->jump_base_table = base;
-		head->rom_offset = offset;
-		if(old_bank == -1)
-		{
-			head->ref_bank = bank;
-		}
-		else
-		{
-			head->ref_bank = old_bank;
-		}
-		head->Next = NULL;
+        head = nes->o_mapper->create_label (head, value, type, sub_type, base, offset,
+                                            old_bank == -1 ? bank : old_bank,
+                                            bank, get_bank_alias(bank, value));
+        if(head == NULL)
+        {
+		    return 0;
+        }
 		return 1;
 	}
 	
@@ -1522,30 +1507,13 @@ int c_label_holder :: insert_label_bank (__UINT_8 bank,
 	}
 	else
 	{
-		__NEW (new_label, s_label_node);
-
-		new_label->contents = value;
-		new_label->address = value;
-		new_label->offset = offset;
-        new_label->bank = bank;
-        new_label->alias = ref_bank;
-        new_label->bank_lo = ref_bank;
-        new_label->bank_hi = ref_bank;
-		new_label->real_bank = bank;
-		new_label->type = type;
-		new_label->sub_type = sub_type;
-        new_label->jump_base_table = base;
-		new_label->rom_offset = offset;
-		if(old_bank == -1)
-		{
-			new_label->ref_bank = bank;
-		}
-		else
-		{
-			new_label->ref_bank = old_bank;
-		}
-		new_label->Next = NULL;
-		PrevNode->Next = new_label;
+		PrevNode->Next = nes->o_mapper->create_label (head, value, type, sub_type, base, offset,
+                                                      old_bank == -1 ? bank : old_bank,
+                                                      bank, ref_bank);
+        if(PrevNode->Next == NULL)
+        {
+            return 0;
+        }
         return 1;
 	}
     return 0;

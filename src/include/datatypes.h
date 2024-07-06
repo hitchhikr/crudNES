@@ -2,7 +2,7 @@
     crudNES - A NES emulator for reverse engineering purposes
 	Data Types/Various Definitions
     Copyright (C) 2003-2004 Sadai Sarmiento
-    Copyright (C) 2023 Franck "hitchhikr" Charlet
+    Copyright (C) 2023-2024 Franck "hitchhikr" Charlet
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #define _CRUDNES_DEFINITIONS_H
 
 #define APPNAME "crudNES"
-#define APPVERSION "v1.2"
+#define APPVERSION "v1.3"
 
 #define BIT_0 0x01
 #define BIT_1 0x02
@@ -58,10 +58,23 @@ typedef union
 	__UINT_32 DW;
 } ADWORD;
 
+typedef struct
+{
+    AWORD address;
+    __UINT_8 data;
+} GENIE_6, *LPGENIE_6;
+
+typedef struct
+{
+    AWORD address;
+    __UINT_8 compare;
+    __UINT_8 data;
+} GENIE_8, *LPGENIE_8;
+
 enum e_page_sizes
 {
 	_1K_ = 0x400, _2K_ = 0x800, _4K_ = 0x1000, _8K_ = 0x2000,
-	_16K_ = 0x4000, _32K_ = 0x8000
+	_16K_ = 0x4000, _24K_ = 0x6000, _32K_ = 0x8000
 };
 
 #ifndef __NEW

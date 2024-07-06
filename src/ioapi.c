@@ -76,8 +76,6 @@ void fill_zlib_filefunc64_32_def_from_filefunc32(zlib_filefunc64_32_def* p_filef
     p_filefunc64_32->ztell32_file = p_filefunc32->ztell_file;
 }
 
-
-
 static voidpf ZCALLBACK fopen_file_func(voidpf opaque, const char* filename, int mode) {
     FILE* file = NULL;
     const char* mode_fopen = NULL;
@@ -114,7 +112,6 @@ static voidpf ZCALLBACK fopen64_file_func(voidpf opaque, const void* filename, i
     return file;
 }
 
-
 static uLong ZCALLBACK fread_file_func(voidpf opaque, voidpf stream, void* buf, uLong size) {
     uLong ret;
     (void)opaque;
@@ -135,7 +132,6 @@ static long ZCALLBACK ftell_file_func(voidpf opaque, voidpf stream) {
     ret = ftell((FILE *)stream);
     return ret;
 }
-
 
 static ZPOS64_T ZCALLBACK ftell64_file_func(voidpf opaque, voidpf stream) {
     ZPOS64_T ret;
@@ -191,7 +187,6 @@ static long ZCALLBACK fseek64_file_func(voidpf opaque, voidpf stream, ZPOS64_T o
 
     return ret;
 }
-
 
 static int ZCALLBACK fclose_file_func(voidpf opaque, voidpf stream) {
     int ret;

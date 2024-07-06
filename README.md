@@ -74,4 +74,3 @@ It's a work in progress so there's still a lot to do:
            - Rolling Thunder (Unknown mapper) (19/Namcot 106).
            - Ys III (gfx problems) (118/MMC3).
            - Dragon Ball Z II - Gekishin Freeza!! (hangs after a while) (19/Bandai).
-

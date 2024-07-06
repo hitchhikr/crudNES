@@ -2,7 +2,7 @@
     crudNES - A NES emulator for reverse engineering purposes
 
     Copyright (C) 2003-2004 Sadai Sarmiento
-    Copyright (C) 2023 Franck "hitchhikr" Charlet
+    Copyright (C) 2023-2024 Franck "hitchhikr" Charlet
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,22 +44,43 @@ class c_mapper {
 		virtual void update (void *vData);
 		virtual void h_blank (void);
 
-		void create_label (s_label_node *o_label, __UINT_16 address, e_dattype type, e_dattype sub_type, int base, int offset, int ref_bank)
+		s_label_node *create_label (s_label_node *o_head, __UINT_16 address, e_dattype type, e_dattype sub_type, int base, int offset, int ref_bank,
+                                    int bank_num, int bank_alias)
 		{
-            o_label->address = address;
-			o_label->contents = address;
-			o_label->bank = get_real_prg_bank_number (address);
-			o_label->alias = nes->BankJMPList->get_bank_alias(o_label->bank, address);
-			o_label->bank_lo = o_label->alias;
-			o_label->bank_hi = o_label->alias;
-			o_label->real_bank = o_label->bank;
-			o_label->offset = offset;
-			o_label->rom_offset = offset;
-			o_label->type = type;
-			o_label->sub_type = sub_type;
-			o_label->jump_base_table = base;
-			o_label->ref_bank = ref_bank;
+	        s_label_node *navigator = o_head;
+	        s_label_node *new_label;
 
+            while ((NULL != navigator))
+	        {
+                if(navigator->offset == offset &&
+			       navigator->real_bank == bank_num &&
+			       navigator->alias == bank_alias && 
+			       navigator->contents == address &&
+                   navigator->type == type &&
+			       navigator->sub_type == sub_type &&
+			       navigator->jump_base_table == base &&
+			       navigator->ref_bank == ref_bank)
+                {
+                    return NULL;
+                }
+		        navigator = navigator->Next;
+	        }
+            __NEW (new_label, s_label_node);
+            new_label->address = address;
+			new_label->contents = address;
+			new_label->bank = bank_num;
+			new_label->alias = bank_alias;
+			new_label->bank_lo = bank_alias;
+			new_label->bank_hi = bank_alias;
+			new_label->real_bank = bank_num;
+			new_label->offset = offset;
+			new_label->rom_offset = offset;
+			new_label->type = type;
+			new_label->sub_type = sub_type;
+			new_label->jump_base_table = base;
+			new_label->ref_bank = ref_bank;
+            new_label->Next = NULL;
+            return new_label;
 		}
 
 		__UINT_8 get_last_page_switched (void)

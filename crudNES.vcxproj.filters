@@ -1,0 +1,257 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{572431ef-ab41-4c75-938e-579759fb9e97}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c43dba15-d7b2-45e2-9fee-641a36f932cb}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Mappers">
+      <UniqueIdentifier>{a0ac81a6-15fd-4e31-913a-b636de634e16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mappers Header">
+      <UniqueIdentifier>{3ecbe4cf-eb1e-448d-9287-f3d3160360af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blargg">
+      <UniqueIdentifier>{e712a99a-dbae-4e0d-a649-88100b4aa892}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\2a03.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_cpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_label_holder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_mem_block.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_nes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_ppu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_rom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_save_state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\c_tracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ioapi.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\main_alleg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unzip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_000.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_001.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_002.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_003.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_004.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_005.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_007.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_009.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_010.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_011.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_016.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_021.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_034.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_068.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_069.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_071.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\mappers\c_mapper_091.cpp">
+      <Filter>Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Blargg\Blip_Buffer.cpp">
+      <Filter>Blargg</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Blargg\Nes_Apu.cpp">
+      <Filter>Blargg</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Blargg\Nes_Apu_Reflector.cpp">
+      <Filter>Blargg</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Blargg\Nes_Oscs.cpp">
+      <Filter>Blargg</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\Include\2a03.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_cpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_label_holder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_machine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_mem_block.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_nes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_ppu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_rom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_save_state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\c_tracer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\clist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\datatypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_000.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_001.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_002.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_003.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_004.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_005.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_007.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_009.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_010.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_011.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_016.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_021.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_034.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_068.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_069.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_071.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Include\Mappers\c_mapper_091.h">
+      <Filter>Mappers Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Blargg\blargg_common.h">
+      <Filter>Blargg</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Blargg\Blip_Buffer.h">
+      <Filter>Blargg</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Blargg\Blip_Synth.h">
+      <Filter>Blargg</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Blargg\Nes_Apu.h">
+      <Filter>Blargg</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Blargg\Nes_Apu_Reflector.h">
+      <Filter>Blargg</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Blargg\Nes_Common.h">
+      <Filter>Blargg</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Blargg\Nes_Oscs.h">
+      <Filter>Blargg</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

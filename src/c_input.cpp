@@ -2,7 +2,7 @@
     crudNES - A NES emulator for reverse engineering purposes
     o_input Handler
     Copyright (C) 2003-2004 Sadai Sarmiento
-    Copyright (C) 2023 Franck "hitchhikr" Charlet
+    Copyright (C) 2023-2024 Franck "hitchhikr" Charlet
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -131,10 +131,11 @@ void c_input :: handle_joypad (void)
 	}
 	if (!poll_joystick())
 	{
-		if (joy [0].button [1].b) last_press |= BIT_0;
-		if (joy [0].button [0].b) last_press |= BIT_1;
-		if (joy [0].button [3].b) last_press |= BIT_2;
-		if (joy [0].button [4].b) last_press |= BIT_3;
+		if (joy [0].button [0].b) last_press |= BIT_0;
+		if (joy [0].button [1].b) last_press |= BIT_1;
+		if (joy [0].button [2].b) last_press |= BIT_2;
+		if (joy [0].button [3].b) last_press |= BIT_3;
+		if (joy [0].button [7].b) last_press |= BIT_3;
 		if (joy [0].stick [0].axis [0].d1) last_press |= BIT_6;
 		if (joy [0].stick [0].axis [0].d2) last_press |= BIT_7;
 		if (joy [0].stick [0].axis [1].d1) last_press |= BIT_4;

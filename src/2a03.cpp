@@ -2,7 +2,7 @@
     crudNES - A NES emulator for reverse engineering purposes
 	Portable 2A03 CPU Core
     Copyright (C) 2003-2004 Sadai Sarmiento
-    Copyright (C) 2023 Franck "hitchhikr" Charlet
+    Copyright (C) 2023-2024 Franck "hitchhikr" Charlet
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -1810,7 +1810,10 @@ search_again:
 	goto search_again;
 stop_search:
 	if(label->sub_type == TYPE_DEAD) return -1;
-	if(label->type == TYPE_UNK) return 0;
+	if(label->type == TYPE_UNK)
+    {
+        return 0;
+    }
 	if(code_jmp)
 	{
 		if(label->type == TYPE_CODE)
