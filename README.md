@@ -32,7 +32,7 @@ It's a work in progress so there's still a lot to do:
 
        - Create bitmap files with the decoded chr roms.
        - Problem with NMI triggering in emulation (DW III & DW IV).
-       - Add more mapping to the disassembler (especially MMC1).
+       - Add support for more mappers to the disassembler (especially MMC1).
 
        - Need to implement these mappers:
 
