@@ -52,6 +52,8 @@ class c_machine {
 		__BOOL is_running () { return bis_running; }
 		__BOOL is_paused () { return bis_paused; }
 
+        int read_from_second_pad;
+
 	protected:
 
 		__BOOL bIsPowerOff, bis_running, bis_paused;

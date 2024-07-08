@@ -185,7 +185,12 @@ void c_nes_cpu :: run_accurate (void)
 		if (nes->is_paused ())
 		{
 			voice_stop (audio_stream->voice);
-			while (nes->is_paused ()) { rest (10); nes->o_input->handle_input (); }
+			while (nes->is_paused ()) 
+            {
+                rest (10);
+                nes->o_input->handle_input (0);
+                nes->o_input->handle_input (1);
+            }
 			voice_start (audio_stream->voice);
 		}
 
@@ -263,7 +268,11 @@ void c_nes_cpu :: run_accurate (void)
 		nes->o_gfx->unlock_buffer ();
 		output_video_sound ();
 
-		if (nes->o_input->handle_input () == CPU_INT_QUIT) break;	
+		if (nes->o_input->handle_input (0) == CPU_INT_QUIT ||
+            nes->o_input->handle_input (1) == CPU_INT_QUIT)
+        {
+            break;	
+        }
 		//handle input
 	}	
 

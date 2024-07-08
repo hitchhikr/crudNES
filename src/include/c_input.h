@@ -47,14 +47,14 @@ class c_input
 		c_input (void);
 		~c_input (void);
 
-		__UINT_8 handle_input (void)
+		__UINT_8 handle_input (__UINT_8 controller)
 		{
-			handle_joypad ();
+			handle_joypad (controller);
 			return handle_key ();
 		}
 
 		void write_strobe (__UINT_8 value);
-		__UINT_8 read_bitstream (void);
+		__UINT_8 read_bitstream (__UINT_8 controller);
 
 		void save_state (c_tracer o_writer);
 		void load_state (c_tracer o_reader);
@@ -62,13 +62,13 @@ class c_input
 	private:
 
 		__UINT_8 handle_key (void);
-		void handle_joypad (void);
+		void handle_joypad (__UINT_8 controller);
 
-		__UINT_8 last_press,
-			  bit_shifter;
+		__UINT_8 last_press_1, bit_shifter_1;
+		__UINT_8 last_press_2, bit_shifter_2;
+		__BOOL full_strobe_1, half_strobe_1;
+		__BOOL full_strobe_2, half_strobe_2;
 	
-		__BOOL full_strobe,
-			 half_strobe;
 };
 
 #endif

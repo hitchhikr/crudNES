@@ -40,11 +40,15 @@ c_input :: c_input (void)
 {
 //	__DBG_INSTALLING ("Input");
 
-	full_strobe = FALSE;
-	half_strobe = FALSE;
-	last_press  = 0;
-	bit_shifter = 0;
-    
+	full_strobe_1 = FALSE;
+	full_strobe_2 = FALSE;
+	half_strobe_1 = FALSE;
+	half_strobe_2 = FALSE;
+	last_press_1  = 0;
+	bit_shifter_1 = 0;
+	last_press_2  = 0;
+	bit_shifter_2 = 0;
+
 	install_keyboard ();
 	set_keyboard_rate (0, 0);
 	install_joystick (JOY_TYPE_AUTODETECT);
@@ -68,22 +72,47 @@ c_input :: ~c_input (void)
 
 void c_input :: write_strobe (__UINT_8 value)
 {
-	if (value == BIT_0) { full_strobe = FALSE; half_strobe = TRUE; }
-	else if (value == 0) { full_strobe = TRUE; half_strobe = FALSE; bit_shifter = 0; }
+	if (value == BIT_0) { full_strobe_1 = FALSE; half_strobe_1 = TRUE; full_strobe_2 = FALSE; half_strobe_2 = TRUE; }
+	else if (value == 0)
+    {
+        full_strobe_1 = TRUE; half_strobe_1 = FALSE; 
+        full_strobe_2 = TRUE; half_strobe_2 = FALSE; 
+        bit_shifter_1 = 0; bit_shifter_2 = 0; 
+    }
 }
 
 /******************************************************************************/
 /** read_bitstream ()                                                         **/
 /******************************************************************************/
 
-__UINT_8 c_input :: read_bitstream (void)
+__UINT_8 c_input :: read_bitstream (__UINT_8 controller)
 {
-	if (!full_strobe) return 0;
+    __UINT_8 joypad_data = 0;
 
-	__UINT_8 joypad_data = (last_press >> bit_shifter ++) & 1;
-
-	if (bit_shifter == 8) full_strobe = FALSE;
-
+    if(controller == 0)
+    {
+        if (full_strobe_1)
+        {
+	        joypad_data = (last_press_1 >> bit_shifter_1++) & 1;
+    	    if (bit_shifter_1 == 8) full_strobe_1 = FALSE;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        if (full_strobe_2)
+        {
+            joypad_data = (last_press_2 >> bit_shifter_2++) & 1;
+    	    if (bit_shifter_2 == 8) full_strobe_2 = FALSE;
+        }
+        else
+        {
+            return 0;
+        }
+    }
 	return (joypad_data);
 }
 
@@ -113,34 +142,64 @@ __UINT_8 c_input :: handle_key (void)
 /** handle_joypad ()                                                     **/
 /******************************************************************************/
 
-void c_input :: handle_joypad (void)
+void c_input :: handle_joypad (__UINT_8 controller)
 {
-	last_press = 0;
-
-	//Joypad #1     
-	if (!poll_keyboard ())
-	{
-		if(key [KEY_S])	last_press |= BIT_0;
-		if(key [KEY_A])	last_press |= BIT_1;
-		if(key [KEY_SPACE])	last_press |= BIT_2;
-		if(key [KEY_ENTER]) last_press |= BIT_3;
-		if(key [KEY_UP])	last_press |= BIT_4;
-		else if(key [KEY_DOWN])	last_press |= BIT_5;
-		if(key [KEY_LEFT]) last_press |= BIT_6;
-		else if(key [KEY_RIGHT]) last_press |= BIT_7;
-	}
-	if (!poll_joystick())
-	{
-		if (joy [0].button [0].b) last_press |= BIT_0;
-		if (joy [0].button [1].b) last_press |= BIT_1;
-		if (joy [0].button [2].b) last_press |= BIT_2;
-		if (joy [0].button [3].b) last_press |= BIT_3;
-		if (joy [0].button [7].b) last_press |= BIT_3;
-		if (joy [0].stick [0].axis [0].d1) last_press |= BIT_6;
-		if (joy [0].stick [0].axis [0].d2) last_press |= BIT_7;
-		if (joy [0].stick [0].axis [1].d1) last_press |= BIT_4;
-		if (joy [0].stick [0].axis [1].d2) last_press |= BIT_5;
-	}
+    if(controller == 0)
+    {
+	    // Joypad #1
+	    last_press_1 = 0;
+	    if (!poll_keyboard ())
+	    {
+		    if(key [KEY_S])	last_press_1 |= BIT_0;
+		    if(key [KEY_A])	last_press_1 |= BIT_1;
+		    if(key [KEY_SPACE])	last_press_1 |= BIT_2;
+		    if(key [KEY_ENTER]) last_press_1 |= BIT_3;
+		    if(key [KEY_UP]) last_press_1 |= BIT_4;
+		    else if(key [KEY_DOWN])	last_press_1 |= BIT_5;
+		    if(key [KEY_LEFT]) last_press_1 |= BIT_6;
+		    else if(key [KEY_RIGHT]) last_press_1 |= BIT_7;
+	    }
+	    if (!poll_joystick())
+	    {
+		    if (joy [0].button [0].b) last_press_1 |= BIT_0;
+		    if (joy [0].button [1].b) last_press_1 |= BIT_1;
+		    if (joy [0].button [2].b) last_press_1 |= BIT_2;
+		    if (joy [0].button [3].b) last_press_1 |= BIT_3;
+		    if (joy [0].button [7].b) last_press_1 |= BIT_3;
+		    if (joy [0].stick [0].axis [0].d1) last_press_1 |= BIT_6;
+		    if (joy [0].stick [0].axis [0].d2) last_press_1 |= BIT_7;
+		    if (joy [0].stick [0].axis [1].d1) last_press_1 |= BIT_4;
+		    if (joy [0].stick [0].axis [1].d2) last_press_1 |= BIT_5;
+	    }
+    }
+    else
+    {
+	    // Joypad #2
+	    last_press_2 = 0;
+	    if (!poll_keyboard ())
+	    {
+		    if(key [KEY_S])	last_press_2 |= BIT_0;
+		    if(key [KEY_A])	last_press_2 |= BIT_1;
+		    if(key [KEY_SPACE])	last_press_2 |= BIT_2;
+		    if(key [KEY_ENTER]) last_press_2 |= BIT_3;
+		    if(key [KEY_UP]) last_press_2 |= BIT_4;
+		    else if(key [KEY_DOWN])	last_press_2 |= BIT_5;
+		    if(key [KEY_LEFT]) last_press_2 |= BIT_6;
+		    else if(key [KEY_RIGHT]) last_press_2 |= BIT_7;
+	    }
+	    if (!poll_joystick())
+	    {
+		    if (joy [o_machine->read_from_second_pad].button [0].b) last_press_2 |= BIT_0;
+		    if (joy [o_machine->read_from_second_pad].button [1].b) last_press_2 |= BIT_1;
+		    if (joy [o_machine->read_from_second_pad].button [2].b) last_press_2 |= BIT_2;
+		    if (joy [o_machine->read_from_second_pad].button [3].b) last_press_2 |= BIT_3;
+		    if (joy [o_machine->read_from_second_pad].button [7].b) last_press_2 |= BIT_3;
+		    if (joy [o_machine->read_from_second_pad].stick [0].axis [0].d1) last_press_2 |= BIT_6;
+		    if (joy [o_machine->read_from_second_pad].stick [0].axis [0].d2) last_press_2 |= BIT_7;
+		    if (joy [o_machine->read_from_second_pad].stick [0].axis [1].d1) last_press_2 |= BIT_4;
+		    if (joy [o_machine->read_from_second_pad].stick [0].axis [1].d2) last_press_2 |= BIT_5;
+	    }
+    }
 }
 
 /******************************************************************************/
@@ -149,10 +208,14 @@ void c_input :: handle_joypad (void)
 
 void c_input :: save_state (c_tracer o_writer)
 {
-	o_writer.write (&last_press, 1);
-	o_writer.write (&bit_shifter, 1);
-	o_writer.write (&full_strobe, 1);
-	o_writer.write (&half_strobe, 1);
+	o_writer.write (&last_press_1, 1);
+	o_writer.write (&bit_shifter_1, 1);
+	o_writer.write (&last_press_2, 1);
+	o_writer.write (&bit_shifter_2, 1);
+	o_writer.write (&full_strobe_1, 1);
+	o_writer.write (&full_strobe_2, 1);
+	o_writer.write (&half_strobe_1, 1);
+	o_writer.write (&half_strobe_2, 1);
 }
 
 /******************************************************************************/
@@ -161,8 +224,12 @@ void c_input :: save_state (c_tracer o_writer)
 
 void c_input :: load_state (c_tracer o_reader)
 {
-	o_reader.read (&last_press, 1);
-	o_reader.read (&bit_shifter, 1);
-	o_reader.read (&full_strobe, 1);
-	o_reader.read (&half_strobe, 1);
+	o_reader.read (&last_press_1, 1);
+	o_reader.read (&bit_shifter_1, 1);
+	o_reader.read (&last_press_2, 1);
+	o_reader.read (&bit_shifter_2, 1);
+	o_reader.read (&full_strobe_1, 1);
+	o_reader.read (&full_strobe_2, 1);
+	o_reader.read (&half_strobe_1, 1);
+	o_reader.read (&half_strobe_2, 1);
 }

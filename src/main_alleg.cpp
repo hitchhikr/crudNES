@@ -34,13 +34,20 @@
 
 c_machine *o_machine;
 
+char *ASCII = "APZLGITYEOXUKSVN";
+int nbr_genies_6 = 0;
+GENIE_6 genies_6[1024];
+int nbr_genies_8 = 0;
+GENIE_8 genies_8[1024];
+
 void print_usage(void)
 {
     printf(APPNAME" "APPVERSION"\n");
     printf("Copyright (C) 2003-2004 Sadai Sarmiento\n");
     printf("Copyright (C) 2023-2024 Franck \"hitchhikr\" Charlet\n\n");
-    printf("Usage: [L] [-XXXXXX] [-XXXXXXXX] <P|N> <rom file>\n\n");
+    printf("Usage: [L] [J] [-XXXXXX] [-XXXXXXXX] <P|N> <rom file>\n\n");
     printf("       [L] = Turn instructions logger on at startup\n");
+    printf("       [J] = Use 2 pads\n");
     printf("       [-XXXXXX] | [-XXXXXXXX] = Specify 6 or 8-char Game Genies\n");
     printf("                                 (Any number of Genies can be used)\n");
     printf("       <P|N> = PAL|NTSC\n\n");
@@ -64,11 +71,6 @@ void free_everything()
 	remove_mouse ();
 	allegro_exit ();
 }
-char *ASCII = "APZLGITYEOXUKSVN";
-int nbr_genies_6 = 0;
-GENIE_6 genies_6[1024];
-int nbr_genies_8 = 0;
-GENIE_8 genies_8[1024];
 
 int get_letter_position(char Letter, int len)
 {
@@ -133,7 +135,7 @@ int get_genie(char *string)
         genies_6[nbr_genies_6].data = data;
         if(!nbr_genies_6 && !nbr_genies_8)
         {
-            printf("-------------------------------------------------------\n");
+		    printf("---------------------------------------------------------------------------------\n");
         }
         nbr_genies_6++;
         printf("Adding 6-Characters Genie: Address: 0x%04x - Data: 0x%02x\n", address, data);
@@ -157,7 +159,7 @@ int get_genie(char *string)
         genies_8[nbr_genies_8].data = data;
         if(!nbr_genies_6 && !nbr_genies_8)
         {
-            printf("-------------------------------------------------------\n");
+		    printf("---------------------------------------------------------------------------------\n");
         }
         nbr_genies_8++;
         printf("Adding 8-Characters Genie: Address: 0x%04x - Compare: 0x%02x - Data: 0x%02x\n", address, compare, data);
@@ -195,6 +197,13 @@ int main (int argc, char *argv[])
 		pos_arg++;
 	}
 
+    o_machine->read_from_second_pad = 0;
+	if(toupper(argv[pos_arg][0]) == 'J')
+	{
+        o_machine->read_from_second_pad = 1;
+		pos_arg++;
+	}
+
     // Store any eventual genies
     while(argv[pos_arg][0] == '-')
     {
@@ -207,7 +216,7 @@ int main (int argc, char *argv[])
     }
     if(nbr_genies_6 || nbr_genies_8)
     {
-        printf("-------------------------------------------------------\n");
+        printf("---------------------------------------------------------------------------------\n");
     }
 
 	switch(toupper(argv[pos_arg][0]))

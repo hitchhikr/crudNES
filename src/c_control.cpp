@@ -147,8 +147,11 @@ __UINT_8 c_nes_control :: ApuDmaReadByte (const __UINT_16 &address)
 {
 	//Apparently some games expect data returned from joypad ports to be
 	//in the format of $4x (x_offset: 0/1).
-	if(address == 0x4016)
-		return (0x40 | nes->o_input->read_bitstream ());
+    if(address == 0x4016)
+		return (0x40 | nes->o_input->read_bitstream (0));
+
+    if(address == 0x4017)
+		return (0x40 | nes->o_input->read_bitstream (1));
 
 	if(address == nes->o_apu.status_addr)
 		return nes->o_apu.read_status (nes->o_cpu->current_time ());
