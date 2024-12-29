@@ -1,4 +1,4 @@
-crudNES is a Nintendo Entertaining System console emulator made for reverse engineering purposes.
+crudNES is a Windows based Nintendo Entertaining System console emulator made for reverse engineering purposes.
 It contains a tracer which records every code and data accesses of the emulated cpu while the game is running (and being played).
 It automatically generates disassembled files (and also all necessary files needed to recreate the ROM image) when exiting the emulation.
 
