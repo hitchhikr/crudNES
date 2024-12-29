@@ -138,7 +138,7 @@ int get_genie(char *string)
 		    printf("---------------------------------------------------------------------------------\n");
         }
         nbr_genies_6++;
-        printf("Adding 6-Characters Genie: Address: 0x%04x - Data: 0x%02x\n", address, data);
+        printf("Adding 6-Characters Genie: Address: 0x%04x - Set to: 0x%02x\n", address, data);
     }
     else
     {
@@ -162,7 +162,7 @@ int get_genie(char *string)
 		    printf("---------------------------------------------------------------------------------\n");
         }
         nbr_genies_8++;
-        printf("Adding 8-Characters Genie: Address: 0x%04x - Compare: 0x%02x - Data: 0x%02x\n", address, compare, data);
+        printf("Adding 8-Characters Genie: Address: 0x%04x - Compare: 0x%02x - Set to: 0x%02x\n", address, compare, data);
     }
     return 0;
 }

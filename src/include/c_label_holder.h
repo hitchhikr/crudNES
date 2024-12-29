@@ -128,6 +128,7 @@ class c_label_holder
 		s_label_node *search_page(int address);
 		int is_current_page(int bank, int address);
 		int fix_var_bank(int value, int ref_bank);
+        int search_base(int alias, int address);
 		int search_unknown_value(int address);
 		int fix_rom_offset(int value, int ref_bank, int offset);
 		s_label_node *get_page_from_bank(int bank);

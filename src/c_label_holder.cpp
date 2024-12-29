@@ -203,7 +203,27 @@ int c_label_holder::search_unknown_value(int address)
         }
         navigator = navigator->Next;
 	}
-   return(-1);
+    return(-1);
+}
+
+int c_label_holder::search_base(int alias, int address)
+{
+	s_label_node *navigator;
+
+    if(address)
+    {
+	    for(navigator = head; navigator;)
+	    {
+		    if(navigator->jump_base_table == address && 
+                navigator->alias == alias
+               )
+		    {
+                return(1);
+            }
+            navigator = navigator->Next;
+	    }
+    }
+    return(0);
 }
 
 int c_label_holder::fix_var_bank(int value, int ref_bank)
@@ -923,6 +943,7 @@ Direct_Data:
                                     }
                                     w_dat = nes->o_cpu->PRGROM[rom_offset];
                                     w_dat |= nes->o_cpu->PRGROM[rom_offset + 1] << 8;
+Set_Jump_Table_Start:
 		                            if(w_dat > 0x7fff)
 		                            {
 										if(repass < k)
@@ -948,8 +969,33 @@ Direct_Data:
 	                                {
 										if(repass < k)
 										{
-											sprintf(dat_line, "        .byte ");
-											strcat(line, dat_line);
+                                            if(search_base(label->alias, label->address))
+                                            {
+
+                                                // It's a jump table start
+											    //sprintf(dat_line, "Lbl_%.02x%.04x", pages->alias, w_dat);
+
+								                sprintf(dat_line, "Lbl_%.02x%.04x = Lbl_%.02x%.04x+1\n",
+											                label->alias,
+											                k + 1,
+											                label->alias,
+											                k);
+											    strcat(line, dat_line);
+
+                                                sprintf(dat_line, "        .word ");
+											    strcat(line, dat_line);
+                                                w_dat = nes->o_cpu->PRGROM[rom_offset];
+                                                w_dat |= nes->o_cpu->PRGROM[rom_offset + 1] << 8;
+                                                // Skip it for next reading
+                                                k++;
+                                                rom_offset++;
+                                                goto Set_Jump_Table_Start;
+                                            }
+                                            else
+                                            {
+											    sprintf(dat_line, "        .byte ");
+											    strcat(line, dat_line);
+                                            }
 										}
                                     }
                                     else
@@ -1051,6 +1097,7 @@ Direct_Data:
 
     pages = nes->chr_pages;
 
+    // dump the chr pages (if any)
     if(pages)
     {
         rom_offset_glob = pages->rom_offset;
