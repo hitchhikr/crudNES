@@ -971,10 +971,7 @@ Set_Jump_Table_Start:
 										{
                                             if(search_base(label->alias, label->address))
                                             {
-
                                                 // It's a jump table start
-											    //sprintf(dat_line, "Lbl_%.02x%.04x", pages->alias, w_dat);
-
 								                sprintf(dat_line, "Lbl_%.02x%.04x = Lbl_%.02x%.04x+1\n",
 											                label->alias,
 											                k + 1,

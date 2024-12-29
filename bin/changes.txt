@@ -3,6 +3,7 @@
    - Added support for 2nd controller in emulation.
    - 2nd possible joypad reading handled in emulator ('J' option in command line).
    - First .words of jump tables weren't properly disassembled.
+   - Improved disassembling of overlapped code labels.
 
 06/07/24 - 1.3
 

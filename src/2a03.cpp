@@ -1851,6 +1851,8 @@ int _2A03_get_instruction(int base_addr,
     int addr;
 	int cur_bank;
 	int ret = 0;
+	s_label_node *mangled_label;
+    int pointer_in_code;
 
 	union NESROMData
 	{
@@ -1861,7 +1863,11 @@ int _2A03_get_instruction(int base_addr,
 	cur_bank = bank_alias;
     sprintf(operands, "");
 
-    if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address, bank_alias)) return(0);
+    if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address, bank_alias))
+    {
+        return(0);
+    }
+
     sprintf(instruction, "        %s", _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
 
 	if(strcmp(instruction, "        (undef)") == 0)
@@ -1889,35 +1895,96 @@ int _2A03_get_instruction(int base_addr,
 		    break;
     }
     addr = _2A03_instructionAddrMode[nes->o_cpu->PRGROM[iROMOffset]];
-
+    pointer_in_code = 0;
 	switch (addr)
 	{
 		case IMM: // OK
-			read.b = nes->o_cpu->PRGROM[++iROMOffset];
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                warnings = 1;
+                break;
+            }
+            
+            read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " #$%.02x", read.b);
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
-		case ZPA: // OK
-			read.b = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case ZPA: // OK
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                warnings = 1;
+                break;
+            }
+            
+            read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " $%.02x", read.b);
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
   		    break;
-		case ZPX: // OK
-			read.b = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case ZPX: // OK
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                warnings = 1;
+                break;
+            }
+
+            read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " $%.02x, x", read.b);
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
-		case ZPY: // OK
-			read.b = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case ZPY: // OK
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                warnings = 1;
+                break;
+            }
+            
+            read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " $%.02x, y", read.b);
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
-		case JMP:
-			read.w = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case JMP:
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                pointer_in_code = 1;
+            }
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 2, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                pointer_in_code = 2;
+            }
+            
+            read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
@@ -1977,8 +2044,26 @@ int _2A03_get_instruction(int base_addr,
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
 		    length += 2;
 			break;
-		case AB_:   // OK
-			read.w = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case AB_:   // OK
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                warnings = 1;
+                break;
+            }
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 2, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                pointer_in_code = 2;
+            }
+            
+            read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
    			if((int) read.w > 0x7fff)
 			{
@@ -2039,8 +2124,27 @@ int _2A03_get_instruction(int base_addr,
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
 		    length += 2;
 			break;
-		case ABX: // OK
-			read.w = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case ABX: // OK
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                pointer_in_code = 0;
+                warnings = 1;
+                break;
+            }
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 2, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                pointer_in_code = 2;
+            }
+            
+            read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
@@ -2086,7 +2190,7 @@ int _2A03_get_instruction(int base_addr,
 			}
 			else
 			{
-			    if((int) read.w < 0x100)
+                if((int) read.w < 0x100)
 			    {
 			        sprintf(operands, " $%.02x, x", read.b);
 			    }
@@ -2101,8 +2205,27 @@ int _2A03_get_instruction(int base_addr,
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
 		    length += 2;
 			break;
-		case ABY: // OK
-			read.w = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case ABY: // OK
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                pointer_in_code = 0;
+                warnings = 1;
+                break;
+            }
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 2, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                pointer_in_code = 2;
+            }
+            
+            read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
@@ -2163,8 +2286,27 @@ int _2A03_get_instruction(int base_addr,
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
 		    length += 2;
 			break;
-		case IDR: // OK
-			read.w = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case IDR: // OK
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                pointer_in_code = 0;
+                warnings = 1;
+                break;
+            }
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 2, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                pointer_in_code = 2;
+            }
+            
+            read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
 			if((int) read.w > 0x7fff)
 			{
@@ -2231,24 +2373,57 @@ int _2A03_get_instruction(int base_addr,
             if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
 		    length += 2;
 			break;
-		case PRE:
-		    // In zero page
+
+        case PRE:
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                warnings = 1;
+                break;
+            }
+            
+            // In zero page
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " ($%.02x, x)", read.b);
 			if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
-		case POS:
-		    // In zero page
+
+        case POS:
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                sprintf(instruction, "        .byte");
+                read.b = nes->o_cpu->PRGROM[iROMOffset];
+			    sprintf(operands, " $%.02x ; <<< WARNING: Instruction: %s !", read.b, _2A03_instructionSet[nes->o_cpu->PRGROM[iROMOffset]]);
+                warnings = 1;
+                break;
+            }
+            
+            // In zero page
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " ($%.02x), y", read.b);
 			if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
 		    length++;
 			break;
-		case IMP:
+		
+        case IMP:
 			break;
-		case REL:
-		    offset = nes->o_cpu->PRGROM[++iROMOffset];
+
+        case REL:
+
+            mangled_label = nes->BankJMPList->search_label(bank_lo, bank_hi, address + 1, bank_alias);
+            if(mangled_label->type != TYPE_UNK)
+            {
+                pointer_in_code = 1;
+            }
+            
+            offset = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w = address;
 			read.w += (int) ((short) ((char) offset)) + 2;
 			label_ref = nes->BankJMPList->get_real_bank(bank_alias);
@@ -2269,6 +2444,19 @@ int _2A03_get_instruction(int base_addr,
     strcat(operands, "\n");
 
     strcat(instruction, operands);
+
+    switch(pointer_in_code)
+    {
+        case 1:
+            sprintf(operands, "Lbl_%.02x%.04x = *-1\n", bank_alias, address + 1);
+            strcat(instruction, operands);
+            break;
+        case 2:
+            sprintf(operands, "Lbl_%.02x%.04x = *-1\n", bank_alias, address + 2);
+            strcat(instruction, operands);
+            break;
+    }
+
     return(length);
 }
 
