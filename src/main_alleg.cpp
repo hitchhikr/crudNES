@@ -42,7 +42,7 @@ GENIE_8 genies_8[1024];
 
 void print_usage(void)
 {
-    printf(APPNAME" "APPVERSION"\n");
+    printf(APPNAME " " APPVERSION "\n");
     printf("Copyright (C) 2003-2004 Sadai Sarmiento\n");
     printf("Copyright (C) 2023-2024 Franck \"hitchhikr\" Charlet\n\n");
     printf("Usage: [L] [J] [-XXXXXX] [-XXXXXXXX] <P|N> <rom file>\n\n");
@@ -176,7 +176,7 @@ int main (int argc, char *argv[])
         return 0;
     }
 
-    printf(APPNAME" "APPVERSION"\n");
+    printf(APPNAME " " APPVERSION "\n");
 
 	atexit(&free_everything);
 

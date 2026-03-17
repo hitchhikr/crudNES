@@ -250,7 +250,7 @@ void c_graphics :: load_config (void)
 	nes->o_gfx->compute_palette ();
 
 	text_mode (gui_bg_color);
-	set_window_title (APPNAME" "APPVERSION);
+	set_window_title (APPNAME " " APPVERSION);
 	set_window_close_button (FALSE);
 	clear_to_color (screen, gui_bg_color);
 	show_mouse (screen); 	

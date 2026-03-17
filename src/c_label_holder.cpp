@@ -661,7 +661,7 @@ void c_label_holder::dump_rom(void)
             listing.Add(line);
             sprintf(line, "; ------------------------------\n");
             listing.Add(line);
-			sprintf(line, "; Disassembled with "APPNAME" "APPVERSION"\n");
+			sprintf(line, "; Disassembled with " APPNAME " " APPVERSION "\n");
             listing.Add(line);
             sprintf(line, "; ------------------------------\n\n");
             listing.Add(line);
@@ -1115,7 +1115,7 @@ Set_Jump_Table_Start:
             fprintf(out, "; Mapper: %d\n", infos->mapper);
             fprintf(out, "; Mirroring: %d\n", infos->mirroring);
             fprintf(out, "; ------------------------------\n");
-			fprintf(out, "; Disassembled with "APPNAME" "APPVERSION"\n");
+			fprintf(out, "; Disassembled with " APPNAME " " APPVERSION "\n");
             fprintf(out, "; ------------------------------\n\n");
             fprintf(out, "        .autoimport +\n\n");
             fprintf(out, "\n        .segment \"CHR_%d\"\n\n", pages->bank_lo);
