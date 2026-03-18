@@ -68,7 +68,9 @@ c_mapper_091 :: c_mapper_091 (void)
 
 	last_prg_page = bank;
 	max_alias = ((nes->o_rom->information ().prg_pages - 1) * _16K_) >> 12;
-	pages->create_page(pages, bank, 0xc000, _16K_, 0xc000, bank, bank, ((nes->o_rom->information ().prg_pages - 1) * _16K_) >> 12, (nes->o_rom->information ().prg_pages - 1) * _16K_);
+	pages->create_page(pages, bank, 0xc000, _16K_, 0xc000, bank, bank,
+                       ((nes->o_rom->information ().prg_pages - 1) * _16K_) >> 12,
+                       (nes->o_rom->information ().prg_pages - 1) * _16K_);
     start = ((nes->o_rom->information ().prg_pages - 1) * _16K_) + _16K_;
     max_code_pages++;
 
@@ -142,31 +144,39 @@ void c_mapper_091 :: write_byte (__UINT_16 address, __UINT_8 value)
 		case 0x6000:
 			nes->o_ppu->swap_page (0x0000, value & _2K_chr_mask, _2K_);
 			break;
+
 		case 0x6001:
 			nes->o_ppu->swap_page (0x0800, value & _2K_chr_mask, _2K_);
 			break;
+
 		case 0x6002:
 			nes->o_ppu->swap_page (0x1000, value & _2K_chr_mask, _2K_);
 			break;
+
 		case 0x6003:
 			nes->o_ppu->swap_page (0x1800, value & _2K_chr_mask, _2K_);
 			break;
+
 		case 0x6006:
 			iIRQCounter &= 0xff00;
 			iIRQCounter |= value;
 			break;
+
 		case 0x6007:
 			iIRQCounter &= 0x00ff;
 			iIRQCounter |= (value << 8);
 			break;
+
 		case 0x7000:
 			nes->o_cpu->swap_page (0x8000, value & _8K_prg_mask, _8K_);
 			last_page_switched_8000 = value & _8K_prg_mask;
 			break;
+
 		case 0x7001:
 			nes->o_cpu->swap_page (0xa000, value & _8K_prg_mask, _8K_);
 			last_page_switched_a000 = value & _8K_prg_mask;
 			break;
+
 		case 0x7002:
 		case 0x7003:
 		case 0x7006:
@@ -174,6 +184,7 @@ void c_mapper_091 :: write_byte (__UINT_16 address, __UINT_8 value)
 			bIRQEnabled = FALSE;
 			nes->o_cpu->set_irq_line (FALSE);
 			break;
+
 		case 0x7007:
 			iIRQCounter = 0;
 			bIRQEnabled = TRUE;

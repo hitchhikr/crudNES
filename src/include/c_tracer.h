@@ -48,8 +48,17 @@
 		nes->general_log.f_write ("s", " OK.\r\n")
 #endif
 
-enum Edestination { __FILE = 0, __WINDOW };
-enum EMode { __NEW = 0, __APPEND, __READ };
+enum Edestination
+{
+    __FILE = 0,
+    __WINDOW
+};
+enum EMode
+{
+    __NEW = 0,
+    __APPEND,
+    __READ
+};
 
 union label_dat
 {
@@ -57,15 +66,18 @@ union label_dat
     int number;
 };
 
-class c_tracer {
-
+class c_tracer
+{
 	public:
 
 		c_tracer ();
 		c_tracer (const char *Path, EMode Mode = __NEW, Edestination Type = __FILE);
 		~c_tracer ();
 
-		void set_destination (Edestination Type) { destination = Type; }
+		void set_destination (Edestination Type)
+        {
+            destination = Type;
+        }
 		__INT_32 set_output_file (const char *, EMode Mode = __NEW);
 		
 		void close (void);
@@ -75,10 +87,14 @@ class c_tracer {
 		void read (void *buffer, __UINT_32 size);
 		void write (void *buffer, __UINT_32 size);
 
-		FILE *get_handle (void) { return handle; }
+		FILE *get_handle (void)
+        {
+            return handle;
+        }
         label_dat label_read;
 
 	private:
+
 		Edestination destination;
 		__UINT_32 buffer_pos;
 		FILE *handle;

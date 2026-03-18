@@ -22,13 +22,8 @@
 #ifndef _CNESINPUT_H
 #define _CNESINPUT_H
 
-#ifdef __CRUDNES_ALLEGRO
-	#pragma warning (disable : 4200)
-	#include "allegro.h"
-#elif defined CRUDNES_SDL
-	#include <sdl.h>
-#endif
-
+#pragma warning (disable : 4200)
+#include "allegro.h"
 #include "c_save_state.h"
 #include "c_cpu.h"
 

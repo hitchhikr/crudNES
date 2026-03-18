@@ -21,13 +21,6 @@
 
 #pragma warning (disable : 4267 4311)
 
-#ifdef __CRUDNES_ALLEGRO
-	#pragma warning (disable : 4200)
-	#include "include/allegro.h"
-#elif defined CRUDNES_SDL
-	#include <sdl.h>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 
@@ -66,7 +59,7 @@ void irq_notifier (void *)
 
 int dmc_reader (void *, unsigned address)
 {
-	_2A03_kill_cycles (4*3*(!nes->o_cpu->is_pal ()?16:15));
+	_2A03_kill_cycles (4*3*(!nes->o_cpu->is_pal () ? 16: 15));
 	return nes->o_cpu->read_byte (address);
 }
 
@@ -107,8 +100,9 @@ c_nes_cpu :: ~c_nes_cpu (void)
 	__DBG_UNINSTALLING ("CPU");
 
 	if (audio_stream)
+    {
 		stop_audio_stream (audio_stream);
-
+    }
 	__DBG_UNINSTALLED ();
 }
 
@@ -142,7 +136,10 @@ __INT_32 c_nes_cpu :: earliest_event_before (__INT_32 iEndTime)
 	if (!_2A03_get_interrupt_flag ())
 	{
 		__INT_32 irq_time = nes->o_apu.earliest_irq ();
-		if (irq_time < 0x2aaaaaaa && ((irq_time * 3 * ((!pal_console)?16:15)) <= iEndTime)) {iEndTime = irq_time * 3 * ((!pal_console)?16:15); }
+		if (irq_time < 0x2aaaaaaa && ((irq_time * 3 * ((!pal_console)?16:15)) <= iEndTime))
+        {
+            iEndTime = irq_time * 3 * ((!pal_console)?16:15);
+        }
 	}
 
 	return iEndTime;
@@ -159,7 +156,10 @@ void c_nes_cpu :: run_cycles (__INT_32 cycles)
 
 		if (_2A03_get_end_time () <= _2A03_get_current_time ())
 		{
-			if (apu_irqs_enabled) request_irq ();
+			if (apu_irqs_enabled)
+            {
+                request_irq ();
+            }
 			_2A03_set_end_time (ideal_time);
 		}
 
@@ -179,8 +179,14 @@ void c_nes_cpu :: run_accurate (void)
 
 	while (nes->is_running ())
 	{
-		if (is_config_requested) { load_config (); }
-		if (nes->o_gfx->is_config_requested ()) { nes->o_gfx->load_config (); }
+		if (is_config_requested)
+        {
+            load_config ();
+        }
+		if (nes->o_gfx->is_config_requested ())
+        {
+            nes->o_gfx->load_config ();
+        }
 
 		if (nes->is_paused ())
 		{
@@ -195,7 +201,10 @@ void c_nes_cpu :: run_accurate (void)
 		}
 
 		//Scanline #0
-		if (is_logtracer_on ()) nes->general_log.f_write ("s", "--------------------------------- PROCESSING *__NEW FRAME* -----------------------------------\r\n");
+		if (is_logtracer_on ())
+        {
+            nes->general_log.f_write ("s", "--------------------------------- PROCESSING *__NEW FRAME* -----------------------------------\r\n");
+        }
 
 		//New frame. Adjust a few flags.
 		nes->o_gfx->lock_buffer ();
@@ -203,11 +212,14 @@ void c_nes_cpu :: run_accurate (void)
 
 		//Scanlines #1-239
 		for (nes->o_ppu->information ().scanline = 0;
-				(int) nes->o_ppu->information ().scanline <(nes->o_cpu->Height + 16);
+				(int) nes->o_ppu->information ().scanline < (nes->o_cpu->Height + 16);
 				nes->o_ppu->information ().scanline ++)
 		{
 			//Clear the current Scanline if background rendering is disabled.
-			if (is_logtracer_on ()) nes->general_log.f_write ("sds", "---------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------\r\n");				
+			if (is_logtracer_on ())
+            {
+                nes->general_log.f_write ("sds", "---------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------\r\n");				
+            }
 
 			nes->o_ppu->run_accurate ();
 
@@ -215,7 +227,10 @@ void c_nes_cpu :: run_accurate (void)
 		}
 
 		//Scanline #240
-		if (is_logtracer_on ()) nes->general_log.f_write ("sds", "--------------------------------- PROCESSING *HBLANK* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+		if (is_logtracer_on ())
+        {
+            nes->general_log.f_write ("sds", "--------------------------------- PROCESSING *HBLANK* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+        }
 		run_cycles (260);
 		nes->o_mapper->h_blank ();
 		run_cycles (81);
@@ -225,7 +240,10 @@ void c_nes_cpu :: run_accurate (void)
 		nes->o_ppu->information ().scanline++;
 
 		//Scanline #241 - VBlank
-		if (is_logtracer_on ()) nes->general_log.f_write ("s", "----------------------------------- PROCESSING *VBLANK* ------------------------------------\r\n");
+		if (is_logtracer_on ())
+        {
+            nes->general_log.f_write ("s", "----------------------------------- PROCESSING *VBLANK* ------------------------------------\r\n");
+        }
 		nes->o_ppu->information ().is_v_blank = TRUE;
 
 		//TODO: Should there be a delay here? In theory, no.
@@ -245,14 +263,20 @@ void c_nes_cpu :: run_accurate (void)
 			 nes->o_ppu->information ().scanline < last_line;
 			 nes->o_ppu->information ().scanline ++)
 		{
-			if (is_logtracer_on ()) nes->general_log.f_write ("sds", "------------------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+			if (is_logtracer_on ())
+            {
+                nes->general_log.f_write ("sds", "------------------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+            }
 			run_cycles (341);
 			nes->o_mapper->h_blank ();
 
 			apu_catch_up ();
 		}
 
-		if (is_logtracer_on ()) nes->general_log.f_write ("sds", "------------------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+		if (is_logtracer_on ())
+        {
+            nes->general_log.f_write ("sds", "------------------------------- PROCESSING *SCANLINE* #", nes->o_ppu->information ().scanline, " ---------------------------------\r\n");
+        }
 		nes->o_ppu->end_frame ();
 		run_cycles (260);
 		nes->o_mapper->h_blank ();
@@ -276,7 +300,10 @@ void c_nes_cpu :: run_accurate (void)
 		//handle input
 	}	
 
-	if (audio_stream) voice_stop (audio_stream->voice);
+	if (audio_stream)
+    {
+        voice_stop (audio_stream->voice);
+    }
 }
 
 void c_nes_cpu :: output_video_sound (void)
@@ -284,7 +311,7 @@ void c_nes_cpu :: output_video_sound (void)
 	__BOOL skip_sync = FALSE;
 
 	//handle input
-	if (nes->o_blip.samples_avail () >= (((__UINT_32)(sampling_rate) / frame_rate) * 5))
+	if (nes->o_blip.samples_avail () >= (((__UINT_32) (sampling_rate) / frame_rate) * 5))
 	{
 		blip_sample_t * sound_buffer = NULL;
 
@@ -298,8 +325,11 @@ void c_nes_cpu :: output_video_sound (void)
 
 			nes->o_blip.read_samples (sound_buffer, (sampling_rate / frame_rate) * 5, FALSE);
 			free_audio_stream_buffer (audio_stream);
-		} else
+		}
+        else
+        {
 			nes->o_blip.remove_samples ((sampling_rate / frame_rate) * 5);
+        }
 //		skip_sync = TRUE;
 	}
 //	if (sound_enabled)
@@ -373,6 +403,7 @@ void c_nes_cpu :: save_state (c_tracer &o_writer, e_save_state Type)
 			o_writer.write (&is_frame_even, 1);
 			_2A03_save_state (o_writer);
 			break;
+
 		case OTHER:
 			nes->o_mapper->save_state (o_writer);
 			break;
@@ -398,6 +429,7 @@ void c_nes_cpu :: load_state (c_tracer &o_reader, e_save_state Type)
 
 			_2A03_load_state (o_reader);
 			break;
+
 		case OTHER:
 			nes->o_mapper->load_state (o_reader);
 			break;
@@ -417,13 +449,20 @@ void c_nes_cpu :: load_config (void)
 
 	switch (sampling_rate)
 	{
-		case 0: sampling_rate = 22050; break;
-		case 1: sampling_rate = 44100; break;
+		case 0:
+            sampling_rate = 22050;
+            break;
+		
+        case 1:
+            sampling_rate = 44100;
+            break;
 	}
 
 	switch (bits_per_sample)
 	{
-		case 0: bits_per_sample = 16; break;
+		case 0:
+            bits_per_sample = 16;
+            break;
 	}
 
 	nes->o_blip.clock_rate (((pal_console) ? 1662607 : 1789773));

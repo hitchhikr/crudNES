@@ -47,15 +47,15 @@ extern GENIE_8 genies_8[1024];
 
 c_nes_control :: c_nes_control (void)
 {
-	__DBG_INSTALLING ("Multi-Hardware Controller");
+    __DBG_INSTALLING ("Multi-Hardware Controller");
 
-	__NEW_MEM_BLOCK (control [APU], __UINT_8, 0x18);
-	__NEW_MEM_BLOCK (control [DMA], __UINT_8, 1);
+    __NEW_MEM_BLOCK (control [APU], __UINT_8, 0x18);
+    __NEW_MEM_BLOCK (control [DMA], __UINT_8, 1);
 
-	memset (control [APU], 0, 0x18);
-	memset (control [DMA], 0, 0x01);
+    memset (control [APU], 0, 0x18);
+    memset (control [DMA], 0, 0x01);
 
-	__DBG_INSTALLED ();
+    __DBG_INSTALLED ();
 }
 
 /******************************************************************************/
@@ -64,12 +64,12 @@ c_nes_control :: c_nes_control (void)
 
 c_nes_control :: ~c_nes_control (void)
 {
-	__DBG_UNINSTALLING ("Multi-Hardware Controller");
+    __DBG_UNINSTALLING ("Multi-Hardware Controller");
 
-	__DELETE_MEM_BLOCK (control [APU]);
-	__DELETE_MEM_BLOCK (control [DMA]);
+    __DELETE_MEM_BLOCK (control [APU]);
+    __DELETE_MEM_BLOCK (control [DMA]);
 
-	__DBG_UNINSTALLED ();
+    __DBG_UNINSTALLED ();
 }
 
 /******************************************************************************/
@@ -111,19 +111,40 @@ __UINT_8 c_nes_control :: read_byte (__UINT_16 address)
             }
             return nes->o_cpu->read_byte (address);
     }
-	if (address < 0x2000) return nes->o_ram->read_byte (address);
-	if (address < 0x4000) return nes->o_ppu->read_byte (address);
-	if (address < 0x4020) return ApuDmaReadByte (address);
-	if (address > 0x5fff) return nes->o_sram->read_byte (address);
-	return nes->o_mapper->read_byte (address);
+    if (address < 0x2000)
+    {
+        return nes->o_ram->read_byte (address);
+    }
+    if (address < 0x4000)
+    {
+        return nes->o_ppu->read_byte (address);
+    }
+    if (address < 0x4020)
+    {
+        return ApuDmaReadByte (address);
+    }
+    if (address > 0x5fff)
+    {
+        return nes->o_sram->read_byte (address);
+    }
+    return nes->o_mapper->read_byte (address);
 }
 
 __UINT_16 c_nes_control :: read_word (__UINT_16 address)
 {
-	if (address > 0x7fff) return nes->o_cpu->read_word (address);
-	if (address < 0x2000) return nes->o_ram->read_word (address);
-	if (address > 0x5fff) return nes->o_sram->read_word (address);
-	return 0x00;
+    if (address > 0x7fff)
+    {
+        return nes->o_cpu->read_word (address);
+    }
+    if (address < 0x2000)
+    {
+        return nes->o_ram->read_word (address);
+    }
+    if (address > 0x5fff)
+    {
+        return nes->o_sram->read_word (address);
+    }
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -132,11 +153,26 @@ __UINT_16 c_nes_control :: read_word (__UINT_16 address)
 
 void c_nes_control :: write_byte (__UINT_16 address, __UINT_8 value)
 {
-	if (address < 0x2000) nes->o_ram->write_byte(address, value);
-	else if (address < 0x4000) nes->o_ppu->write_byte (address, value);
-	else if (address < 0x4020) ApuDmawrite_byte (address, value);
-	else if (address > 0x4fff) nes->o_mapper->write_byte (address, value);
-	else if (nes->o_cpu->is_tracer_on ()) nes->general_log.f_write ("swsbs", "Multi-Hardware Controller: WARNING: Bad write at ", address, " ", value, "\r\n");
+    if (address < 0x2000)
+    {
+        nes->o_ram->write_byte(address, value);
+    }
+    else if (address < 0x4000)
+    {
+        nes->o_ppu->write_byte (address, value);
+    }
+    else if (address < 0x4020)
+    {
+        ApuDmawrite_byte (address, value);
+    }
+    else if (address > 0x4fff)
+    {
+        nes->o_mapper->write_byte (address, value);
+    }
+    else if (nes->o_cpu->is_tracer_on ())
+    {
+        nes->general_log.f_write ("swsbs", "Multi-Hardware Controller: WARNING: Bad write at ", address, " ", value, "\r\n");
+    }
 }
 
 /******************************************************************************/
@@ -145,18 +181,21 @@ void c_nes_control :: write_byte (__UINT_16 address, __UINT_8 value)
 
 __UINT_8 c_nes_control :: ApuDmaReadByte (const __UINT_16 &address)
 {
-	//Apparently some games expect data returned from joypad ports to be
-	//in the format of $4x (x_offset: 0/1).
+    //Apparently some games expect data returned from joypad ports to be
+    //in the format of $4x (x_offset: 0/1).
     if(address == 0x4016)
-		return (0x40 | nes->o_input->read_bitstream (0));
-
+    {
+        return (0x40 | nes->o_input->read_bitstream (0));
+    }
     if(address == 0x4017)
-		return (0x40 | nes->o_input->read_bitstream (1));
-
-	if(address == nes->o_apu.status_addr)
-		return nes->o_apu.read_status (nes->o_cpu->current_time ());
-
-	return 0x40;
+    {
+        return (0x40 | nes->o_input->read_bitstream (1));
+    }
+    if(address == nes->o_apu.status_addr)
+    {
+        return nes->o_apu.read_status (nes->o_cpu->current_time ());
+    }
+    return 0x40;
 }
 
 /******************************************************************************/
@@ -165,27 +204,32 @@ __UINT_8 c_nes_control :: ApuDmaReadByte (const __UINT_16 &address)
 
 void c_nes_control :: ApuDmawrite_byte (const __UINT_16 &address, const __UINT_8 &value)
 {
-	switch (address)
-	{
-   		case 0x4014:
-			if (!nes->o_ppu->information ().is_v_blank
-				&& nes->o_ppu->get_flag (CTL_2, BIT_4 | BIT_3))
-			{
-				if (nes->o_cpu->is_tracer_on ()) nes->general_log.f_write ("s", "\r\nPPU: WARNING: Attempting to perform OAM DMA prior to VBlank without disabling rendering.");
-				return;
-			}
+    switch (address)
+    {
+        case 0x4014:
+            if (!nes->o_ppu->information ().is_v_blank
+                && nes->o_ppu->get_flag (CTL_2, BIT_4 | BIT_3))
+            {
+                if (nes->o_cpu->is_tracer_on ())
+                {
+                    nes->general_log.f_write ("s", "\r\nPPU: WARNING: Attempting to perform OAM DMA prior to VBlank without disabling rendering.");
+                }
+                return;
+            }
 
-			nes->o_ppu->oam_dma (nes->o_ram, (value << 8) & 0x7ff);
-			nes->o_cpu->kill_cycles (512 * 3); //Yes, I ought to be sent to death row for 
-                                      //killing 512 cycles in such a brutal manner...
-			return;
+            nes->o_ppu->oam_dma (nes->o_ram, (value << 8) & 0x7ff);
+            nes->o_cpu->kill_cycles (512 * 3); //Yes, I ought to be sent to death row for 
+                                               //killing 512 cycles in such a brutal manner...
+            return;
                
-		case 0x4016:
-			nes->o_input->write_strobe (value & 1);
-      		return;
+        case 0x4016:
+            nes->o_input->write_strobe (value & 1);
+            return;
 
-		default: ;
-			if (address >= nes->o_apu.start_addr && address <= nes->o_apu.end_addr)
-					nes->o_apu.write_register (nes->o_cpu->current_time (), address, value);
-	}
+        default:
+            if (address >= nes->o_apu.start_addr && address <= nes->o_apu.end_addr)
+            {
+                nes->o_apu.write_register (nes->o_cpu->current_time (), address, value);
+            }
+    }
 }

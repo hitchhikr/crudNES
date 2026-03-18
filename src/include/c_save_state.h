@@ -29,27 +29,43 @@
 
 #include "datatypes.h"
 
-enum e_save_state { MAIN = 0, OTHER };
+enum e_save_state
+{
+    MAIN = 0, 
+    OTHER
+};
 
-class c_save_state {
+class c_save_state
+{
+    public:
 
-public:
+        void reset (void);
 
-	void reset (void);
+        const char *get_filename (void);
+        const char *get_filename (const char *extension);
+        char *get_filename(char *filepath, const char *extension, int strip);
 
-	const char *get_filename (void);
-	const char *get_filename (const char *extension);
-    char *get_filename(char *filepath, const char *extension, int strip);
+        void IncrementSlot (void)
+        {
+            iSlot = (iSlot + 1) & 7;
+            rest (100);
+        }
+        void DecrementSlot (void)
+        {
+            iSlot = (iSlot - 1) & 7;
+            rest (100);
+        }
 
-	void IncrementSlot (void) { iSlot = (iSlot + 1) & 7; rest (100); }
-	void DecrementSlot (void) { iSlot = (iSlot - 1) & 7; rest (100); }
+        void set_slot (__INT_32 Slot)
+        {
+            iSlot = Slot & 7;
+        }
+        void save (void); 
+        void load (void);
 
-	void set_slot (__INT_32 Slot) { iSlot = Slot & 7; }
-	void save (void); 
-	void load (void);
+    private:
 
-private:
-	__INT_32 iSlot;
+        __INT_32 iSlot;
 };
 
 #endif

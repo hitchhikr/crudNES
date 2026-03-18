@@ -100,10 +100,22 @@ void c_mapper_021 :: write_byte (__UINT_16 address, __UINT_8 value)
 	else if (0x9000 == address)
 	{
 		value &= 3;
-		if (0 == value) nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING);
-		else if (1 == value) nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING);
-		else if (2 == value) nes->o_ppu->set_mirroring (_2C02_2400_MIRRORING);
-		else if (3 == value) nes->o_ppu->set_mirroring (_2C02_2000_MIRRORING);
+		if (0 == value)
+        {
+            nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING);
+        }
+		else if (1 == value)
+        {
+            nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING);
+        }
+		else if (2 == value)
+        {
+            nes->o_ppu->set_mirroring (_2C02_2400_MIRRORING);
+        }
+		else if (3 == value)
+        {
+            nes->o_ppu->set_mirroring (_2C02_2000_MIRRORING);
+        }
 	}
 	else if (0x9002 == address ||
 	         0x9004 == address ||
@@ -118,37 +130,110 @@ void c_mapper_021 :: write_byte (__UINT_16 address, __UINT_8 value)
         swap_banks();
     }
 
-	else if (0xb000 == address) updatePPUPage (0, 0, value & 0xf);
-	else if (0xb002 == address) updatePPUPage (0, 1, value & 0xf);
-	else if (0xb001 == address) updatePPUPage (1, 0, value & 0xf);
-	else if (0xb003 == address) updatePPUPage (1, 1, value & 0xf);
-	else if (0xb004 == address) updatePPUPage (1, 0, value & 0xf);
-	else if (0xb006 == address) updatePPUPage (1, 1, value & 0xf);
-	else if (0xc000 == address) updatePPUPage (2, 0, value & 0xf);
-	else if (0xc002 == address) updatePPUPage (2, 1, value & 0xf);
-	else if (0xc001 == address) updatePPUPage (3, 0, value & 0xf);
-	else if (0xc003 == address) updatePPUPage (3, 1, value & 0xf);
-	else if (0xc004 == address) updatePPUPage (3, 0, value & 0xf);
-	else if (0xc006 == address) updatePPUPage (3, 1, value & 0xf);
-	else if (0xd000 == address) updatePPUPage (4, 0, value & 0xf);
-	else if (0xd002 == address) updatePPUPage (4, 1, value & 0xf);
-	else if (0xd001 == address) updatePPUPage (5, 0, value & 0xf);
-	else if (0xd003 == address) updatePPUPage (5, 1, value & 0xf);
-	else if (0xd004 == address) updatePPUPage (5, 0, value & 0xf);
-	else if (0xd006 == address) updatePPUPage (5, 1, value & 0xf);
-	else if (0xe000 == address) updatePPUPage (6, 0, value & 0xf);
-	else if (0xe002 == address) updatePPUPage (6, 1, value & 0xf);
-	else if (0xe001 == address) updatePPUPage (7, 0, value & 0xf);
-	else if (0xe003 == address) updatePPUPage (7, 1, value & 0xf);
-	else if (0xe004 == address) updatePPUPage (7, 0, value & 0xf);
-	else if (0xe006 == address) updatePPUPage (7, 1, value & 0xf);
-	
+	else if (0xb000 == address)
+    {
+        updatePPUPage (0, 0, value & 0xf);
+    }
+	else if (0xb002 == address)
+    {
+        updatePPUPage (0, 1, value & 0xf);
+    }
+	else if (0xb001 == address)
+    {
+        updatePPUPage (1, 0, value & 0xf);
+    }
+	else if (0xb003 == address)
+    {
+        updatePPUPage (1, 1, value & 0xf);
+    }
+	else if (0xb004 == address)
+    {
+        updatePPUPage (1, 0, value & 0xf);
+    }
+	else if (0xb006 == address)
+    {
+        updatePPUPage (1, 1, value & 0xf);
+    }
+	else if (0xc000 == address)
+    {
+        updatePPUPage (2, 0, value & 0xf);
+    }
+	else if (0xc002 == address)
+    {
+        updatePPUPage (2, 1, value & 0xf);
+    }
+	else if (0xc001 == address)
+    {
+        updatePPUPage (3, 0, value & 0xf);
+    }
+	else if (0xc003 == address)
+    {
+        updatePPUPage (3, 1, value & 0xf);
+    }
+	else if (0xc004 == address)
+    {
+        updatePPUPage (3, 0, value & 0xf);
+    }
+	else if (0xc006 == address)
+    {
+        updatePPUPage (3, 1, value & 0xf);
+    }
+	else if (0xd000 == address)
+    {
+        updatePPUPage (4, 0, value & 0xf);
+    }
+	else if (0xd002 == address)
+    {
+        updatePPUPage (4, 1, value & 0xf);
+    }
+	else if (0xd001 == address)
+    {
+        updatePPUPage (5, 0, value & 0xf);
+    }
+	else if (0xd003 == address)
+    {
+        updatePPUPage (5, 1, value & 0xf);
+    }
+	else if (0xd004 == address)
+    {
+        updatePPUPage (5, 0, value & 0xf);
+    }
+	else if (0xd006 == address)
+    {
+        updatePPUPage (5, 1, value & 0xf);
+    }
+	else if (0xe000 == address)
+    {
+        updatePPUPage (6, 0, value & 0xf);
+    }
+	else if (0xe002 == address)
+    {
+        updatePPUPage (6, 1, value & 0xf);
+    }
+	else if (0xe001 == address)
+    {
+        updatePPUPage (7, 0, value & 0xf);
+    }
+	else if (0xe003 == address)
+    {
+        updatePPUPage (7, 1, value & 0xf);
+    }
+	else if (0xe004 == address)
+    {
+        updatePPUPage (7, 0, value & 0xf);
+    }
+	else if (0xe006 == address)
+    {
+        updatePPUPage (7, 1, value & 0xf);
+	}
+    
 	switch(address &= 0xf006)
 	{
 	    case 0xf000:
 	        bIRQReload &= 0xf0;
 	        bIRQReload |= value & 0xf;
 	        break;
+
 	    case 0xf002:
 	        bIRQReload &= 0xf;
 	        bIRQReload |= (value << 4) & 0xf0;
@@ -157,8 +242,14 @@ void c_mapper_021 :: write_byte (__UINT_16 address, __UINT_8 value)
 	    case 0xf004:
 	        bIRQCounter = bIRQReload;
 		    value &= 3;
-		    if (value == 2 || value == 3) bIRQEnabled = TRUE;
-		    else if (value == 0) bIRQEnabled = FALSE;
+		    if (value == 2 || value == 3)
+            {
+                bIRQEnabled = TRUE;
+            }
+		    else if (value == 0)
+            {
+                bIRQEnabled = FALSE;
+            }
             break;
 
 	    case 0xf006:
@@ -171,8 +262,18 @@ void c_mapper_021 :: write_byte (__UINT_16 address, __UINT_8 value)
 
 void c_mapper_021 :: updatePPUPage (__UINT_8 bArea, __UINT_8 bHalf, __UINT_8 page)
 {
-	if (bHalf) { bPortHigh [bArea] = 1; bPortData [bArea] &= 0xf; bPortData [bArea] |= page << 4; }
-	else { bPortLow [bArea] = 1; bPortData [bArea] &= 0xf0; bPortData [bArea] |= page; }
+	if (bHalf)
+    {
+        bPortHigh [bArea] = 1;
+        bPortData [bArea] &= 0xf;
+        bPortData [bArea] |= page << 4;
+    }
+	else
+    {
+        bPortLow [bArea] = 1;
+        bPortData [bArea] &= 0xf0;
+        bPortData [bArea] |= page;
+    }
 
 	if (bPortHigh [bArea] && bPortLow [bArea])
 	{
@@ -184,7 +285,11 @@ void c_mapper_021 :: updatePPUPage (__UINT_8 bArea, __UINT_8 bHalf, __UINT_8 pag
 void c_mapper_021 :: h_blank (void)
 {
 	bIRQCounter ++;
-	if (bIRQCounter == bIRQReload || !bIRQCounter) {
-		if (bIRQEnabled) nes->o_cpu->set_irq_line (TRUE);
+	if (bIRQCounter == bIRQReload || !bIRQCounter)
+    {
+		if (bIRQEnabled)
+        {
+            nes->o_cpu->set_irq_line (TRUE);
+        }
 	}
 }

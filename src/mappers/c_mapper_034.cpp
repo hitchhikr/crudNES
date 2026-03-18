@@ -60,7 +60,10 @@ c_mapper_034 :: c_mapper_034 (void)
 		alias += 8;
         max_pages++;
         start += _32K_;
-		if(start >= (int) nes->o_rom->ROM.get_size()) break;
+		if(start >= (int) nes->o_rom->ROM.get_size())
+        {
+            break;
+        }
     }
 	max_alias = alias - 8;
 
@@ -107,8 +110,14 @@ void c_mapper_034 :: write_byte (__UINT_16 address, __UINT_8 value)
         last_page_switched = value & _32K_prg_mask;
         set_vectors();
 	}
-	else if (0x7ffe == address) nes->o_ppu->swap_page (0x0000, value & _4K_chr_mask, _4K_);
-	else if (0x7fff == address) nes->o_ppu->swap_page (0x1000, value & _4K_chr_mask, _4K_);
+	else if (0x7ffe == address)
+    {
+        nes->o_ppu->swap_page (0x0000, value & _4K_chr_mask, _4K_);
+    }
+	else if (0x7fff == address)
+    {
+        nes->o_ppu->swap_page (0x1000, value & _4K_chr_mask, _4K_);
+    }
 	else if (address > 0x7fff)
 	{
 		// BNROM

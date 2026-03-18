@@ -198,9 +198,15 @@ template <typename T> class CList
                 return;
             }
             // First will be next
-            if(First_Entry == Entry_To_Delete) First_Entry = Entry_To_Delete->Next;
+            if(First_Entry == Entry_To_Delete)
+            {
+                First_Entry = Entry_To_Delete->Next;
+            }
             // Last will be previous
-            if(Last_Entry == Entry_To_Delete) Last_Entry = Entry_To_Delete->Previous;
+            if(Last_Entry == Entry_To_Delete)
+            {
+                Last_Entry = Entry_To_Delete->Previous;
+            }
             // Get next/previous entries
             Previous_Entry = Entry_To_Delete->Previous;
             Next_Entry = Entry_To_Delete->Next;
@@ -210,9 +216,18 @@ template <typename T> class CList
             }
             free(Entry_To_Delete);
             // Update previous/next entries
-            if(Next_Entry) Next_Entry->Previous = Previous_Entry;
-            if(Previous_Entry) Previous_Entry->Next = Next_Entry;
-            if(this->Nbr_Entries) this->Nbr_Entries--;
+            if(Next_Entry)
+            {
+                Next_Entry->Previous = Previous_Entry;
+            }
+            if(Previous_Entry)
+            {
+                Previous_Entry->Next = Next_Entry;
+            }
+            if(this->Nbr_Entries)
+            {
+                this->Nbr_Entries--;
+            }
         }
 
         void Del(int Entry_Number)
@@ -251,7 +266,10 @@ template <typename T> class CList
             CList_Entry *Old_Entry;
 
             New_Entry = (CList_Entry *) calloc(sizeof(CList_Entry), 1);
-            if(!First_Entry) First_Entry = New_Entry;
+            if(!First_Entry)
+            {
+                First_Entry = New_Entry;
+            }
             if(Last_Entry)
             {
                 // Update previous entry
@@ -282,15 +300,24 @@ template <typename T> class CList
             CList_Entry *Prev_Entry;
 
             New_Entry = (CList_Entry *) calloc(sizeof(CList_Entry), 1);
-            if(!First_Entry) First_Entry = New_Entry;
-            if(!Last_Entry) Last_Entry = New_Entry;
+            if(!First_Entry)
+            {
+                First_Entry = New_Entry;
+            }
+            if(!Last_Entry)
+            {
+                Last_Entry = New_Entry;
+            }
             // Set headers
             New_Entry->Next = Entry_To_Insert_Before;
             // This one is the new next one in previous entry
             Prev_Entry = Entry_To_Insert_Before->Previous;
             New_Entry->Previous = Prev_Entry;
             // Don't correct previous entry if this one is the first of the list
-            if(Prev_Entry) Prev_Entry->Next = New_Entry;
+            if(Prev_Entry)
+            {
+                Prev_Entry->Next = New_Entry;
+            }
             // This one is the new previous one in next entry
             Entry_To_Insert_Before->Previous = New_Entry;
             // Increment number of entries
@@ -300,7 +327,10 @@ template <typename T> class CList
 
         CList_Entry *Insert_Entry_Before(CList_Entry *Entry_To_Insert_Before, T &Datas)
         {
-            if(!Entry_To_Insert_Before) return(Add(Datas));
+            if(!Entry_To_Insert_Before)
+            {
+                return(Add(Datas));
+            }
             CList_Entry *New_Entry = Insert_Entry_Before(Entry_To_Insert_Before);
             Set(New_Entry, Datas);
             return(New_Entry);
@@ -312,17 +342,29 @@ template <typename T> class CList
             CList_Entry *Next_Entry;
 
             New_Entry = (CList_Entry *) calloc(sizeof(CList_Entry), 1);
-            if(!First_Entry) First_Entry = New_Entry;
-            if(!Last_Entry) Last_Entry = New_Entry;
+            if(!First_Entry)
+            {
+                First_Entry = New_Entry;
+            }
+            if(!Last_Entry)
+            {
+                Last_Entry = New_Entry;
+            }
             // Set new previous
             New_Entry->Previous = Entry_To_Insert_After;
             // Check if it was the last created one
-            if(Last_Entry == Entry_To_Insert_After) Last_Entry = New_Entry;
+            if(Last_Entry == Entry_To_Insert_After)
+            {
+                Last_Entry = New_Entry;
+            }
             // Take latest next
             Next_Entry = Entry_To_Insert_After->Next;
             // Store it as new/old next
             New_Entry->Next = Next_Entry;
-            if(Next_Entry) Next_Entry->Previous = New_Entry;
+            if(Next_Entry)
+            {
+                Next_Entry->Previous = New_Entry;
+            }
             // This one is the new next one
             Entry_To_Insert_After->Next = New_Entry;
             // Increment number of entries
@@ -332,7 +374,10 @@ template <typename T> class CList
 
         CList_Entry *Insert_Entry_After(CList_Entry *Entry_To_Insert_After, T &Datas)
         {
-            if(!Entry_To_Insert_After) return(Add(Datas));
+            if(!Entry_To_Insert_After)
+            {
+                return(Add(Datas));
+            }
             CList_Entry *New_Entry = Insert_Entry_After(Entry_To_Insert_After);
             Set(New_Entry, Datas);
             return(New_Entry);

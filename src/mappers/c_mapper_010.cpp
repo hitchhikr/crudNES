@@ -141,6 +141,7 @@ void c_mapper_010 :: update (void *vData)
 		bLatches [0] = 0xfd;
 		nes->o_ppu->swap_page (0x0000, pages [0], _4K_); 
 	}
+
 	else if (uiSelector == 0x0fe0 &&
 	         bLatches [0] != 0xfe)
 	{
@@ -174,24 +175,45 @@ void c_mapper_010 :: write_byte (__UINT_16 address, __UINT_8 value)
 
 	    case 0xb000:
 		    pages [0] = value & _4K_chr_mask;
-		    if (bLatches [0] == 0xfd) nes->o_ppu->swap_page (0x0000, pages [0], _4K_); 
+		    if (bLatches [0] == 0xfd)
+            {
+                nes->o_ppu->swap_page (0x0000, pages [0], _4K_);
+            }
 		    break;
+
 	    case 0xc000:
 		    pages [1] = value & _4K_chr_mask;
-		    if (bLatches [0] == 0xfe) nes->o_ppu->swap_page (0x0000, pages [1], _4K_); 
+		    if (bLatches [0] == 0xfe)
+            {
+                nes->o_ppu->swap_page (0x0000, pages [1], _4K_);
+            }
 		    break;
+
 	    case 0xd000:
 		    pages [2] = value & _4K_chr_mask;
-		    if (bLatches [1] == 0xfd) nes->o_ppu->swap_page (0x1000, pages [2], _4K_); 
+		    if (bLatches [1] == 0xfd)
+            {
+                nes->o_ppu->swap_page (0x1000, pages [2], _4K_);
+            }
 		    break;
+
 	    case 0xe000:
 		    pages [3] = value & _4K_chr_mask;
-		    if (bLatches [1] == 0xfe) nes->o_ppu->swap_page (0x1000, pages [3], _4K_); 
+		    if (bLatches [1] == 0xfe)
+            {
+                nes->o_ppu->swap_page (0x1000, pages [3], _4K_);
+            }
 		    break;
 
 	    case 0xf000:
-		    if (value & BIT_0) nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING);
-		    else nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING);
+		    if (value & BIT_0)
+            {
+                nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING);
+            }
+		    else
+            {
+                nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING);
+            }
 	}
 }
 

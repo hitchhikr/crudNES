@@ -224,9 +224,11 @@ int main (int argc, char *argv[])
         case 'P':
 	        o_machine->Open(1, argv[++pos_arg]);
             break;
+
         case 'N':
 	        o_machine->Open(0, argv[++pos_arg]);
             break;
+
         default:
             print_usage();
             break;

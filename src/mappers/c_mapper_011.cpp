@@ -100,7 +100,10 @@ void c_mapper_011 :: write_byte (__UINT_16 address, __UINT_8 value)
 {
 	if (address < 0x8000)
 	{
-		if (nes->o_rom->information ().o_sram) nes->o_sram->write_byte (address, value);
+		if (nes->o_rom->information ().o_sram)
+        {
+            nes->o_sram->write_byte (address, value);
+        }
 	}
 	else
 	{

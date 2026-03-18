@@ -54,11 +54,22 @@ class c_nes_cpu
 
 		void run_accurate (void);
 
-		void set_irq_line (__BOOL status) { _2A03_set_irq_line (status); }
-		void request_nmi (void) { _2A03_request_nmi (); }
-		void request_secondary_nmi (void) { _2A03_request_secondary_nmi (); }
-		void request_irq (void) { _2A03_request_irq (); }
-        
+		void set_irq_line (__BOOL status)
+        {
+            _2A03_set_irq_line (status);
+        }
+		void request_nmi (void)
+        {
+            _2A03_request_nmi ();
+        }
+		void request_secondary_nmi (void)
+        {
+            _2A03_request_secondary_nmi ();
+        }
+		void request_irq (void)
+        {
+            _2A03_request_irq ();
+        }
 		void kill_cycles (__INT_32 cycles)
 		{
 			_2A03_kill_cycles (cycles*16);
@@ -82,14 +93,38 @@ class c_nes_cpu
 			ideal_time -= end_time;
 		}
 
-		void toggle_logtracer (void) { _2A03_toggle_logtracer (); }
-		void toggle_tracer (void) { _2A03_toggle_tracer (); }
-		void toggle_label_holder (void) { _2A03_toggle_label_holder (); }
-		void set_instruction_dumper (__BOOL status) { _2A03_set_tracer (status); }
-		void set_label_holder (__BOOL status) { _2A03_set_label_holder (status); }
-		void set_logtracer(__BOOL status) { _2A03_set_logtracer (status); }
-		__BOOL is_tracer_on (void) { return _2A03_get_tracer (); }
-		__BOOL is_logtracer_on (void) { return _2A03_get_logtracer (); }
+		void toggle_logtracer (void)
+        {
+            _2A03_toggle_logtracer ();
+        }
+		void toggle_tracer (void)
+        {
+            _2A03_toggle_tracer ();
+        }
+		void toggle_label_holder (void)
+        {
+            _2A03_toggle_label_holder ();
+        }
+		void set_instruction_dumper (__BOOL status)
+        {
+            _2A03_set_tracer (status);
+        }
+		void set_label_holder (__BOOL status)
+        {
+            _2A03_set_label_holder (status);
+        }
+		void set_logtracer(__BOOL status)
+        {
+            _2A03_set_logtracer (status);
+        }
+		__BOOL is_tracer_on (void)
+        {
+            return _2A03_get_tracer ();
+        }
+		__BOOL is_logtracer_on (void)
+        {
+            return _2A03_get_logtracer ();
+        }
 
 		__UINT_8 read_byte (__UINT_16 address)
 		{
@@ -116,16 +151,31 @@ class c_nes_cpu
 		void save_state (c_tracer &o_writer, e_save_state type);
 		void load_state (c_tracer &o_reader, e_save_state type);
 
-		void SetEventTakingPlace (__BOOL status) { event_taking_place = status; }
-		__BOOL is_pal (void) { return pal_console; }
-		__UINT_32 get_cycle_multiplier (void) { return cycle_multiplier; }
-		__UINT_32 get_last_line (void) { return last_line; }
+		void SetEventTakingPlace (__BOOL status)
+        {
+            event_taking_place = status;
+        }
+		__BOOL is_pal (void)
+        {
+            return pal_console;
+        }
+		__UINT_32 get_cycle_multiplier (void)
+        {
+            return cycle_multiplier;
+        }
+		__UINT_32 get_last_line (void)
+        {
+            return last_line;
+        }
 
 		__BOOL event_taking_place;
 		__INT_32 ideal_time;
 		__UINT_16 Height;
 
-		void request_config_load (void) { is_config_requested = TRUE; }
+		void request_config_load (void)
+        {
+            is_config_requested = TRUE;
+        }
 		void load_config (void);
 
 		c_mem_block PRGROM;

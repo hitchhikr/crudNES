@@ -26,7 +26,10 @@
 
 #include "datatypes.h"
 
-enum EDumpType { BINARY = 0, BYTE_HEX };
+enum EDumpType
+{
+    BINARY = 0, BYTE_HEX
+};
 
 class c_tracer;
 
@@ -49,22 +52,46 @@ class c_mem_block {
 		{
 			return valueBlock [address & uiAccessMask];
 		}
-		__UINT_16 read_word (__UINT_32 address) { return *((__UINT_16 *)(valueBlock + (address & uiAccessMask))); }
-		__UINT_32 read_dword (__UINT_32 address) { return *((__UINT_32 *)(valueBlock + (address & uiAccessMask))); }
+		__UINT_16 read_word (__UINT_32 address)
+        {
+            return *((__UINT_16 *)(valueBlock + (address & uiAccessMask)));
+        }
+		__UINT_32 read_dword (__UINT_32 address)
+        {
+            return *((__UINT_32 *)(valueBlock + (address & uiAccessMask)));
+        }
 
-		void write_byte (__UINT_32 address, __UINT_8 value) {	valueBlock [address & uiAccessMask] = value; }
-		void write_word (__UINT_32 address, __UINT_16 uiData) { *((__UINT_16 *)(valueBlock + (address & uiAccessMask))) = uiData; }
-		void write_dword (__UINT_32 address, __UINT_32 uiData) { *((__UINT_32 *)(valueBlock + (address & uiAccessMask))) = uiData; }
+		void write_byte (__UINT_32 address, __UINT_8 value)
+        {
+            valueBlock [address & uiAccessMask] = value;
+        }
+		void write_word (__UINT_32 address, __UINT_16 uiData)
+        {
+            *((__UINT_16 *)(valueBlock + (address & uiAccessMask))) = uiData;
+        }
+		void write_dword (__UINT_32 address, __UINT_32 uiData)
+        {
+            *((__UINT_32 *)(valueBlock + (address & uiAccessMask))) = uiData;
+        }
 	
 		__UINT_8 & operator [] (__UINT_32 address)
 		{
 			return valueBlock [address & uiAccessMask];
 		}
 
-		__UINT_32 get_size (void) { return size; }
-		void resize (__UINT_32 size) { default_construction (size); }
+		__UINT_32 get_size (void)
+        {
+            return size;
+        }
+		void resize (__UINT_32 size)
+        {
+            default_construction (size);
+        }
 
-		void reset_access_mask (__UINT_32 uiMask) { uiAccessMask = uiMask; }
+		void reset_access_mask (__UINT_32 uiMask)
+        {
+            uiAccessMask = uiMask;
+        }
 
 		void clear_to (__UINT_32 dest_where, __UINT_32 uiPattern)
 		{

@@ -86,8 +86,14 @@ void c_mapper_071 :: write_byte (__UINT_16 address, __UINT_8 value)
 	{
 		if (0x9000 == (address & 0xf000))
 		{
-			if (!(value & BIT_4)) nes->o_ppu->set_mirroring (_2C02_2400_MIRRORING);
-			else nes->o_ppu->set_mirroring (_2C02_2000_MIRRORING);
+			if (!(value & BIT_4))
+            {
+                nes->o_ppu->set_mirroring (_2C02_2400_MIRRORING);
+            }
+			else
+            {
+                nes->o_ppu->set_mirroring (_2C02_2000_MIRRORING);
+            }
 		}
 	}
 	else if (address > 0xbfff)

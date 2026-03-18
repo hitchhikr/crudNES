@@ -1,4 +1,3 @@
-
 // Nes_Snd_Emu 0.1.4. http://www.slack.net/~ant/nes-emu/
 
 // This is meant as a starting point for a state saving scheme in an emulator.
@@ -18,17 +17,23 @@ more details. You should have received a copy of the GNU General Public
 License along with Nes_Snd_Emu; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA */
 
-static int reflect_int( int i, FILE* file, int load ) {
+static int reflect_int( int i, FILE* file, int load )
+{
 	if ( load )
+    {
 		fscanf( file, "%d ", &i );
+    }
 	else
+    {
 		fprintf( file, "%d ", i );
+    }
 	return i;
 }
 
 // Cut down on template bloat by forwarding to helper function
 template<class T>
-void nes_apu_reflect( T& t, FILE* file, int load ) {
+void nes_apu_reflect( T& t, FILE* file, int load )
+{
 	t = reflect_int( t, file, load );
 }
 
@@ -82,14 +87,19 @@ void Nes_Apu_Reflector::reflect_apu( Nes_Apu& apu, FILE* file, int load )
 	REFLECT( apu.dmc.length );
 	REFLECT( apu.dmc.irq_flag );
 	REFLECT( apu.dmc.irq_enabled );
-	if ( !load ) fputc( '\n', file );
-	
+	if ( !load )
+    {
+        fputc( '\n', file );
+    }
 	// After loading, allow APU to make any necessary adjustments to the loaded state
 	if ( load )
+    {
 		apu.state_restored();
+    }
 }
 
-void Nes_Apu_Reflector::reflect_osc( Nes_Osc& osc, FILE* file, int load ) {
+void Nes_Apu_Reflector::reflect_osc( Nes_Osc& osc, FILE* file, int load )
+{
 	// don't save/restore osc.last_amp
 	REFLECT( osc.enabled );
 	REFLECT( osc.delay );
@@ -99,7 +109,8 @@ void Nes_Apu_Reflector::reflect_osc( Nes_Osc& osc, FILE* file, int load ) {
 	if ( !load ) fputc( '\n', file );
 }
 
-void Nes_Apu_Reflector::reflect_env( Nes_Envelope& env, FILE* file, int load ) {
+void Nes_Apu_Reflector::reflect_env( Nes_Envelope& env, FILE* file, int load )
+{
 	reflect_osc( env, file, load );
 	REFLECT( env.volume );
 	REFLECT( env.env_enabled );
@@ -111,7 +122,8 @@ void Nes_Apu_Reflector::reflect_env( Nes_Envelope& env, FILE* file, int load ) {
 	if ( !load ) fputc( '\n', file );
 }
 
-void Nes_Apu_Reflector::reflect_sq( Nes_Square& sq, FILE* file, int load ) {
+void Nes_Apu_Reflector::reflect_sq( Nes_Square& sq, FILE* file, int load )
+{
 	reflect_env( sq, file, load );
 	REFLECT( sq.phase );
 	REFLECT( sq.phase_offset ); // format of this might change
@@ -124,11 +136,13 @@ void Nes_Apu_Reflector::reflect_sq( Nes_Square& sq, FILE* file, int load ) {
 	if ( !load ) fputc( '\n', file );
 }
 
-void Nes_Apu_Reflector::save( Nes_Apu const& apu, FILE* file ) {
+void Nes_Apu_Reflector::save( Nes_Apu const& apu, FILE* file )
+{
 	reflect_apu( (Nes_Apu&) apu, file, FALSE );
 }
 
-void Nes_Apu_Reflector::load( FILE* file, Nes_Apu& apu ) {
+void Nes_Apu_Reflector::load( FILE* file, Nes_Apu& apu )
+{
 	reflect_apu( (Nes_Apu&) apu, file, TRUE );
 }
 

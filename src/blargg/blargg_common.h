@@ -1,4 +1,3 @@
-
 // Common headers used by Shay Green's libraries
 
 #ifndef BLARGG_COMMON_H
@@ -59,7 +58,7 @@
 #undef uint8_t
 #undef uint16_t
 #undef uint32_t
-typedef char int8_t;
+typedef signed char int8_t;
 typedef short int16_t;
 typedef int int32_t;
 typedef unsigned char uint8_t;

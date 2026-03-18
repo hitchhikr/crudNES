@@ -742,7 +742,10 @@ void _2A03_run(void)
     int zp_addr;
     int return_address;
     register __UINT_16 value;
-	if(iCurrentTime == iEndTime) return;
+	if(iCurrentTime == iEndTime)
+    {
+        return;
+    }
 
 	if(_2A03_instructionDumper && (iCurrentTime > (iEndTime + 21)))
 	{
@@ -753,8 +756,17 @@ void _2A03_run(void)
 	{
 		if(!_2A03_unfinishedOp)
 		{
-			if(_2A03_NMIRequested) { _2A03_NMI(); _2A03_NMIRequested = FALSE; continue; }
-			if(_2A03_NMISecondRequested) { _2A03_NMIRequested = TRUE; _2A03_NMISecondRequested = FALSE; }
+			if(_2A03_NMIRequested)
+            {
+                _2A03_NMI();
+                _2A03_NMIRequested = FALSE;
+                continue;
+            }
+			if(_2A03_NMISecondRequested)
+            {
+                _2A03_NMIRequested = TRUE;
+                _2A03_NMISecondRequested = FALSE;
+            }
 			if(_2A03_IRQRequested || (_2A03_IRQLine && !(S & I)))
 			{
 				_2A03_IRQ();
@@ -790,15 +802,19 @@ void _2A03_run(void)
 			case 0xa9:
 			    _2A03_LOAD(A, NESPRGRAM_ReadByte, _2A03_immediate());
 			    break;
+
 			case 0xa5:
 			    _2A03_LOAD(A, NESRAM_ReadByte, _2A03_zpAbsolute());
 			    break;
+
 			case 0xb5:
 			    _2A03_LOAD(A, NESRAM_ReadByte, _2A03_zpIndexed(X));
 			    break;
+
 			case 0xad:
 			    _2A03_LOAD(A, NESCTL_ReadByte, _2A03_absolute());
 			    break;
+
 			case 0xbd:
                 // x, x / x + 1, x
                 if((base_addr + 1) == (int) NESPRGRAM_readWord(PC.W + 1))
@@ -827,6 +843,7 @@ void _2A03_run(void)
                 }
 			    _2A03_LOAD (A, NESCTL_ReadByte, _2A03_indexedCheckBounds(X));
 			    break;
+
 			case 0xb9:
                 // x, y / x + 1, y
                 if((base_addr + 1) == (int) NESPRGRAM_readWord(PC.W + 1))
@@ -855,9 +872,11 @@ void _2A03_run(void)
                 }
 			    _2A03_LOAD (A, NESCTL_ReadByte, _2A03_indexedCheckBounds(Y));
 			    break;
+
 			case 0xa1:
 			    _2A03_LOAD (A, NESCTL_ReadByte, _2A03_preIndexed());
 			    break;
+
 			case 0xb1:
 			    // ZP post indexed
                 // x, y / x + 1 ,y
@@ -896,21 +915,27 @@ void _2A03_run(void)
 			case 0x85:
 			    _2A03_STORE(A, NESRAM_write_byte, _2A03_zpAbsolute());
 			    break;
+
 			case 0x95:
 			    _2A03_STORE(A, NESRAM_write_byte, _2A03_zpIndexed(X));
 			    break;
+
 			case 0x8d:
 			    _2A03_STORE(A, NESCTL_write_byte, _2A03_absolute_write());
 			    break;
+
 			case 0x9d:
 			    _2A03_STORE(A, NESCTL_write_byte, _2A03_indexed_write(X));
 			    break;
+
 			case 0x99:
 			    _2A03_STORE(A, NESCTL_write_byte, _2A03_indexed_write(Y));
 			    break;
+
 			case 0x81:
 			    _2A03_STORE(A, NESCTL_write_byte, _2A03_preIndexed());
 			    break;
+
 			case 0x91:
 			    _2A03_STORE(A, NESCTL_write_byte, _2A03_postIndexed());
 			    break;
@@ -919,24 +944,31 @@ void _2A03_run(void)
 			case 0x69:
 				_2A03_ADC(NESPRGRAM_ReadByte, _2A03_immediate());
 				break;
+
 			case 0x65:
 				_2A03_ADC(NESRAM_ReadByte, _2A03_zpAbsolute());
 				break;
+
 			case 0x75:
 				_2A03_ADC(NESRAM_ReadByte, _2A03_zpIndexed(X));
 				break;
+
 			case 0x6d:
 				_2A03_ADC(NESCTL_ReadByte, _2A03_absolute());
 				break;
+
 			case 0x7d:
 				_2A03_ADC(NESCTL_ReadByte, _2A03_indexedCheckBounds(X));
 				break;
+
 			case 0x79:
 				_2A03_ADC(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y));
 				break;
+
 			case 0x61:
 				_2A03_ADC(NESCTL_ReadByte, _2A03_preIndexed());
 				break;
+
 			case 0x71:
 				_2A03_ADC(NESCTL_ReadByte, _2A03_postIndexedCheckBounds());
 				break;
@@ -945,24 +977,31 @@ void _2A03_run(void)
 			case 0x29:
 				_2A03_AND(NESPRGRAM_ReadByte, _2A03_immediate());
 				break;
+
 			case 0x25:
 				_2A03_AND(NESRAM_ReadByte, _2A03_zpAbsolute());
 				break;
+
 			case 0x35:
 				_2A03_AND(NESRAM_ReadByte, _2A03_zpIndexed(X));
 				break;
+
 			case 0x2d:
 				_2A03_AND(NESCTL_ReadByte, _2A03_absolute());
 				break;
+
 			case 0x3d:
 				_2A03_AND(NESCTL_ReadByte, _2A03_indexedCheckBounds(X));
 				break;
+
 			case 0x39:
 				_2A03_AND(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y));
 				break;
+
 			case 0x21:
 				_2A03_AND(NESCTL_ReadByte, _2A03_preIndexed());
 				break;
+
 			case 0x31:
 				_2A03_AND(NESCTL_ReadByte, _2A03_postIndexedCheckBounds());
 				break; 
@@ -971,15 +1010,19 @@ void _2A03_run(void)
 			case 0x0a:
 				_2A03_ASLA();
 				break;
+
 			case 0x06:
 				_2A03_ASL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute());
 				break;
+
 			case 0x16:
 				_2A03_ASL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X));
 				break;
+
 			case 0x0e:
 				_2A03_ASL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute());
 				break;
+
 			case 0x1e:
 				_2A03_ASL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X));
 				break;
@@ -1003,6 +1046,7 @@ void _2A03_run(void)
 			case 0x24:
 				_2A03_BIT(NESRAM_ReadByte, _2A03_zpAbsolute ());
 				break;
+
 			case 0x2c:
 				_2A03_BIT(NESCTL_ReadByte, _2A03_absolute ());
 				break;
@@ -1060,24 +1104,31 @@ void _2A03_run(void)
 			case 0xc9:
 				_2A03_COMPARE(A, NESPRGRAM_ReadByte, _2A03_immediate());
 				break;
+
 			case 0xc5:
 				_2A03_COMPARE(A, NESRAM_ReadByte, _2A03_zpAbsolute());
 				break;
+
 			case 0xd5:
 				_2A03_COMPARE(A, NESRAM_ReadByte, _2A03_zpIndexed(X));
 				break;
+
 			case 0xcd:
 				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_absolute());
 				break;
+
 			case 0xdd:
 				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_indexedCheckBounds(X));
 				break;
+
 			case 0xd9:
 				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_indexedCheckBounds(Y));
 				break;
+
 			case 0xc1:
 				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_preIndexed());
 				break;
+
 			case 0xd1:
 				_2A03_COMPARE(A, NESCTL_ReadByte, _2A03_postIndexedCheckBounds());
 				break; 
@@ -1086,9 +1137,11 @@ void _2A03_run(void)
 			case 0xe0:
 				_2A03_COMPARE(X, NESPRGRAM_ReadByte, _2A03_immediate());
 				break;
+
 			case 0xe4:
 				_2A03_COMPARE(X, NESRAM_ReadByte, _2A03_zpAbsolute());
 				break;
+
 			case 0xec:
 				_2A03_COMPARE(X, NESCTL_ReadByte, _2A03_absolute());
 				break;
@@ -1097,9 +1150,11 @@ void _2A03_run(void)
 			case 0xc0: 
 				_2A03_COMPARE(Y, NESPRGRAM_ReadByte, _2A03_immediate ());
 				break;
+
 			case 0xc4:
 				_2A03_COMPARE(Y, NESRAM_ReadByte, _2A03_zpAbsolute ());
 				break;
+
 			case 0xcc: 
 				_2A03_COMPARE(Y, NESCTL_ReadByte, _2A03_absolute ()); 
 				break;
@@ -1108,12 +1163,15 @@ void _2A03_run(void)
 			case 0xc6: 
 				_2A03_DEC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0xd6: 
 				_2A03_DEC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0xce: 
 				_2A03_DEC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
 				break;
+
 			case 0xde: 
 				_2A03_DEC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
 				break;
@@ -1136,24 +1194,31 @@ void _2A03_run(void)
 			case 0x49: 
 				_2A03_EOR(NESPRGRAM_ReadByte, _2A03_immediate()); 
 				break;
+
 			case 0x45: 
 				_2A03_EOR(NESRAM_ReadByte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0x55: 
 				_2A03_EOR(NESRAM_ReadByte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0x4d: 
 				_2A03_EOR(NESCTL_ReadByte, _2A03_absolute()); 
 				break;
+
 			case 0x5d: 
 				_2A03_EOR(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); 
 				break;
+
 			case 0x59: 
 				_2A03_EOR(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); 
 				break;
+
 			case 0x41: 
 				_2A03_EOR(NESCTL_ReadByte, _2A03_preIndexed()); 
 				break;
+
 			case 0x51: 
 				_2A03_EOR(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); 
 				break;
@@ -1162,12 +1227,15 @@ void _2A03_run(void)
 			case 0xe6: 
 				_2A03_INC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0xf6: 
 				_2A03_INC(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0xee: 
 				_2A03_INC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
 				break;
+
 			case 0xfe: 
 				_2A03_INC(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
 				break;
@@ -1276,15 +1344,19 @@ void _2A03_run(void)
 			case 0xa2: 
 				_2A03_LOAD(X, NESPRGRAM_ReadByte, _2A03_immediate()); 
 				break;
+
 			case 0xa6: 
 				_2A03_LOAD(X, NESRAM_ReadByte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0xb6: 
 				_2A03_LOAD(X, NESRAM_ReadByte, _2A03_zpIndexed(Y)); 
 				break;
+
 			case 0xae: 
 				_2A03_LOAD(X, NESCTL_ReadByte, _2A03_absolute()); 
 				break;
+
 			case 0xbe: 
 				_2A03_LOAD(X, NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); 
 				break;
@@ -1293,15 +1365,19 @@ void _2A03_run(void)
 			case 0xa0: 
 				_2A03_LOAD(Y, NESPRGRAM_ReadByte, _2A03_immediate()); 
 				break;
+
 			case 0xa4: 
 				_2A03_LOAD(Y, NESRAM_ReadByte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0xb4: 
 				_2A03_LOAD(Y, NESRAM_ReadByte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0xac: 
 				_2A03_LOAD(Y, NESCTL_ReadByte, _2A03_absolute()); 
 				break;
+
 			case 0xbc: 
 				_2A03_LOAD(Y, NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); 
 				break;
@@ -1310,15 +1386,19 @@ void _2A03_run(void)
 			case 0x4a: 
 				_2A03_LSRA(); 
 				break;
+
 			case 0x46: 
 				_2A03_LSR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0x56: 
 				_2A03_LSR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0x4e: 
 				_2A03_LSR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
 				break;
+
 			case 0x5e: 
 				_2A03_LSR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
 				break;
@@ -1331,23 +1411,30 @@ void _2A03_run(void)
 			case 0x09: 
 				_2A03_ORA(NESPRGRAM_ReadByte, _2A03_immediate()); 
 				break;
+
 			case 0x05: 
 				_2A03_ORA(NESRAM_ReadByte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0x15: 
 				_2A03_ORA(NESRAM_ReadByte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0x0d: 
 				_2A03_ORA(NESCTL_ReadByte, _2A03_absolute()); 
 				break;
+
 			case 0x1d: 
 				_2A03_ORA(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); 
 				break;
+
 			case 0x19: 
 				_2A03_ORA(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); 
 				break;
+
 			case 0x01: 
 				_2A03_ORA(NESCTL_ReadByte, _2A03_preIndexed()); 
+
 				break;
 			case 0x11: 
 				_2A03_ORA(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); 
@@ -1368,8 +1455,14 @@ void _2A03_run(void)
 			case 0x68: 
 				S &= ~(N | Z); 
 				_2A03_POP(A); 
-				if(A & BIT_7) S |= N; 
-				else if(A == 0) S |= Z; 
+				if(A & BIT_7)
+                {
+                    S |= N;
+                }
+				else if(A == 0)
+                {
+                    S |= Z;
+                }
 				break;
 
 			//PLP - Pull processor status from stack//
@@ -1383,15 +1476,19 @@ void _2A03_run(void)
 			case 0x2a: 
 				_2A03_ROLA(); 
 				break;
+
 			case 0x26: 
 				_2A03_ROL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0x36: 
 				_2A03_ROL(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0x2e: 
 				_2A03_ROL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
 				break;
+
 			case 0x3e: 
 				_2A03_ROL(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
 				break;
@@ -1400,15 +1497,19 @@ void _2A03_run(void)
 			case 0x6a: 
 				_2A03_RORA(); 
 				break;
+
 			case 0x66: 
 				_2A03_ROR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0x76: 
 				_2A03_ROR(NESRAM_ReadByte, NESRAM_write_byte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0x6e: 
 				_2A03_ROR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_absolute()); 
 				break;
+
 			case 0x7e: 
 				_2A03_ROR(NESCTL_ReadByte, NESCTL_write_byte, _2A03_indexed(X)); 
 				break;
@@ -1451,24 +1552,31 @@ void _2A03_run(void)
 			case 0xe9: 
 				_2A03_SBC(NESPRGRAM_ReadByte, _2A03_immediate()); 
 				break;
+
 			case 0xe5: 
 				_2A03_SBC(NESRAM_ReadByte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0xf5: 
 				_2A03_SBC(NESRAM_ReadByte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0xed: 
 				_2A03_SBC(NESCTL_ReadByte, _2A03_absolute()); 
 				break;
+
 			case 0xfd: 
 				_2A03_SBC(NESCTL_ReadByte, _2A03_indexedCheckBounds(X)); 
 				break;
+
 			case 0xf9: 
 				_2A03_SBC(NESCTL_ReadByte, _2A03_indexedCheckBounds(Y)); 
 				break;
+
 			case 0xe1: 
 				_2A03_SBC(NESCTL_ReadByte, _2A03_preIndexed()); 
 				break;
+
 			case 0xf1: 
 				_2A03_SBC(NESCTL_ReadByte, _2A03_postIndexedCheckBounds()); 
 				break;
@@ -1496,9 +1604,11 @@ void _2A03_run(void)
 			case 0x86: 
 				_2A03_STORE(X, NESRAM_write_byte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0x96: 
 				_2A03_STORE(X, NESRAM_write_byte, _2A03_zpIndexed(Y)); 
 				break;
+
 			case 0x8e: 
 				_2A03_STORE(X, NESCTL_write_byte, _2A03_absolute()); 
 				break;
@@ -1507,9 +1617,11 @@ void _2A03_run(void)
 			case 0x84: 
 				_2A03_STORE(Y, NESRAM_write_byte, _2A03_zpAbsolute()); 
 				break;
+
 			case 0x94: 
 				_2A03_STORE(Y, NESRAM_write_byte, _2A03_zpIndexed(X)); 
 				break;
+
 			case 0x8c: 
 				_2A03_STORE(Y, NESCTL_write_byte, _2A03_absolute()); 
 				break;
@@ -1585,26 +1697,65 @@ void _2A03_run(void)
 	
 	return;
 }
-void _2A03_toggle_label_holder(void) { _2A03_labelHolder = (_2A03_labelHolder) ? FALSE : TRUE; }
-void _2A03_toggle_tracer(void) { _2A03_instructionDumper = (_2A03_instructionDumper) ? FALSE : TRUE; }
-void _2A03_toggle_logtracer(void) { _2A03_instructionLog = (_2A03_instructionLog) ? FALSE : TRUE; }
-void _2A03_set_label_holder(__BOOL status) { _2A03_labelHolder = status; }
-void _2A03_set_tracer(__BOOL status) { _2A03_instructionDumper = status; }
-__BOOL _2A03_get_tracer(void) { return _2A03_instructionDumper; }
-void _2A03_set_logtracer(__BOOL status) { _2A03_instructionLog = status; }
-__BOOL _2A03_get_logtracer(void) { return _2A03_instructionLog; }
+void _2A03_toggle_label_holder(void)
+{
+    _2A03_labelHolder = (_2A03_labelHolder) ? FALSE : TRUE;
+}
+void _2A03_toggle_tracer(void)
+{
+    _2A03_instructionDumper = (_2A03_instructionDumper) ? FALSE : TRUE;
+}
+void _2A03_toggle_logtracer(void)
+{
+    _2A03_instructionLog = (_2A03_instructionLog) ? FALSE : TRUE;
+}
+void _2A03_set_label_holder(__BOOL status)
+{
+    _2A03_labelHolder = status;
+}
+void _2A03_set_tracer(__BOOL status)
+{
+    _2A03_instructionDumper = status;
+}
+__BOOL _2A03_get_tracer(void)
+{
+    return _2A03_instructionDumper;
+}
+void _2A03_set_logtracer(__BOOL status)
+{
+    _2A03_instructionLog = status;
+}
+__BOOL _2A03_get_logtracer(void)
+{
+    return _2A03_instructionLog;
+}
 
 /******************************************************************************/
 /** Timing                                                                   **/
 /******************************************************************************/
 
-void _2A03_kill_cycles(__INT_32 cycles) { iCurrentTime += cycles; }
+void _2A03_kill_cycles(__INT_32 cycles)
+{
+    iCurrentTime += cycles;
+}
 
-__INT_32 _2A03_get_current_time(void) { return iCurrentTime; }
-__INT_32 _2A03_get_end_time(void) { return iEndTime; }
-__INT_32 _2A03_getRelativeTime(void) { return iEndTime - iCurrentTime; }
+__INT_32 _2A03_get_current_time(void)
+{
+    return iCurrentTime;
+}
+__INT_32 _2A03_get_end_time(void)
+{
+    return iEndTime;
+}
+__INT_32 _2A03_getRelativeTime(void)
+{
+    return iEndTime - iCurrentTime;
+}
 
-void _2A03_set_current_time(__INT_32 iTime) { iCurrentTime = iTime; }
+void _2A03_set_current_time(__INT_32 iTime)
+{
+    iCurrentTime = iTime;
+}
 void _2A03_set_end_time(__INT_32 iTime) 
 {
 	if(iTime < iCurrentTime)
@@ -1686,40 +1837,48 @@ void _2A03_disassembleInstruction(__INT_32 iROMOffset)
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
 			nes->general_log.f_write("sb", "#", read.b);
 			break;
+
 		case ZPA:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
 			nes->general_log.f_write("bsbs", read.b, " (", NESPRGRAM_ReadByte(read.b), ")");
 			break;
+
 		case ZPX:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
 			nes->general_log.f_write("bsbs", read.b, ", x (", NESPRGRAM_ReadByte((read.b + X) & 0xff), ")");
 			break;
+
 		case ZPY:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
 			nes->general_log.f_write("bsbs", read.b, ", y (", NESPRGRAM_ReadByte((read.b + Y) & 0xff), ")");
 			break;
+
 		case JMP:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
 			nes->general_log.f_write("w", read.w);
 			break;
+
 		case AB_:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
 			nes->general_log.f_write("wsbs", read.w, " (", NESPRGRAM_ReadByte(read.w), ")");
 			break;
+
 		case ABX:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
 			addr.w = read.w + X;
 			nes->general_log.f_write("wswsbs", read.w, ", x (", addr.w, ") (", NESPRGRAM_ReadByte(addr.w), "))");
 			break;
+
 		case ABY:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
 			addr.w = read.w + Y;
 			nes->general_log.f_write("wswsbs", read.w, ", y (", addr.w, ") (", NESPRGRAM_ReadByte(addr.w), "))");
 			break;
+
 		case IDR:
 			read.w = NESPRGRAM_ReadByte(++iROMOffset);
 			read.w += NESPRGRAM_ReadByte(++iROMOffset) << 8;
@@ -1727,12 +1886,14 @@ void _2A03_disassembleInstruction(__INT_32 iROMOffset)
 			addr.w += NESPRGRAM_ReadByte(read.w + 1) << 8;
 			nes->general_log.f_write("swsws", "(", read.w, ") (", addr.w, ")");
 			break;
+
 		case PRE:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
 			addr.w = NESPRGRAM_ReadByte((read.b + X) & 0xff);
 			addr.w += NESPRGRAM_ReadByte((read.b + 1 + X) & 0xff) << 8;
 			nes->general_log.f_write("sbswsbs", "(", read.b, ", x) (", addr.w, " (", NESPRGRAM_ReadByte(addr.w), "))");
 			break;
+
 		case POS:
 			read.b = NESPRGRAM_ReadByte(++iROMOffset);
 			addr.w = NESPRGRAM_ReadByte(read.b);
@@ -1740,13 +1901,16 @@ void _2A03_disassembleInstruction(__INT_32 iROMOffset)
 			addr.w += Y;
 			nes->general_log.f_write("sbswsbs", "(", read.b, "), y (", addr.w, " (", NESPRGRAM_ReadByte(addr.w), "))");
 			break;
+
 		case IMP:
 			break;
+
 		case REL:
 			read.w = ++iROMOffset;
 			read.w += (INT_8)(NESPRGRAM_ReadByte(iROMOffset)) + 1;
 			nes->general_log.f_write("w", read.w);
 			break;
+
         case NIL:
 			break;
 	}
@@ -1809,7 +1973,10 @@ search_again:
 	min_alias++;
 	goto search_again;
 stop_search:
-	if(label->sub_type == TYPE_DEAD) return -1;
+	if(label->sub_type == TYPE_DEAD)
+    {
+        return -1;
+    }
 	if(label->type == TYPE_UNK)
     {
         return 0;
@@ -1912,7 +2079,10 @@ int _2A03_get_instruction(int base_addr,
             
             read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " #$%.02x", read.b);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
 		    length++;
 			break;
 
@@ -1930,7 +2100,10 @@ int _2A03_get_instruction(int base_addr,
             
             read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " $%.02x", read.b);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
 		    length++;
   		    break;
 
@@ -1948,7 +2121,10 @@ int _2A03_get_instruction(int base_addr,
 
             read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " $%.02x, x", read.b);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
 		    length++;
 			break;
 
@@ -1966,7 +2142,10 @@ int _2A03_get_instruction(int base_addr,
             
             read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " $%.02x, y", read.b);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
 		    length++;
 			break;
 
@@ -2002,6 +2181,7 @@ int _2A03_get_instruction(int base_addr,
 						case 1:
 							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
 							break;
+
 						case 0:
 							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) || (read.w < address))
 							{
@@ -2016,10 +2196,14 @@ int _2A03_get_instruction(int base_addr,
 																TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref)
 																)
 							{
-								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias)
+                                {
+                                    return(0xfffffff);
+                                }
 							}
 							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
 							break;
+
 						default:
 							sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
 							warnings = 1;
@@ -2037,11 +2221,20 @@ int _2A03_get_instruction(int base_addr,
 				else
 				{
     				ret = write_address(operands, read.w);
-					if(ret) add_warning(operands, code_jmp);
+					if(ret)
+                    {
+                        add_warning(operands, code_jmp);
+                    }
 				}
 			}
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias))
+            {
+                return(0);
+            }
 		    length += 2;
 			break;
 
@@ -2081,6 +2274,7 @@ int _2A03_get_instruction(int base_addr,
 						case 1:
 							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
 							break;
+
 						case 0:
 							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
 							(read.w < address))
@@ -2096,10 +2290,14 @@ int _2A03_get_instruction(int base_addr,
 																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref)
 																)
 							{
-								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias)
+                                {
+                                    return(0xfffffff);
+                                }
 							}
 							sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
 							break;
+
 						default:
 							sprintf(operands, " $%.04x ; <<< WARNING: This location was never reached !", read.w);
 							warnings = 1;
@@ -2117,11 +2315,20 @@ int _2A03_get_instruction(int base_addr,
 				else
 				{
     				ret = write_address(operands, read.w);
-					if(ret) add_warning(operands, code_jmp);
+					if(ret)
+                    {
+                        add_warning(operands, code_jmp);
+                    }
 				}
 			}
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias))
+            {
+                return(0);
+            }
 		    length += 2;
 			break;
 
@@ -2162,6 +2369,7 @@ int _2A03_get_instruction(int base_addr,
 						case 1:
 							sprintf(operands, " Lbl_%.02x%.04x, x", bank_alias, read.w);
 							break;
+
 						case 0:
 							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
 							(read.w < address))
@@ -2177,10 +2385,14 @@ int _2A03_get_instruction(int base_addr,
 																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref)
 																)
 							{
-								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias)
+                                {
+                                    return(0xfffffff);
+                                }
 							}
 							sprintf(operands, " Lbl_%.02x%.04x, x", bank_alias, read.w);
 							break;
+
 						default:
 							sprintf(operands, " $%.04x, x ; <<< WARNING: This location was never reached !", read.w);
 							warnings = 1;
@@ -2198,11 +2410,20 @@ int _2A03_get_instruction(int base_addr,
 			    {
 		            ret = write_address(operands, read.w);
 			        strcat(operands, ", x");
-					if(ret) add_warning(operands, code_jmp);
+					if(ret)
+                    {
+                        add_warning(operands, code_jmp);
+                    }
 		        }
 		    }
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias))
+            {
+                return(0);
+            }
 		    length += 2;
 			break;
 
@@ -2243,6 +2464,7 @@ int _2A03_get_instruction(int base_addr,
 						case 1:
 							sprintf(operands, " Lbl_%.02x%.04x, y", bank_alias, read.w);
 							break;
+
 						case 0:
 							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) ||
 							(read.w < address))
@@ -2258,10 +2480,14 @@ int _2A03_get_instruction(int base_addr,
 																TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref)
 																)
 							{
-								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+								if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias)
+                                {
+                                    return(0xfffffff);
+                                }
 							}
 							sprintf(operands, " Lbl_%.02x%.04x, y", bank_alias, read.w);
 							break;
+
 						default:
 							sprintf(operands, " $%.04x, y ; <<< WARNING: This location was never reached !", read.w);
 							warnings = 1;
@@ -2279,11 +2505,20 @@ int _2A03_get_instruction(int base_addr,
 			    {
 		            ret = write_address(operands, read.w);
 			        strcat(operands, ", y");
-					if(ret) add_warning(operands, code_jmp);
+					if(ret)
+                    {
+                        add_warning(operands, code_jmp);
+                    }
 		        }
 		    }
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias))
+            {
+                return(0);
+            }
 		    length += 2;
 			break;
 
@@ -2324,6 +2559,7 @@ int _2A03_get_instruction(int base_addr,
 						case 1:
 							sprintf(operands, " (Lbl_%.02x%.04x)", bank_alias, read.w);
 							break;
+
 						case 0:
 							iROMOffset = nes->BankJMPList->fix_rom_offset(read.w, bank_alias, iROMOffset);
 							if((nes->BankJMPList->get_bank_alias(label_ref, read.w) > bank_alias) || (read.w < address))
@@ -2346,9 +2582,13 @@ int _2A03_get_instruction(int base_addr,
 																	      TYPE_DATA,
 																	      TYPE_BYTE, 0, 0, bank_alias, iROMOffset, label_ref);
 							}
-							if(ret) if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias) return(0xfffffff);
+							if(ret) if(nes->BankJMPList->get_bank_alias(label_ref, read.w) == bank_alias)
+                            {
+                                return(0xfffffff);
+                            }
 							sprintf(operands, " (Lbl_%.02x%.04x)", bank_alias, read.w);
 							break;
+
 						default:
 							sprintf(operands, " ($%.04x) ; <<< WARNING: This location was never reached !", read.w);
 							warnings = 1;
@@ -2366,11 +2606,20 @@ int _2A03_get_instruction(int base_addr,
 			    else
 			    {
 		            ret = write_address(operands, read.w);
-					if(ret) add_warning(operands, code_jmp);
+					if(ret)
+                    {
+                        add_warning(operands, code_jmp);
+                    }
 		        }
 		    }
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 2, bank_alias))
+            {
+                return(0);
+            }
 		    length += 2;
 			break;
 
@@ -2389,7 +2638,10 @@ int _2A03_get_instruction(int base_addr,
             // In zero page
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " ($%.02x, x)", read.b);
-			if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
+			if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
 		    length++;
 			break;
 
@@ -2408,11 +2660,15 @@ int _2A03_get_instruction(int base_addr,
             // In zero page
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 			sprintf(operands, " ($%.02x), y", read.b);
-			if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
+			if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
 		    length++;
 			break;
 		
         case IMP:
+
 			break;
 
         case REL:
@@ -2435,10 +2691,15 @@ int _2A03_get_instruction(int base_addr,
 													TYPE_CODE, 0, 0, bank_alias, iROMOffset, label_ref);
 			}
 			sprintf(operands, " Lbl_%.02x%.04x", bank_alias, read.w);
-            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias)) return(0);
+            if(!_2A03_Check_Code_Sanity(operands, bank_lo, bank_hi, address + 1, bank_alias))
+            {
+                return(0);
+            }
 		    length++;
 			break;
+
     	case NIL:
+
 			break;
 	}
     strcat(operands, "\n");
@@ -2451,6 +2712,7 @@ int _2A03_get_instruction(int base_addr,
             sprintf(operands, "Lbl_%.02x%.04x = *-1\n", bank_alias, address + 1);
             strcat(instruction, operands);
             break;
+
         case 2:
             sprintf(operands, "Lbl_%.02x%.04x = *-1\n", bank_alias, address + 2);
             strcat(instruction, operands);
@@ -2513,18 +2775,22 @@ int _2A03_map_instruction(int base_addr,
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 		    length++;
 			break;
+
 		case ZPA:
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 		    length++;
 			break;
+
 		case ZPX:
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 		    length++;
 			break;
+
 		case ZPY:
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 		    length++;
 			break;
+
 		case JMP:
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
@@ -2570,6 +2836,7 @@ int _2A03_map_instruction(int base_addr,
 			}
 		    length += 2;
 			break;
+
 		case AB_:
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
@@ -2598,6 +2865,7 @@ int _2A03_map_instruction(int base_addr,
 			}
 		    length += 2;
 			break;
+
 		case ABX:
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
@@ -2626,6 +2894,7 @@ int _2A03_map_instruction(int base_addr,
 			}
 		    length += 2;
 			break;
+
 		case ABY:
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
@@ -2655,6 +2924,7 @@ int _2A03_map_instruction(int base_addr,
 			}
 		    length += 2;
 			break;
+
 		case IDR:
 			read.w = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w += nes->o_cpu->PRGROM[++iROMOffset] << 8;
@@ -2700,18 +2970,22 @@ int _2A03_map_instruction(int base_addr,
 			}
 		    length += 2;
 			break;
+
 		case PRE:
 		    // In zero page
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 		    length++;
 			break;
+
 		case POS:
 		    // In zero page
 			read.b = nes->o_cpu->PRGROM[++iROMOffset];
 		    length++;
 			break;
+
 		case IMP:
 			break;
+
 		case REL:
 		    offset = nes->o_cpu->PRGROM[++iROMOffset];
 			read.w = address;
@@ -2719,6 +2993,7 @@ int _2A03_map_instruction(int base_addr,
             nes->BankJMPList->insert_label_bank(bank, read.w, TYPE_CODE, TYPE_CODE, 0, 0, ref_bank, (iROMOffset - 1) + (int) ((short) ((char) offset)) + 2);
 		    length++;
 			break;
+
     	case NIL:
 			break;
 	}
@@ -2735,130 +3010,162 @@ int write_address(char *operands, int dat)
 		    sprintf(temp, " PPU_CTRL1");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x2001:
 		    sprintf(temp, " PPU_CTRL2");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x2002:
 		    sprintf(temp, " PPU_STATUS");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x2003:
 		    sprintf(temp, " PPU_SPRMEM");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x2004:
 		    sprintf(temp, " PPU_SPRDAT");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x2005:
 		    sprintf(temp, " PPU_SCROLL");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x2006:
 		    sprintf(temp, " PPU_MEM");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x2007:
 		    sprintf(temp, " PPU_MEMDAT");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4000:
 		    sprintf(temp, " APU_SQU1_REG1");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4001:
 		    sprintf(temp, " APU_SQU1_REG2");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4002:
 		    sprintf(temp, " APU_SQU1_REG3");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4003:
 		    sprintf(temp, " APU_SQU1_REG4");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4004:
 		    sprintf(temp, " APU_SQU2_REG1");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4005:
 		    sprintf(temp, " APU_SQU2_REG2");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4006:
 		    sprintf(temp, " APU_SQU2_REG3");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4007:
 		    sprintf(temp, " APU_SQU2_REG4");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4008:
 		    sprintf(temp, " APU_TRI_REG1");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4009:
 		    sprintf(temp, " APU_TRI_REG2");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x400a:
 		    sprintf(temp, " APU_TRI_REG3");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x400b:
 		    sprintf(temp, " APU_TRI_REG4");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x400c:
 		    sprintf(temp, " APU_NOISE_REG1");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x400d:
 		    sprintf(temp, " APU_NOISE_REG2");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x400e:
 		    sprintf(temp, " APU_NOISE_REG3");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x400f:
 		    sprintf(temp, " APU_NOISE_REG4");
             strcat(operands, temp);
 		    return 0;
+
 		case 0x4010:
 		    sprintf(temp, " DMC_CTRL");
             strcat(operands, temp);
 		    return 0;
+
 		case 0x4011:
 		    sprintf(temp, " DMC_LEV");
             strcat(operands, temp);
 		    return 0;
+
 		case 0x4012:
 		    sprintf(temp, " DMC_ADDR");
             strcat(operands, temp);
 		    return 0;
+
 		case 0x4013:
 		    sprintf(temp, " DMC_LEN");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4014:
 		    sprintf(temp, " PPU_SPR_DMA");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4015:
 		    sprintf(temp, " APU_CTRL");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4016:
 		    sprintf(temp, " NES_JOY1");
             strcat(operands, temp);
 		    return 0;
+
 	    case 0x4017:
 		    sprintf(temp, " NES_JOY2");
             strcat(operands, temp);
 		    return 0;
+
         default:
 			if(dat >= 0x2000)
 			{

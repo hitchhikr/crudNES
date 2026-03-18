@@ -48,13 +48,21 @@ typedef unsigned short int __BOOL;
 
 typedef union
 {
-	struct { __UINT_8 L, H; } B;
+	struct
+    {
+        __UINT_8 L,
+        H;
+    } B;
 	__UINT_16 W;
 } AWORD;
 
 typedef union
 {
-	struct { AWORD L, H; } W;
+	struct
+    {
+        AWORD L,
+        H;
+    } W;
 	__UINT_32 DW;
 } ADWORD;
 
@@ -73,8 +81,13 @@ typedef struct
 
 enum e_page_sizes
 {
-	_1K_ = 0x400, _2K_ = 0x800, _4K_ = 0x1000, _8K_ = 0x2000,
-	_16K_ = 0x4000, _24K_ = 0x6000, _32K_ = 0x8000
+	_1K_ = 0x400,
+    _2K_ = 0x800,
+    _4K_ = 0x1000,
+    _8K_ = 0x2000,
+	_16K_ = 0x4000,
+    _24K_ = 0x6000,
+    _32K_ = 0x8000
 };
 
 #ifndef __NEW

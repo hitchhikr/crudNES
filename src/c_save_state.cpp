@@ -1,6 +1,6 @@
 /*******************************************************************************
     crudNES - A NES emulator for reverse engineering purposes
-	o_state Saver/Loader
+    o_state Saver/Loader
     Copyright (C) 2003-2004 Sadai Sarmiento
     Copyright (C) 2023-2024 Franck "hitchhikr" Charlet
 
@@ -32,7 +32,7 @@
 #include "blargg/Nes_Apu_Reflector.h"
 
 /***********************************************************************/
-/** External Data													  **/
+/** External Data                                                     **/
 /***********************************************************************/
 
 extern c_machine *o_machine;
@@ -43,7 +43,7 @@ extern c_machine *o_machine;
 
 void c_save_state :: reset (void)
 {
-	iSlot = 0;
+    iSlot = 0;
 }
 
 /***********************************************************************/
@@ -52,30 +52,33 @@ void c_save_state :: reset (void)
 
 const char * c_save_state :: get_filename (void)
 {
-	char *filename = strrchr (nes->o_rom->information ().filename, '\\');
-	if(filename == NULL) filename = nes->o_rom->information ().filename;
-	filename++;
-	__INT_32 length = (__INT_32)(strlen (filename));
-	strcpy (filename + length - 3, "as");
-	_itoa (iSlot, filename + length - 1, 10);
+    char *filename = strrchr (nes->o_rom->information ().filename, '\\');
+    if(filename == NULL)
+    {
+        filename = nes->o_rom->information ().filename;
+    }
+    filename++;
+    __INT_32 length = (__INT_32)(strlen (filename));
+    strcpy (filename + length - 3, "as");
+    _itoa (iSlot, filename + length - 1, 10);
 
-	return filename;
+    return filename;
 }
 
 const char * c_save_state :: get_filename (const char *extension)
 {
-	char *filename = strrchr (nes->o_rom->information ().filename, '\\');
-	if(filename == NULL)
-	{
-		filename = nes->o_rom->information ().filename;
-	}
-	else
-	{
-		filename++;
-	}
-	__INT_32 length = (__INT_32)(strlen (filename));
-	strcpy (filename + length - 3, extension );
-	return filename;
+    char *filename = strrchr (nes->o_rom->information ().filename, '\\');
+    if(filename == NULL)
+    {
+        filename = nes->o_rom->information ().filename;
+    }
+    else
+    {
+        filename++;
+    }
+    __INT_32 length = (__INT_32)(strlen (filename));
+    strcpy (filename + length - 3, extension );
+    return filename;
 }
 
 char * c_save_state :: get_filename(char *filepath, const char *extension, int strip)
@@ -86,43 +89,43 @@ char * c_save_state :: get_filename(char *filepath, const char *extension, int s
 
     if(strip)
     {
-		// Remove the filepath
+        // Remove the filepath
         length = strlen(filepath);
         while(length > 0 && filename[length - 1] != '\\')
         {
             length--;
         }
-		if(length > 0)
-		{
-			for(i = 0; i < (int) strlen(filename) - length; i++)
-			{
-				filename[i] = filename[i + length];
-			}
-			filename[i] = '\0';
-		}
-	}
+        if(length > 0)
+        {
+            for(i = 0; i < (int) strlen(filename) - length; i++)
+            {
+                filename[i] = filename[i + length];
+            }
+            filename[i] = '\0';
+        }
+    }
     else
     {
-	    filename = strrchr (filepath, '\\');
-	    if(filename == NULL)
-		{
-			filename = filepath;
-		}
-		else
-		{
-			filename++;
-		}
+        filename = strrchr (filepath, '\\');
+        if(filename == NULL)
+        {
+            filename = filepath;
+        }
+        else
+        {
+            filename++;
+        }
     }    
-	length = (__INT_32)(strlen (filename));
-	if(strlen(extension))
-	{
-    	strcpy (filename + length - 3, extension );
-	}
-	else
-	{
+    length = (__INT_32)(strlen (filename));
+    if(strlen(extension))
+    {
+        strcpy (filename + length - 3, extension );
+    }
+    else
+    {
         filename[length - 4] = '\0';
-	}
-	return filename;
+    }
+    return filename;
 }
 
 /***********************************************************************/
@@ -131,19 +134,19 @@ char * c_save_state :: get_filename(char *filepath, const char *extension, int s
 
 void c_save_state :: save (void)
 {
-	Nes_Apu_Reflector Saver;
+    Nes_Apu_Reflector Saver;
 
-	c_tracer o_writer (get_filename (), __NEW, __FILE);
-	nes->o_sram->dump_to (o_writer, NULL, 0x0000, _8K_, BINARY);
-	nes->o_ram->dump_to (o_writer, NULL, 0x000, _2K_, BINARY);
-	nes->o_cpu->save_state (o_writer, MAIN);
-	nes->o_ppu->save_state (o_writer, MAIN);
-	nes->o_cpu->save_state (o_writer, OTHER);
-	nes->o_ppu->save_state (o_writer, OTHER);
-	Saver.save (nes->o_apu, o_writer.get_handle ());
-	o_writer.close ();
+    c_tracer o_writer (get_filename (), __NEW, __FILE);
+    nes->o_sram->dump_to (o_writer, NULL, 0x0000, _8K_, BINARY);
+    nes->o_ram->dump_to (o_writer, NULL, 0x000, _2K_, BINARY);
+    nes->o_cpu->save_state (o_writer, MAIN);
+    nes->o_ppu->save_state (o_writer, MAIN);
+    nes->o_cpu->save_state (o_writer, OTHER);
+    nes->o_ppu->save_state (o_writer, OTHER);
+    Saver.save (nes->o_apu, o_writer.get_handle ());
+    o_writer.close ();
 
-	rest (100);
+    rest (100);
 }
 
 /***********************************************************************/
@@ -152,18 +155,21 @@ void c_save_state :: save (void)
 
 void c_save_state :: load (void)
 {
-	Nes_Apu_Reflector Loader;
-	c_tracer o_loader;
+    Nes_Apu_Reflector Loader;
+    c_tracer o_loader;
 
-	if (o_loader.set_output_file (get_filename (), __READ)) return;
-	o_loader.read (&(*(nes->o_sram)) [0], _8K_);
-	o_loader.read (&(*(nes->o_ram)) [0], _2K_);
-	nes->o_cpu->load_state (o_loader, MAIN);
-	nes->o_ppu->load_state (o_loader, MAIN);
-	nes->o_cpu->load_state (o_loader, OTHER);
-	nes->o_ppu->load_state (o_loader, OTHER);
-	Loader.load (o_loader.get_handle (), nes->o_apu);
-	o_loader.close ();
+    if (o_loader.set_output_file (get_filename (), __READ))
+    {
+        return;
+    }
+    o_loader.read (&(*(nes->o_sram)) [0], _8K_);
+    o_loader.read (&(*(nes->o_ram)) [0], _2K_);
+    nes->o_cpu->load_state (o_loader, MAIN);
+    nes->o_ppu->load_state (o_loader, MAIN);
+    nes->o_cpu->load_state (o_loader, OTHER);
+    nes->o_ppu->load_state (o_loader, OTHER);
+    Loader.load (o_loader.get_handle (), nes->o_apu);
+    o_loader.close ();
 
-	rest (100);
+    rest (100);
 }

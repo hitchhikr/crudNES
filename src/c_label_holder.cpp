@@ -465,6 +465,7 @@ void c_label_holder::dump_rom(void)
                                     rom_offset += instruction_size;
                                     label_type = TYPE_DATA;
                                     break;
+
                                 default:
                                     rom_offset += instruction_size;
 									label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
@@ -543,7 +544,10 @@ void c_label_holder::dump_rom(void)
 	                        {
 	                            sub_t = TYPE_RAWWORD;
 	                        }
-	                        if(no_labels) break;
+	                        if(no_labels)
+                            {
+                                break;
+                            }
                         }
                         rom_offset = old_offset;
                         k = old_k;
@@ -644,8 +648,10 @@ void c_label_holder::dump_rom(void)
             rom_offset = rom_offset_glob;
             sprintf(bank_name, "%s_%.03d_prg.asm", nes->Game_FileName, i);
             out = fopen(bank_name, "wb");
-            if(!out) break;
-
+            if(!out)
+            {
+                break;
+            }
 			listing.Erase();
 			printf("Generating \"%s\" bank file... ", bank_name);
 
@@ -862,6 +868,7 @@ No_Label:;
                                     rom_offset += instruction_size;
 									label_type = TYPE_DATA;
 									break;
+
                                 default:
                                     rom_offset += instruction_size;
 									label = search_label(pages->bank_lo, pages->bank_hi, k, pages->alias, -1, 1);
@@ -1105,8 +1112,10 @@ Set_Jump_Table_Start:
 
 			sprintf(bank_name, "%s_%.03d_chr.asm", nes->Game_FileName, pages->bank_lo);
             out = fopen(bank_name, "wb");
-            if(!out) break;
-            
+            if(!out)
+            {
+                break;
+            }
 			printf("Generating \"%s\" bank file... ", bank_name);
 
 			fprintf(out, "; Game name: %s\n", nes->Game_Name);

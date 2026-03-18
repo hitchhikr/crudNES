@@ -79,23 +79,38 @@ void c_mapper_005 :: reset (void)
 void c_mapper_005 :: write_byte (__UINT_16 address, __UINT_8 value)
 {
 	//if (address > 0x7fff) { nes->general_log.f_write ("swsbs", "Writing data at: ", address, " Data: ", value, ".\r\n"); return; }
-	if (address > 0x5fff && bIsSRamEnabled) { nes->o_sram->write_byte (address, value); return; }
+	if (address > 0x5fff && bIsSRamEnabled)
+    {
+        nes->o_sram->write_byte (address, value);
+        return;
+    }
 	else if (address > 0x5bff && bExRamUsage != 3)
 	{
-		if (bExRamUsage & 2) ExRam.write_byte (address, value);
+		if (bExRamUsage & 2)
+        {
+            ExRam.write_byte (address, value);
+        }
 		return;
 	}
 
 	switch (address)
 	{
 		//This register controls the PRG bank-switch mode
-		case 0x5100: bBankSwitch = value & 3; break;
-		case 0x5101: bChrBankSwitch = value & 3; break;
+		case 0x5100:
+            bBankSwitch = value & 3;
+            break;
+		
+        case 0x5101:
+            bChrBankSwitch = value & 3;
+            break;
 
 		case 0x5102:
 		case 0x5103:
 			bSRamProtected [address & 1] = value & 3;
-			if ((2 == bSRamProtected [0]) && (1 == bSRamProtected [1])) bIsSRamEnabled = TRUE;
+			if ((2 == bSRamProtected [0]) && (1 == bSRamProtected [1]))
+            {
+                bIsSRamEnabled = TRUE;
+            }
 			break;
 
 		case 0x5104:
@@ -130,7 +145,9 @@ void c_mapper_005 :: write_byte (__UINT_16 address, __UINT_8 value)
 			//if (!(value & BIT_7)) nes->general_log.f_write ("sws", "RAM: ", address, "\r\n");
 			switch (bBankSwitch)
 			{
-				case 3: nes->o_cpu->swap_page (0x8000, (value & 0x7f) & _8K_prg_mask, _8K_); break;				
+				case 3:
+                    nes->o_cpu->swap_page (0x8000, (value & 0x7f) & _8K_prg_mask, _8K_);
+                    break;
 			}
 			break;
 
@@ -139,8 +156,13 @@ void c_mapper_005 :: write_byte (__UINT_16 address, __UINT_8 value)
 			switch (bBankSwitch)
 			{
 				case 1:
-				case 2: nes->o_cpu->swap_page (0x8000, ((value >> 1) & 0x3f) & _16K_prg_mask, _16K_); break;
-				case 3: nes->o_cpu->swap_page (0xa000, (value & 0x7f) & _8K_prg_mask, _8K_); break;				
+				case 2:
+                    nes->o_cpu->swap_page (0x8000, ((value >> 1) & 0x3f) & _16K_prg_mask, _16K_);
+                    break;
+
+				case 3:
+                    nes->o_cpu->swap_page (0xa000, (value & 0x7f) & _8K_prg_mask, _8K_);
+                    break;
 			}
 			break;
 
@@ -149,68 +171,126 @@ void c_mapper_005 :: write_byte (__UINT_16 address, __UINT_8 value)
 			switch (bBankSwitch)
 			{
 				case 2:
-				case 3: nes->o_cpu->swap_page (0xc000, (value & 0x7f) & _8K_prg_mask, _8K_); break;				
+				case 3:
+                    nes->o_cpu->swap_page (0xc000, (value & 0x7f) & _8K_prg_mask, _8K_);
+                    break;
 			}
 			break;
 
 		case 0x5117:
-			if (!(value & BIT_7)) nes->general_log.f_write ("sws", "RAM: ", address, "\r\n");
+			if (!(value & BIT_7))
+            {
+                nes->general_log.f_write ("sws", "RAM: ", address, "\r\n");
+            }
 			switch (bBankSwitch)
 			{
-				case 0: if (nes->o_rom->information ().prg_pages > 1) nes->o_cpu->swap_page (0x8000, ((value >> 2) & 0x1f) & _32K_prg_mask, _32K_); break;
-				case 1: nes->o_cpu->swap_page (0xc000, ((value >> 1) & 0x3f) & _16K_prg_mask, _16K_); break;
-				case 2: case 3: nes->o_cpu->swap_page (0xe000, (value & 0x7f) & _8K_prg_mask, _8K_); break;				
+				case 0:
+                    if (nes->o_rom->information ().prg_pages > 1)
+                    {
+                        nes->o_cpu->swap_page (0x8000, ((value >> 2) & 0x1f) & _32K_prg_mask, _32K_);
+                        break;
+                    }
+
+				case 1:
+                    nes->o_cpu->swap_page (0xc000, ((value >> 1) & 0x3f) & _16K_prg_mask, _16K_);
+                    break;
+
+				case 2:
+                case 3:
+                    nes->o_cpu->swap_page (0xe000, (value & 0x7f) & _8K_prg_mask, _8K_);
+                    break;
 			}
 			break;
 
 		case 0x5120:
-			if (3 == bChrBankSwitch) nes->o_ppu->swap_page (0x0000, value & _1K_chr_mask, _1K_);
+			if (3 == bChrBankSwitch)
+            {
+                nes->o_ppu->swap_page (0x0000, value & _1K_chr_mask, _1K_);
+            }
 			break;
 
 		case 0x5121:
 			switch (bChrBankSwitch)
 			{
-				case 2: nes->o_ppu->swap_page (0x0000, value & _2K_chr_mask, _2K_); break;
-				case 3: nes->o_ppu->swap_page (0x0400, value & _1K_chr_mask, _1K_); break;
+				case 2:
+                    nes->o_ppu->swap_page (0x0000, value & _2K_chr_mask, _2K_);
+                    break;
+				
+                case 3:
+                    nes->o_ppu->swap_page (0x0400, value & _1K_chr_mask, _1K_);
+                    break;
 			}
 			break;
 
 		case 0x5122:
-			if (3 == bChrBankSwitch) nes->o_ppu->swap_page (0x0800, value & _1K_chr_mask, _1K_);
+			if (3 == bChrBankSwitch)
+            {
+                nes->o_ppu->swap_page (0x0800, value & _1K_chr_mask, _1K_);
+            }
 			break;
 
 		case 0x5123:
 			switch (bChrBankSwitch)
 			{
-				case 1: nes->o_ppu->swap_page (0x0000, value & _4K_chr_mask, _4K_); break;
-				case 2: nes->o_ppu->swap_page (0x0800, value & _2K_chr_mask, _2K_); break;
-				case 3: nes->o_ppu->swap_page (0x0c00, value & _1K_chr_mask, _1K_); break;
+				case 1:
+                    nes->o_ppu->swap_page (0x0000, value & _4K_chr_mask, _4K_);
+                    break;
+				
+                case 2:
+                    nes->o_ppu->swap_page (0x0800, value & _2K_chr_mask, _2K_);
+                    break;
+				
+                case 3:
+                    nes->o_ppu->swap_page (0x0c00, value & _1K_chr_mask, _1K_);
+                    break;
 			}
 			break;
 
 		case 0x5124:
-			if (3 == bChrBankSwitch) nes->o_ppu->swap_page (0x1000, value & _1K_chr_mask, _1K_);
+			if (3 == bChrBankSwitch)
+            {
+                nes->o_ppu->swap_page (0x1000, value & _1K_chr_mask, _1K_);
+            }
 			break;
 
 		case 0x5125:
 			switch (bChrBankSwitch)
 			{
-				case 2: nes->o_ppu->swap_page (0x1000, value & _2K_chr_mask, _2K_); break;
-				case 3: nes->o_ppu->swap_page (0x1400, value & _1K_chr_mask, _1K_); break;
+				case 2:
+                    nes->o_ppu->swap_page (0x1000, value & _2K_chr_mask, _2K_);
+                    break;
+				
+                case 3:
+                    nes->o_ppu->swap_page (0x1400, value & _1K_chr_mask, _1K_);
+                    break;
 			}
 			break;
 
 		case 0x5126:
-			if (3 == bChrBankSwitch) nes->o_ppu->swap_page (0x1800, value & _1K_chr_mask, _1K_);
+			if (3 == bChrBankSwitch)
+            {
+                nes->o_ppu->swap_page (0x1800, value & _1K_chr_mask, _1K_);
+            }
 			break;
 
 		case 0x5127:
 			switch (bChrBankSwitch)
 			{
-				case 0: nes->o_ppu->swap_page (0x0000, value & _8K_chr_mask, _8K_); break;
-				case 1: nes->o_ppu->swap_page (0x1000, value & _4K_chr_mask, _4K_); break;
-				case 2: nes->o_ppu->swap_page (0x1800, value & _2K_chr_mask, _2K_); break;
-				case 3: nes->o_ppu->swap_page (0x1c00, value & _1K_chr_mask, _1K_); break;
+				case 0:
+                    nes->o_ppu->swap_page (0x0000, value & _8K_chr_mask, _8K_);
+                    break;
+				
+                case 1:
+                    nes->o_ppu->swap_page (0x1000, value & _4K_chr_mask, _4K_);
+                    break;
+				
+                case 2:
+                    nes->o_ppu->swap_page (0x1800, value & _2K_chr_mask, _2K_);
+                    break;
+				
+                case 3:
+                    nes->o_ppu->swap_page (0x1c00, value & _1K_chr_mask, _1K_);
+                    break;
 			}
 			break;
 
@@ -238,30 +318,58 @@ void c_mapper_005 :: write_byte (__UINT_16 address, __UINT_8 value)
 				switch (address)
 				{
 					case 0x5128:
-						if (3 == bChrBankSwitch) nes->o_ppu->swap_page (ExtraBackground, 0x000, value & _1K_chr_mask, _1K_); 
+						if (3 == bChrBankSwitch)
+                        {
+                            nes->o_ppu->swap_page (ExtraBackground, 0x000, value & _1K_chr_mask, _1K_);
+                        }
 						break;
+
 					case 0x5129:
 						switch (bChrBankSwitch)
 						{
-							case 2: nes->o_ppu->swap_page (ExtraBackground, 0x000, value & _2K_chr_mask, _2K_); break;
-							case 3: nes->o_ppu->swap_page (ExtraBackground, 0x400, value & _1K_chr_mask, _1K_); break;
+							case 2:
+                                nes->o_ppu->swap_page (ExtraBackground, 0x000, value & _2K_chr_mask, _2K_);
+                                break;
+							
+                            case 3:
+                                nes->o_ppu->swap_page (ExtraBackground, 0x400, value & _1K_chr_mask, _1K_);
+                                break;
 						}
 						break;
+
 					case 0x512a:
-						if (3 == bChrBankSwitch) nes->o_ppu->swap_page (ExtraBackground, 0x800, value & _1K_chr_mask, _1K_); 
+						if (3 == bChrBankSwitch)
+                        {
+                            nes->o_ppu->swap_page (ExtraBackground, 0x800, value & _1K_chr_mask, _1K_);
+                        }
 						break;
+
 					case 0x512b:
 						switch (bChrBankSwitch)
 						{
-							case 0: nes->o_ppu->swap_page (ExtraBackground, 0x000, value & _8K_chr_mask, _8K_); break;
-							case 1: nes->o_ppu->swap_page (ExtraBackground, 0x000, value & _4K_chr_mask, _4K_); break;
-							case 2: nes->o_ppu->swap_page (ExtraBackground, 0x800, value & _2K_chr_mask, _2K_); break;
-							case 3: nes->o_ppu->swap_page (ExtraBackground, 0xc00, value & _1K_chr_mask, _1K_); break;
+							case 0:
+                                nes->o_ppu->swap_page (ExtraBackground, 0x000, value & _8K_chr_mask, _8K_);
+                                break;
+							
+                            case 1:
+                                nes->o_ppu->swap_page (ExtraBackground, 0x000, value & _4K_chr_mask, _4K_);
+                                break;
+							
+                            case 2:
+                                nes->o_ppu->swap_page (ExtraBackground, 0x800, value & _2K_chr_mask, _2K_);
+                                break;
+							
+                            case 3:
+                                nes->o_ppu->swap_page (ExtraBackground, 0xc00, value & _1K_chr_mask, _1K_);
+                                break;
 						}
 						break;	
 				}
 			}
-			if (address != 0x5128 && address != 0x5129 && address != 0x512a && address != 0x512b) nes->general_log.f_write ("swsbs", "Address: ", address, " Data: ", value, "\r\n");
+			if (address != 0x5128 && address != 0x5129 && address != 0x512a && address != 0x512b)
+            {
+                nes->general_log.f_write ("swsbs", "Address: ", address, " Data: ", value, "\r\n");
+            }
 	}
 }
 
@@ -274,27 +382,46 @@ __UINT_8 c_mapper_005 :: read_byte (__UINT_16 address)
 		case 0x5204:
 		{
 			__UINT_8 value;
-			if (bIsIrqGenerated) value = BIT_7;
-			if (nes->o_ppu->get_flag (CTL_2, BIT_3 | BIT_4) && nes->o_ppu->information ().scanline && nes->o_ppu->information ().scanline < 240) value |= BIT_6;
+			if (bIsIrqGenerated)
+            {
+                value = BIT_7;
+            }
+			if (nes->o_ppu->get_flag (CTL_2, BIT_3 | BIT_4) && nes->o_ppu->information ().scanline && nes->o_ppu->information ().scanline < 240)
+            {
+                value |= BIT_6;
+            }
 			bIsIrqGenerated = FALSE;
 			nes->o_cpu->set_irq_line (FALSE);
 			return value;
 		}
 
-		case 0x5205: return (__UINT_8) (iProduct);
-		case 0x5206: return (__UINT_8) (iProduct >> 8);
-		default: return 0x00;
+		case 0x5205:
+            return (__UINT_8) (iProduct);
+
+		case 0x5206:
+            return (__UINT_8) (iProduct >> 8);
+
+		default:
+            return 0x00;
 	}
 }
 
 void c_mapper_005 :: h_blank (void)
 {
-	if (nes->o_ppu->information ().scanline > 240) return;
-	if (!nes->o_ppu->information ().scanline) nes->o_cpu->set_irq_line (FALSE);
-
+	if (nes->o_ppu->information ().scanline > 240)
+    {
+        return;
+    }
+	if (!nes->o_ppu->information ().scanline)
+    {
+        nes->o_cpu->set_irq_line (FALSE);
+    }
 	if (iIrqCounter == nes->o_ppu->information ().scanline)
 	{
-		if (bIsIrqEnabled && nes->o_ppu->get_flag (CTL_2, BIT_3 | BIT_4)) nes->o_cpu->set_irq_line (TRUE);
+		if (bIsIrqEnabled && nes->o_ppu->get_flag (CTL_2, BIT_3 | BIT_4))
+        {
+            nes->o_cpu->set_irq_line (TRUE);
+        }
 		bIsIrqGenerated = TRUE;
 	}
 }
@@ -305,13 +432,28 @@ void c_mapper_005 :: set_mirroring (void)
 	{
 		switch (bMirroring [uiIndex])
 		{
-			case 0: nes->o_ppu->set_mirroring (uiIndex, nes->o_ppu->get_vram (0x2000)); break;
-			case 1: nes->o_ppu->set_mirroring (uiIndex, nes->o_ppu->get_vram (0x2400)); break;
-			case 2:
-				if (bExRamUsage & 2) nes->o_ppu->set_mirroring (uiIndex, nes->o_ppu->get_vram (0x2400));
-				else nes->o_ppu->set_mirroring (uiIndex, &ExRam [0x000]);
+			case 0:
+                nes->o_ppu->set_mirroring (uiIndex, nes->o_ppu->get_vram (0x2000));
+                break;
+			
+            case 1:
+                nes->o_ppu->set_mirroring (uiIndex, nes->o_ppu->get_vram (0x2400));
+                break;
+			
+            case 2:
+				if (bExRamUsage & 2)
+                {
+                    nes->o_ppu->set_mirroring (uiIndex, nes->o_ppu->get_vram (0x2400));
+                }
+				else
+                {
+                    nes->o_ppu->set_mirroring (uiIndex, &ExRam [0x000]);
+                }
 				break;
-			case 3: nes->o_ppu->set_mirroring (uiIndex, &Fillnametable [0x000]); break;
+			
+            case 3:
+                nes->o_ppu->set_mirroring (uiIndex, &Fillnametable [0x000]);
+                break;
 		}
 	}
 }

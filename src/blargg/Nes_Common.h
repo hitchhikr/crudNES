@@ -1,4 +1,3 @@
-
 // Nes_Snd_Emu library is a portable Nintendo Entertainment System (NES) sound
 // emulator for adding sound to a NES emulator or handling full emulation and
 // synthesis in an NSF music file player.
@@ -20,8 +19,8 @@ typedef long nes_time_t; // clock cycle count
 	#define NES_SND_EMU_QUALITY 1
 #endif
 
-	typedef Blip_Buffer Nes_Channel; // deprecated
-	typedef blip_sample_t nes_sample_t; // deprecated
+typedef Blip_Buffer Nes_Channel; // deprecated
+typedef blip_sample_t nes_sample_t; // deprecated
 
 #endif
 

@@ -61,7 +61,10 @@ c_mapper_007 :: c_mapper_007 (void)
 		alias += 8;
         max_pages++;
         start += _32K_;
-		if(start >= (int) nes->o_rom->ROM.get_size()) break;
+		if(start >= (int) nes->o_rom->ROM.get_size())
+        {
+            break;
+        }
     }
 	last_prg_page = max_pages - 1;
 	max_alias = alias - 8;
@@ -97,14 +100,23 @@ void c_mapper_007 :: write_byte (__UINT_16 address, __UINT_8 value)
 {
 	if (address < 0x8000)
 	{
-		if (nes->o_rom->information ().o_sram) nes->o_sram->write_byte (address, value);
+		if (nes->o_rom->information ().o_sram)
+        {
+            nes->o_sram->write_byte (address, value);
+        }
 	}
 	else
 	{
 		nes->o_cpu->swap_page (0x8000, value & _32K_prg_mask, _32K_);
 		last_page_switched = value & _32K_prg_mask;
 	
-		if (value & BIT_4) nes->o_ppu->set_mirroring (_2C02_2400_MIRRORING);
-		else nes->o_ppu->set_mirroring (_2C02_2000_MIRRORING);
+		if (value & BIT_4)
+        {
+            nes->o_ppu->set_mirroring (_2C02_2400_MIRRORING);
+        }
+		else
+        {
+            nes->o_ppu->set_mirroring (_2C02_2000_MIRRORING);
+        }
 	}
 }

@@ -22,13 +22,8 @@
 #ifndef _CGFX_H
 #define _CGFX_H
 
-#ifdef __CRUDNES_ALLEGRO
-	#pragma warning (disable : 4200)
-	#include "allegro.h"
-#elif defined CRUDNES_SDL
-	#include <sdl.h>
-#endif
-
+#pragma warning (disable : 4200)
+#include "allegro.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -43,22 +38,33 @@ class c_graphics
 		c_graphics (void);
 		~c_graphics (void);
 
-		void lock_buffer (void) { acquire_bitmap (active_page); }
-		void unlock_buffer (void) { release_bitmap (active_page);	}
+		void lock_buffer (void)
+        {
+            acquire_bitmap (active_page);
+        }
+		void unlock_buffer (void)
+        {
+            release_bitmap (active_page);
+        }
 
 		void put_pixel (__UINT_32 x_offset, __UINT_32 y_offset, __UINT_16 color)
 		{
-			#ifdef __CRUDNES_ALLEGRO
-				((__UINT_16 *)active_page->line[y_offset])[x_offset] = color;
-			#elif defined CRUDNES_SDL
-
-			#endif
+            ((__UINT_16 *)active_page->line[y_offset])[x_offset] = color;
 		}
 
-		__UINT_8 * get_pointer (__UINT_32 x_offset, __UINT_32 y_offset) { return ((__UINT_8 *)active_page->line[y_offset]) + x_offset; }
-		__UINT_16 * get_pointer16 (__UINT_32 x_offset, __UINT_32 y_offset) { return ((__UINT_16 *)active_page->line[y_offset]) + x_offset; }
+		__UINT_8 * get_pointer (__UINT_32 x_offset, __UINT_32 y_offset)
+        {
+            return ((__UINT_8 *)active_page->line[y_offset]) + x_offset;
+        }
+		__UINT_16 * get_pointer16 (__UINT_32 x_offset, __UINT_32 y_offset)
+        {
+            return ((__UINT_16 *)active_page->line[y_offset]) + x_offset;
+        }
 
-		__UINT_8 get_color_depth (void) { return color_depth; }
+		__UINT_8 get_color_depth (void)
+        {
+            return color_depth;
+        }
 
 		void clear (__UINT_16 y_offset, __UINT_16 start, __UINT_16 end, __INT_32 color)
 		{
@@ -68,8 +74,15 @@ class c_graphics
 		void draw_frame (void);
 		void compute_palette (void);
 
-		void request_config_load (void) { config_requested = TRUE; }
-		__BOOL is_config_requested (void) { return config_requested; }
+		void request_config_load (void)
+        {
+            config_requested = TRUE;
+        }
+		__BOOL is_config_requested (void)
+        {
+            return config_requested;
+        }
+
 		void load_config (void);
 
 		__BOOL is_v_sync_enabled (void)
@@ -78,11 +91,7 @@ class c_graphics
 		}
 
 	private:
-		#ifdef __CRUDNES_ALLEGRO
-			BITMAP_ *active_page;
-		#elif defined (CRUDNES_SDL)
-			SDL_Surface *active_page;
-		#endif
+        BITMAP_ *active_page;
 
 		__BOOL v_sync_enabled, config_requested;
 

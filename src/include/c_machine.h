@@ -28,29 +28,74 @@ class c_machine {
 
 	public:
 
-		c_machine (void) { bIsPowerOff = TRUE; }
+		c_machine (void)
+        {
+            bIsPowerOff = TRUE;
+        }
 
 		virtual void Open (int PAL, const char *FilePath) {};
-		virtual void close (void) {};
+		virtual void close (void)
+        {
+            
+        };
 
-		virtual void run (void) {};
-		virtual void reset (void) {};
-		virtual void pause (void) {};
-		virtual void stop (void) { bis_running = FALSE; };
+		virtual void run (void)
+        {
+            
+        };
+		virtual void reset (void)
+        {
+            
+        };
+		virtual void pause (void)
+        {
+            
+        };
+		virtual void stop (void)
+        {
+            bis_running = FALSE;
+        };
 
-		__BOOL IsPowerOff (void) { return bIsPowerOff; }
+		__BOOL IsPowerOff (void)
+        {
+            return bIsPowerOff;
+        }
 
-		virtual void save_state (void) {};
-		virtual void load_state (void) {};
-		virtual void set_slot (__INT_32 Slot) {}; 
+		virtual void save_state (void)
+        {
+            
+        };
+		virtual void load_state (void)
+        {
+            
+        };
+		virtual void set_slot (__INT_32 Slot)
+        {
+            
+        }; 
 
-		virtual void set_sram (const char *) {};
-		virtual void dump_header (const char *) {};
+		virtual void set_sram (const char *)
+        {
+            
+        };
+		virtual void dump_header (const char *)
+        {
+            
+        };
 
-		virtual void load_config (void) {};
+		virtual void load_config (void)
+        {
+            
+        };
 
-		__BOOL is_running () { return bis_running; }
-		__BOOL is_paused () { return bis_paused; }
+		__BOOL is_running ()
+        {
+            return bis_running;
+        }
+		__BOOL is_paused ()
+        {
+            return bis_paused;
+        }
 
         int read_from_second_pad;
 

@@ -122,5 +122,8 @@ void c_mapper_000 :: reset (void)
 
 void c_mapper_000 :: write_byte (__UINT_16 address, __UINT_8 value)
 {
-	if (nes->o_rom->information ().o_sram) nes->o_sram->write_byte (address, value);
+	if (nes->o_rom->information ().o_sram)
+    {
+        nes->o_sram->write_byte (address, value);
+    }
 }

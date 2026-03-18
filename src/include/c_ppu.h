@@ -127,14 +127,27 @@
 	Index ++; \
 }
 
-extern __UINT_16 nes_palette [512];
-extern __UINT_16 mirroring_modes [][4];
+extern __UINT_16 nes_palette[512];
+extern __UINT_16 mirroring_modes[][4];
 
-enum e_registers { CTL_1 = 0, CTL_2 = 1, STAT = 2, SPRMEM = 3, SPR = 4, SCROLL = 5, MEM = 6 };	
+enum e_registers
+{
+    CTL_1 = 0,
+    CTL_2 = 1,
+    STAT = 2,
+    SPRMEM = 3,
+    SPR = 4,
+    SCROLL = 5,
+    MEM = 6
+};	
 
-enum e_event_list { POC = 0 };
+enum e_event_list
+{
+    POC = 0
+};
 
-struct s_internal_register {
+struct s_internal_register
+{
 	__UINT_8 fh;
 	__UINT_16 contents;
 };
@@ -146,8 +159,8 @@ struct s_internal_register {
 // the PPU's current state.
 //////////////////////////////////////////////////////////////////
 
-struct s_rendering_information {
-
+struct s_rendering_information
+{
 	__BOOL po_flag,
 		  sp_limit_flag,
 		  is_v_blank,
@@ -171,8 +184,8 @@ struct s_rendering_information {
 // Lo and behold... The class.
 //////////////////////////////////////////////////////////////////
 
-class c_nes_ppu {
-
+class c_nes_ppu
+{
 	public:
 
 		c_nes_ppu (void);
@@ -181,9 +194,18 @@ class c_nes_ppu {
 //		void run (void);
 		void run_accurate (void);
 
-		s_internal_register & Registers (void) { return reg; }
-		s_internal_register & Latches (void) { return lat; }
-		s_rendering_information & information (void) { return info; }
+		s_internal_register & Registers (void)
+        {
+            return reg;
+        }
+		s_internal_register & Latches (void)
+        {
+            return lat;
+        }
+		s_rendering_information & information (void)
+        {
+            return info;
+        }
 
 		void begin_frame (void)
 		{
@@ -233,9 +255,19 @@ class c_nes_ppu {
 					reg.contents ^= 0x800;
 					reg.contents &= 0xfc1f;
 				}
-				else if ((reg.contents & 0x3e0) == 0x3e0) reg.contents &= 0xfc1f;
-				else reg.contents += 0x20;
-			} else reg.contents += 0x1000;
+				else if ((reg.contents & 0x3e0) == 0x3e0)
+                {
+                    reg.contents &= 0xfc1f;
+                }
+				else
+                {
+                    reg.contents += 0x20;
+                }
+			}
+            else
+            {
+                reg.contents += 0x1000;
+            }
 		}
 
 		void set_mirroring (__UINT_8 mode)
@@ -256,12 +288,27 @@ class c_nes_ppu {
 			nametables [nametable] = Area;
 		}
 
-		__UINT_8 * get_vram (__INT_32 address) { return &VRAM [address]; }
-		__UINT_8 ** get_nametables () { return nametables; }
+		__UINT_8 * get_vram (__INT_32 address)
+        {
+            return &VRAM [address];
+        }
+		__UINT_8 ** get_nametables ()
+        {
+            return nametables;
+        }
 
-		void set_flag (e_registers Register, __UINT_8 bBits) { registers [Register] |= bBits; }
-		void clear_flag (e_registers Register, __UINT_8 bBits) { registers [Register] &= ~bBits; }
-		__UINT_8 get_flag (e_registers Register, __UINT_8 bBits) { return registers [Register] & bBits; }
+		void set_flag (e_registers Register, __UINT_8 bBits)
+        {
+            registers [Register] |= bBits;
+        }
+		void clear_flag (e_registers Register, __UINT_8 bBits)
+        {
+            registers [Register] &= ~bBits;
+        }
+		__UINT_8 get_flag (e_registers Register, __UINT_8 bBits)
+        {
+            return registers [Register] & bBits;
+        }
 
 		__UINT_8 read_byte (__UINT_16 address);
 		void write_byte (__UINT_16 address, __UINT_8 value);
@@ -276,8 +323,14 @@ class c_nes_ppu {
 			return nametables [(address >> 10) & 3] [address & 0x3ff];
 		}
 
-		__UINT_8 read_read_buffer (void) { return read_buffer; }
-		void set_read_buffer (__UINT_8 value) { read_buffer = value; }
+		__UINT_8 read_read_buffer (void)
+        {
+            return read_buffer;
+        }
+		void set_read_buffer (__UINT_8 value)
+        {
+            read_buffer = value;
+        }
 
 		void swap_page (__UINT_16 dest_where, __UINT_16 page_number, e_page_sizes size);
 		void swap_page (__UINT_8 **destination, __UINT_16 dest_where, __UINT_16 page_number, e_page_sizes size);
@@ -287,20 +340,40 @@ class c_nes_ppu {
 			OAM.load_from (source, where_in_source, 0x00, 0x100);
 		}
 
-		__UINT_8 read_oam_byte (void) { return OAM.read_byte (oam_address); }
-		void write_oam_byte (__UINT_8 value) { OAM.write_byte (oam_address ++, value); }
-		void set_oam_address (__UINT_8 value) { oam_address = value; }
+		__UINT_8 read_oam_byte (void)
+        {
+            return OAM.read_byte (oam_address);
+        }
+		void write_oam_byte (__UINT_8 value)
+        {
+            OAM.write_byte (oam_address ++, value);
+        }
+		void set_oam_address (__UINT_8 value)
+        {
+            oam_address = value;
+        }
 
-		void clear_solid_pixel_lut (void) { memset (solid_pixel_lut, 0, 256); }
+		void clear_solid_pixel_lut (void)
+        {
+            memset (solid_pixel_lut, 0, 256);
+        }
 
 		void clear_scanline (void)
 		{
 			if (nes->o_gfx->get_color_depth () == 8)
+            {
 				nes->o_gfx->clear (info.scanline, 0, 256, _2C02_NES_COLOR (__UINT_8, background_palette, 0));
-			else nes->o_gfx->clear (info.scanline, 0, 256, _2C02_NES_COLOR (__UINT_16, background_palette, 0));
+            }
+			else
+            {
+                nes->o_gfx->clear (info.scanline, 0, 256, _2C02_NES_COLOR (__UINT_16, background_palette, 0));
+            }
 		}
 
-		void SetBgPatternAddress (__UINT_16 address) {	info.bg_pattern_base = address; }
+		void SetBgPatternAddress (__UINT_16 address)
+        {
+            info.bg_pattern_base = address;
+        }
 
 		void FetchObjectData (void);
 
@@ -329,7 +402,10 @@ class c_nes_ppu {
 					TMPOAM [spr_tmp_index + 2] = OAM [spr_ram_index + 3]; //Attribute
 					TMPOAM [spr_tmp_index + 3] = (__UINT_8) (y_difference); //Tileline #
 			
-					if (!spr_ram_index) po_present = TRUE;
+					if (!spr_ram_index)
+                    {
+                        po_present = TRUE;
+                    }
 					spr_ram_index += 4;
 					spr_tmp_index += 4;
 				}
@@ -340,15 +416,26 @@ class c_nes_ppu {
 		__UINT_8 read_chr_ram (__UINT_16 address);
 		__UINT_8 read_pattern_byte (__UINT_16 address)
 		{
-			if (is_chr_rom) return pattern_pages [(address >> 10) & 7] [address & 0x3ff];
-			else return VRAM.read_byte (address);
+			if (is_chr_rom)
+            {
+                return pattern_pages [(address >> 10) & 7] [address & 0x3ff];
+            }
+			else
+            {
+                return VRAM.read_byte (address);
+            }
 		}
 
 		__UINT_8 read_pattern_byte (__UINT_8 **source, __UINT_16 address)
 		{
 			if (source [(address >> 10) & 3])
+            {
 				return source [(address >> 10) & 3] [address & 0x3ff];
-			else return read_pattern_byte (address);
+            }
+			else
+            {
+                return read_pattern_byte (address);
+            }
 		}
 
 		__UINT_16 read_pattern_word (__UINT_16 address)
@@ -359,8 +446,13 @@ class c_nes_ppu {
 		__UINT_16 read_pattern_word (__UINT_8 **source, __UINT_16 address)
 		{
 			if (source [(address >> 10) & 3])
+            {
 				return *((__UINT_16 *)(source [(address >> 10) & 3] + (address & 0x3ff)));
-			else return *((__UINT_16 *)(pattern_pages [(address >> 10) & 7] + (address & 0x3ff)));
+            }
+			else
+            {
+                return *((__UINT_16 *)(pattern_pages [(address >> 10) & 7] + (address & 0x3ff)));
+            }
 		}
 
 		void decode_chr_rom (void);
@@ -371,7 +463,10 @@ class c_nes_ppu {
 		//Used by the cycle-accurate engine
 		void Setnt_address (void)
 		{
-			if (get_flag (CTL_2, BIT_3 | BIT_4)) nt_address = 0x2000 | (reg.contents & 0xfff);
+			if (get_flag (CTL_2, BIT_3 | BIT_4))
+            {
+                nt_address = 0x2000 | (reg.contents & 0xfff);
+            }
 		}
 
 		void FetchnametableDataAddress (void)
@@ -410,8 +505,13 @@ class c_nes_ppu {
 			if (get_flag (CTL_2, BIT_3 | BIT_4))
 			{
 				if (!is_mmc5_vrom)
+                {
 					low_pattern_set [accurate_tile_index] = read_pattern_byte (PatternAddress);
-				else low_pattern_set [accurate_tile_index] = read_pattern_byte (((c_mapper_005 *) (nes->o_mapper))->get_extra_bg (), PatternAddress);
+                }
+				else
+                {
+                    low_pattern_set [accurate_tile_index] = read_pattern_byte (((c_mapper_005 *) (nes->o_mapper))->get_extra_bg (), PatternAddress);
+                }
 			}
 		}
 
@@ -420,8 +520,13 @@ class c_nes_ppu {
 			if (get_flag (CTL_2, BIT_3 | BIT_4))
 			{
 				if (!is_mmc5_vrom)
+                {
 					high_pattern_set [accurate_tile_index] = read_pattern_byte (PatternAddress + 8);
-				else high_pattern_set [accurate_tile_index] = read_pattern_byte (((c_mapper_005 *) (nes->o_mapper))->get_extra_bg (), PatternAddress + 8);
+                }
+				else
+                {
+                    high_pattern_set [accurate_tile_index] = read_pattern_byte (((c_mapper_005 *) (nes->o_mapper))->get_extra_bg (), PatternAddress + 8);
+                }
 			}
 		}
 
@@ -450,18 +555,13 @@ class c_nes_ppu {
 
     private:
 
-//		void render_bg_tileline (void);
 		void render_bg_tileline16 (void);
 
-//		void render_bg_tileline_fh (__UINT_16 y_offset, __UINT_16 tileline, __UINT_32 attribute, __UINT_8 x_start, __UINT_8 x_end);
 		void render_bg_tileline_fh_16 (__UINT_16 y_offset, __UINT_16 tileline, __UINT_32 attribute, __UINT_8 x_start, __UINT_8 x_end);
-//		void render_bg_tileline (__UINT_16 pattern, __UINT_32 attribute);
 		void render_bg_tileline16 (__UINT_16 y_offset, __UINT_16 tileline, __UINT_32 attribute, __UINT_8 x_start, __UINT_8 x_end);
 
-//		void render_sp_tileline (__UINT_16 x_offset, __UINT_16 tileline, __UINT_32 attribute, __UINT_8 flip_mask, __BOOL priority);
 		void render_sp_tileline_16 (__UINT_16 x_offset, __UINT_16 tileline, __UINT_32 attribute, __UINT_8 flip_mask, __BOOL priority);
 
-//		void render_po_tileline (__UINT_16, __UINT_16 y_offset, __UINT_16, __UINT_32, __BOOL, __BOOL);
 		void render_po_tileline_16 (__UINT_16, __UINT_16 y_offset, __UINT_16, __UINT_32, __BOOL, __BOOL);
 
 		__UINT_8 unpacked_pixel_data [33*8];

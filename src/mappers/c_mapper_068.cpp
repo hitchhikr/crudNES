@@ -59,17 +59,36 @@ void c_mapper_068 :: write_byte (__UINT_16 address, __UINT_8 value)
 {
 	switch (address)
 	{
-		case 0x8000: nes->o_ppu->swap_page (0x0000, value & _2K_chr_mask, _2K_); break;
-		case 0x9000: nes->o_ppu->swap_page (0x0800, value & _2K_chr_mask, _2K_); break;
-		case 0xa000: nes->o_ppu->swap_page (0x1000, value & _2K_chr_mask, _2K_); break;
-		case 0xb000: nes->o_ppu->swap_page (0x1800, value & _2K_chr_mask, _2K_); break;
-		case 0xc000: Registers [2] = value; UpdateBanks (); break;
-		case 0xd000: Registers [3] = value; UpdateBanks (); break;
-		case 0xe000: 
+		case 0x8000:
+            nes->o_ppu->swap_page (0x0000, value & _2K_chr_mask, _2K_);
+            break;
+		
+        case 0x9000:
+            nes->o_ppu->swap_page (0x0800, value & _2K_chr_mask, _2K_);
+            break;
+		
+        case 0xa000:
+            nes->o_ppu->swap_page (0x1000, value & _2K_chr_mask, _2K_);
+            break;
+		
+        case 0xb000:
+            nes->o_ppu->swap_page (0x1800, value & _2K_chr_mask, _2K_);
+            break;
+		
+        case 0xc000:
+            Registers [2] = value; UpdateBanks ();
+            break;
+		
+        case 0xd000:
+            Registers [3] = value; UpdateBanks ();
+            break;
+		
+        case 0xe000: 
 			Registers [0] = (value & 0x10) >> 4;
 			Registers [1] = value & 3;
 			UpdateBanks ();
 			break;
+
 		case 0xf000: 
 			nes->o_cpu->swap_page (0x8000, value & _16K_prg_mask, _16K_); 
 			last_page_switched = value & _16K_prg_mask;
@@ -79,7 +98,8 @@ void c_mapper_068 :: write_byte (__UINT_16 address, __UINT_8 value)
 
 void c_mapper_068 :: UpdateBanks (void)
 {
-	if (Registers [0]) {
+	if (Registers [0])
+    {
 		switch (Registers [1]) 
 		{
 			case 0: 
@@ -88,18 +108,21 @@ void c_mapper_068 :: UpdateBanks (void)
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 2, 0x0000, (Registers [2] + 0x80) & _1K_chr_mask, _1K_);
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 3, 0x0000, (Registers [3] + 0x80) & _1K_chr_mask, _1K_);
 				break;
+
 			case 1:
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables (), 0x0000, (Registers [2] + 0x80) & _1K_chr_mask, _1K_);
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 1, 0x0000, (Registers [2] + 0x80) & _1K_chr_mask, _1K_);
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 2, 0x0000, (Registers [3] + 0x80) & _1K_chr_mask, _1K_);
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 3, 0x0000, (Registers [3] + 0x80) & _1K_chr_mask, _1K_);
 				break;
+
 			case 2:
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables (), 0x0000, (Registers [2] + 0x80) & _1K_chr_mask, _1K_);
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 1, 0x0000, (Registers [2] + 0x80) & _1K_chr_mask, _1K_);
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 2, 0x0000, (Registers [2] + 0x80) & _1K_chr_mask, _1K_);
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 3, 0x0000, (Registers [2] + 0x80) & _1K_chr_mask, _1K_);
 				break;
+
 			case 3: 
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables (), 0x0000, (Registers [3] + 0x80) & _1K_chr_mask, _1K_);
 				nes->o_ppu->swap_page (nes->o_ppu->get_nametables () + 1, 0x0000, (Registers [3] + 0x80) & _1K_chr_mask, _1K_);
@@ -111,10 +134,21 @@ void c_mapper_068 :: UpdateBanks (void)
 	else {
 		switch (Registers [1])
 		{
-			case 0:	nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING); break;
-			case 1:	nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING); break;
-			case 2:	nes->o_ppu->set_mirroring (_2C02_2000_MIRRORING); break;
-			case 3:	nes->o_ppu->set_mirroring (_2C02_2400_MIRRORING); break;
+			case 0:
+                nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING);
+                break;
+			
+            case 1:
+                nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING);
+                break;
+			
+            case 2:
+                nes->o_ppu->set_mirroring (_2C02_2000_MIRRORING);
+                break;
+			
+            case 3:
+                nes->o_ppu->set_mirroring (_2C02_2400_MIRRORING);
+                break;
 		}
 	}
 }

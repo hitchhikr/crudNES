@@ -78,5 +78,3 @@
 #endif
 
 #endif          /* ifndef ALLEGRO_H */
-
-

@@ -199,10 +199,11 @@ typedef struct
 
 local int unz64local_getShort(const zlib_filefunc64_32_def* pzlib_filefunc_def,
                               voidpf filestream,
-                              uLong *pX) {
+                              uLong *pX)
+{
     unsigned char c[2];
-    int err = (int)ZREAD64(*pzlib_filefunc_def,filestream,c,2);
-    if (err==2)
+    int err = (int) ZREAD64(*pzlib_filefunc_def,filestream,c,2);
+    if (err == 2)
     {
         *pX = c[0] | ((uLong)c[1] << 8);
         return UNZ_OK;
@@ -211,18 +212,23 @@ local int unz64local_getShort(const zlib_filefunc64_32_def* pzlib_filefunc_def,
     {
         *pX = 0;
         if (ZERROR64(*pzlib_filefunc_def,filestream))
+        {
             return UNZ_ERRNO;
+        }
         else
+        {
             return UNZ_EOF;
+        }
     }
 }
 
 local int unz64local_getLong(const zlib_filefunc64_32_def* pzlib_filefunc_def,
                              voidpf filestream,
-                             uLong *pX) {
+                             uLong *pX)
+{
     unsigned char c[4];
     int err = (int)ZREAD64(*pzlib_filefunc_def,filestream,c,4);
-    if (err==4)
+    if (err == 4)
     {
         *pX = c[0] | ((uLong)c[1] << 8) | ((uLong)c[2] << 16) | ((uLong)c[3] << 24);
         return UNZ_OK;
@@ -231,52 +237,74 @@ local int unz64local_getLong(const zlib_filefunc64_32_def* pzlib_filefunc_def,
     {
         *pX = 0;
         if (ZERROR64(*pzlib_filefunc_def,filestream))
+        {
             return UNZ_ERRNO;
+        }
         else
+        {
             return UNZ_EOF;
+        }
     }
 }
 
 
 local int unz64local_getLong64(const zlib_filefunc64_32_def* pzlib_filefunc_def,
                                voidpf filestream,
-                               ZPOS64_T *pX) {
+                               ZPOS64_T *pX)
+{
     unsigned char c[8];
     int err = (int)ZREAD64(*pzlib_filefunc_def,filestream,c,8);
-    if (err==8)
+    if (err == 8)
     {
         *pX = c[0] | ((ZPOS64_T)c[1] << 8) | ((ZPOS64_T)c[2] << 16) | ((ZPOS64_T)c[3] << 24)
-            | ((ZPOS64_T)c[4] << 32) | ((ZPOS64_T)c[5] << 40) | ((ZPOS64_T)c[6] << 48) | ((ZPOS64_T)c[7] << 56);
+                   | ((ZPOS64_T)c[4] << 32) | ((ZPOS64_T)c[5] << 40) | ((ZPOS64_T)c[6] << 48) | ((ZPOS64_T)c[7] << 56);
         return UNZ_OK;
     }
     else
     {
         *pX = 0;
         if (ZERROR64(*pzlib_filefunc_def,filestream))
+        {
             return UNZ_ERRNO;
+        }
         else
+        {
             return UNZ_EOF;
+        }
     }
 }
 
 /* My own strcmpi / strcasecmp */
-local int strcmpcasenosensitive_internal(const char* fileName1, const char* fileName2) {
+local int strcmpcasenosensitive_internal(const char* fileName1, const char* fileName2)
+{
     for (;;)
     {
         char c1=*(fileName1++);
         char c2=*(fileName2++);
         if ((c1>='a') && (c1<='z'))
+        {
             c1 -= 0x20;
+        }
         if ((c2>='a') && (c2<='z'))
+        {
             c2 -= 0x20;
+        }
         if (c1=='\0')
+        {
             return ((c2=='\0') ? 0 : -1);
+        }
         if (c2=='\0')
+        {
             return 1;
+        }
         if (c1<c2)
+        {
             return -1;
+        }
         if (c1>c2)
+        {
             return 1;
+        }
     }
 }
 
@@ -302,14 +330,17 @@ local int strcmpcasenosensitive_internal(const char* fileName1, const char* file
 */
 extern int ZEXPORT unzStringFileNameCompare (const char*  fileName1,
                                              const char*  fileName2,
-                                             int iCaseSensitivity) {
-    if (iCaseSensitivity==0)
-        iCaseSensitivity=CASESENSITIVITYDEFAULTVALUE;
-
-    if (iCaseSensitivity==1)
+                                             int iCaseSensitivity)
+{
+    if (iCaseSensitivity == 0)
+    {
+        iCaseSensitivity = CASESENSITIVITYDEFAULTVALUE;
+    }
+    if (iCaseSensitivity == 1)
+    {
         return strcmp(fileName1,fileName2);
-
-    return STRCMPCASENOSENTIVEFUNCTION(fileName1,fileName2);
+    }
+    return STRCMPCASENOSENTIVEFUNCTION(fileName1, fileName2);
 }
 
 #ifndef BUFREADCOMMENT
@@ -324,7 +355,8 @@ extern int ZEXPORT unzStringFileNameCompare (const char*  fileName1,
   Locate the Central directory of a zipfile (at the end, just before
     the global comment)
 */
-local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream) {
+local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream)
+{
     unsigned char* buf;
     ZPOS64_T uSizeFile;
     ZPOS64_T uBackRead;
@@ -332,17 +364,22 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
     ZPOS64_T uPosFound=CENTRALDIRINVALID;
 
     if (ZSEEK64(*pzlib_filefunc_def,filestream,0,ZLIB_FILEFUNC_SEEK_END) != 0)
+    {
         return CENTRALDIRINVALID;
-
+    }
 
     uSizeFile = ZTELL64(*pzlib_filefunc_def,filestream);
 
     if (uMaxBack>uSizeFile)
+    {
         uMaxBack = uSizeFile;
+    }
 
     buf = (unsigned char*)ALLOC(BUFREADCOMMENT+4);
     if (buf==NULL)
+    {
         return CENTRALDIRINVALID;
+    }
 
     uBackRead = 4;
     while (uBackRead<uMaxBack)
@@ -351,29 +388,40 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
         ZPOS64_T uReadPos ;
         int i;
         if (uBackRead+BUFREADCOMMENT>uMaxBack)
+        {
             uBackRead = uMaxBack;
+        }
         else
+        {
             uBackRead+=BUFREADCOMMENT;
+        }
         uReadPos = uSizeFile-uBackRead ;
 
         uReadSize = ((BUFREADCOMMENT+4) < (uSizeFile-uReadPos)) ?
                      (BUFREADCOMMENT+4) : (uLong)(uSizeFile-uReadPos);
         if (ZSEEK64(*pzlib_filefunc_def,filestream,uReadPos,ZLIB_FILEFUNC_SEEK_SET)!=0)
+        {
             break;
+        }
 
         if (ZREAD64(*pzlib_filefunc_def,filestream,buf,uReadSize)!=uReadSize)
+        {
             break;
+        }
 
         for (i=(int)uReadSize-3; (i--)>0;)
+        {
             if (((*(buf+i))==0x50) && ((*(buf+i+1))==0x4b) &&
                 ((*(buf+i+2))==0x05) && ((*(buf+i+3))==0x06))
             {
                 uPosFound = uReadPos+(unsigned)i;
                 break;
             }
-
+        }
         if (uPosFound!=CENTRALDIRINVALID)
+        {
             break;
+        }
     }
     free(buf);
     return uPosFound;
@@ -385,7 +433,8 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
     the global comment)
 */
 local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib_filefunc_def,
-                                             voidpf filestream) {
+                                             voidpf filestream)
+{
     unsigned char* buf;
     ZPOS64_T uSizeFile;
     ZPOS64_T uBackRead;
@@ -395,17 +444,22 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
                 ZPOS64_T relativeOffset;
 
     if (ZSEEK64(*pzlib_filefunc_def,filestream,0,ZLIB_FILEFUNC_SEEK_END) != 0)
+    {
         return CENTRALDIRINVALID;
-
+    }
 
     uSizeFile = ZTELL64(*pzlib_filefunc_def,filestream);
 
     if (uMaxBack>uSizeFile)
+    {
         uMaxBack = uSizeFile;
+    }
 
     buf = (unsigned char*)ALLOC(BUFREADCOMMENT+4);
     if (buf==NULL)
+    {
         return CENTRALDIRINVALID;
+    }
 
     uBackRead = 4;
     while (uBackRead<uMaxBack)
@@ -414,68 +468,102 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
         ZPOS64_T uReadPos;
         int i;
         if (uBackRead+BUFREADCOMMENT>uMaxBack)
+        {
             uBackRead = uMaxBack;
+        }
         else
+        {
             uBackRead+=BUFREADCOMMENT;
+        }
         uReadPos = uSizeFile-uBackRead ;
 
         uReadSize = ((BUFREADCOMMENT+4) < (uSizeFile-uReadPos)) ?
                      (BUFREADCOMMENT+4) : (uLong)(uSizeFile-uReadPos);
         if (ZSEEK64(*pzlib_filefunc_def,filestream,uReadPos,ZLIB_FILEFUNC_SEEK_SET)!=0)
+        {
             break;
+        }
 
         if (ZREAD64(*pzlib_filefunc_def,filestream,buf,uReadSize)!=uReadSize)
+        {
             break;
+        }
 
         for (i=(int)uReadSize-3; (i--)>0;)
+        {
             if (((*(buf+i))==0x50) && ((*(buf+i+1))==0x4b) &&
                 ((*(buf+i+2))==0x06) && ((*(buf+i+3))==0x07))
             {
                 uPosFound = uReadPos+(unsigned)i;
                 break;
             }
+        }
 
         if (uPosFound!=CENTRALDIRINVALID)
+        {
             break;
+        }
     }
     free(buf);
     if (uPosFound == CENTRALDIRINVALID)
+    {
         return CENTRALDIRINVALID;
+    }
 
     /* Zip64 end of central directory locator */
     if (ZSEEK64(*pzlib_filefunc_def,filestream, uPosFound,ZLIB_FILEFUNC_SEEK_SET)!=0)
+    {
         return CENTRALDIRINVALID;
+    }
 
     /* the signature, already checked */
     if (unz64local_getLong(pzlib_filefunc_def,filestream,&uL)!=UNZ_OK)
+    {
         return CENTRALDIRINVALID;
+    }
 
     /* number of the disk with the start of the zip64 end of  central directory */
     if (unz64local_getLong(pzlib_filefunc_def,filestream,&uL)!=UNZ_OK)
+    {
         return CENTRALDIRINVALID;
+    }
     if (uL != 0)
+    {
         return CENTRALDIRINVALID;
+    }
 
     /* relative offset of the zip64 end of central directory record */
     if (unz64local_getLong64(pzlib_filefunc_def,filestream,&relativeOffset)!=UNZ_OK)
+    {
         return CENTRALDIRINVALID;
+    }
 
     /* total number of disks */
     if (unz64local_getLong(pzlib_filefunc_def,filestream,&uL)!=UNZ_OK)
+    {
         return CENTRALDIRINVALID;
+    }
     if (uL != 1)
+    {
         return CENTRALDIRINVALID;
+    }
 
     /* Goto end of central directory record */
     if (ZSEEK64(*pzlib_filefunc_def,filestream, relativeOffset,ZLIB_FILEFUNC_SEEK_SET)!=0)
+    {
         return CENTRALDIRINVALID;
+    }
 
-     /* the signature */
+    /* the signature */
     if (unz64local_getLong(pzlib_filefunc_def,filestream,&uL)!=UNZ_OK)
+    {
         return CENTRALDIRINVALID;
+    }
 
     if (uL != 0x06064b50)
+    {
         return CENTRALDIRINVALID;
+    }
 
     return relativeOffset;
 }
@@ -491,7 +579,8 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
 */
 local unzFile unzOpenInternal(const void *path,
                               zlib_filefunc64_32_def* pzlib_filefunc64_32_def,
-                              int is64bitOpenFunction) {
+                              int is64bitOpenFunction)
+{
     unz64_s us;
     unz64_s *s;
     ZPOS64_T central_pos;
@@ -508,27 +597,32 @@ local unzFile unzOpenInternal(const void *path,
     int err=UNZ_OK;
 
     if (unz_copyright[0]!=' ')
+    {
         return NULL;
+    }
 
     us.z_filefunc.zseek32_file = NULL;
     us.z_filefunc.ztell32_file = NULL;
     if (pzlib_filefunc64_32_def==NULL)
+    {
         fill_fopen64_filefunc(&us.z_filefunc.zfile_func64);
+    }
     else
+    {
         us.z_filefunc = *pzlib_filefunc64_32_def;
+    }
     us.is64bitOpenFunction = is64bitOpenFunction;
 
-
-
-    us.filestream = ZOPEN64(us.z_filefunc,
-                                                 path,
-                                                 ZLIB_FILEFUNC_MODE_READ |
-                                                 ZLIB_FILEFUNC_MODE_EXISTING);
-    if (us.filestream==NULL)
+    us.filestream = ZOPEN64(us.z_filefunc, path,
+                                           ZLIB_FILEFUNC_MODE_READ |
+                                           ZLIB_FILEFUNC_MODE_EXISTING);
+    if (us.filestream == NULL)
+    {
         return NULL;
+    }
 
     central_pos = unz64local_SearchCentralDir64(&us.z_filefunc,us.filestream);
-    if (central_pos!=CENTRALDIRINVALID)
+    if (central_pos != CENTRALDIRINVALID)
     {
         uLong uS;
         ZPOS64_T uL64;
@@ -537,7 +631,7 @@ local unzFile unzOpenInternal(const void *path,
 
         if (ZSEEK64(us.z_filefunc, us.filestream,
                                       central_pos,ZLIB_FILEFUNC_SEEK_SET)!=0)
-        err=UNZ_ERRNO;
+            err=UNZ_ERRNO;
 
         /* the signature, already checked */
         if (unz64local_getLong(&us.z_filefunc, us.filestream,&uL)!=UNZ_OK)

@@ -43,10 +43,14 @@ struct SRominformation
             pal;
 };
 
-enum EFileType { __REGULAR = 0, __ZIP = 1 };
+enum EFileType
+{
+    __REGULAR = 0,
+    __ZIP = 1
+};
 
-class c_nes_rom {
-
+class c_nes_rom
+{
 	public:
 
 		c_nes_rom (const char *Path);

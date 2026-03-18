@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="11.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -137,7 +137,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>src\lib\alleg.lib;src\lib\zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>.\bin/crudNES.exe</OutputFile>
+      <OutputFile>$(IntDir)$(TargetName).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/crudNES.pdb</ProgramDatabaseFile>
@@ -428,7 +428,19 @@
     <ClInclude Include="Src\Blargg\Nes_Common.h" />
     <ClInclude Include="Src\Blargg\Nes_Oscs.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\AllegroDeps.1.16.0\build\native\AllegroDeps.targets" Condition="Exists('packages\AllegroDeps.1.16.0\build\native\AllegroDeps.targets')" />
+    <Import Project="packages\Allegro.5.2.11.3\build\native\Allegro.targets" Condition="Exists('packages\Allegro.5.2.11.3\build\native\Allegro.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Ce projet fait référence à des packages NuGet qui sont manquants sur cet ordinateur. Utilisez l'option de restauration des packages NuGet pour les télécharger. Pour plus d'informations, consultez http://go.microsoft.com/fwlink/?LinkID=322105. Le fichier manquant est : {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\AllegroDeps.1.16.0\build\native\AllegroDeps.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\AllegroDeps.1.16.0\build\native\AllegroDeps.targets'))" />
+    <Error Condition="!Exists('packages\Allegro.5.2.11.3\build\native\Allegro.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Allegro.5.2.11.3\build\native\Allegro.targets'))" />
+  </Target>
 </Project>

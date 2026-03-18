@@ -145,15 +145,48 @@ void c_mapper_004 :: write_byte (__UINT_16 address, __UINT_8 value)
 	{
 		switch (bControl & 7)
 		{
-            case 0: b_1K_CHRPages [0] = b_1K_CHRPages [1] = value & 0xfe; UpdateCHRPages (); break;
-			case 1: b_1K_CHRPages [2] = b_1K_CHRPages [3] = value & 0xfe; UpdateCHRPages (); break;
-			case 2: b_1K_CHRPages [4] = value; UpdateCHRPages (); break;
-			case 3: b_1K_CHRPages [5] = value; UpdateCHRPages (); break;
-			case 4: b_1K_CHRPages [6] = value; UpdateCHRPages (); break;
-			case 5: b_1K_CHRPages [7] = value; UpdateCHRPages (); break;
-			case 6: b_8K_PRGPages [0] = value; UpdatePRGPages (); break;
-			case 7: b_8K_PRGPages [1] = value; UpdatePRGPages (); break;
-			default: ;
+            case 0:
+                b_1K_CHRPages [0] = b_1K_CHRPages [1] = value & 0xfe;
+                UpdateCHRPages ();
+                break;
+			
+            case 1:
+                b_1K_CHRPages [2] = b_1K_CHRPages [3] = value & 0xfe;
+                UpdateCHRPages ();
+                break;
+
+			case 2:
+                b_1K_CHRPages [4] = value;
+                UpdateCHRPages ();
+                break;
+
+			case 3:
+                b_1K_CHRPages [5] = value;
+                UpdateCHRPages ();
+                break;
+
+			case 4:
+                b_1K_CHRPages [6] = value;
+                UpdateCHRPages ();
+                break;
+			
+            case 5:
+                b_1K_CHRPages [7] = value;
+                UpdateCHRPages ();
+                break;
+
+			case 6:
+                b_8K_PRGPages [0] = value;
+                UpdatePRGPages ();
+                break;
+
+			case 7:
+                b_8K_PRGPages [1] = value;
+                UpdatePRGPages ();
+                break;
+
+			default:
+                ;
 		}
 	}
 
@@ -161,8 +194,14 @@ void c_mapper_004 :: write_byte (__UINT_16 address, __UINT_8 value)
 	{
 		if (nes->o_rom->information ().mirroring != _2C02_FOURSCREEN_MIRRORING)
 		{
-			if (value & BIT_0) nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING);
-			else nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING);
+			if (value & BIT_0)
+            {
+                nes->o_ppu->set_mirroring (_2C02_HORIZONTAL_MIRRORING);
+            }
+			else
+            {
+                nes->o_ppu->set_mirroring (_2C02_VERTICAL_MIRRORING);
+            }
 		}
 	}
 
@@ -209,9 +248,15 @@ void c_mapper_004 :: update (void *vData)
 
 void c_mapper_004 :: h_blank (void)
 {
-	if (nes->o_ppu->information ().scanline != nes->o_cpu->get_last_line () && nes->o_ppu->information ().scanline > 240) goto lblDone; 
-
-	if (bNeedsReload) { iIRQCounter = iIRQCounterReload; bNeedsReload = FALSE; }
+	if (nes->o_ppu->information ().scanline != nes->o_cpu->get_last_line () && nes->o_ppu->information ().scanline > 240)
+    {
+        goto lblDone; 
+    }
+	if (bNeedsReload)
+    {
+        iIRQCounter = iIRQCounterReload;
+        bNeedsReload = FALSE;
+    }
 
 	//TODO: Check whether this works properly for all games or not
 	else if ((iIRQCounter

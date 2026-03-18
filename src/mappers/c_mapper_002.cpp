@@ -92,7 +92,6 @@ void c_mapper_002:: reset (void)
 	nes->o_cpu->swap_page (0x8000, 0, _16K_);
 	nes->o_cpu->swap_page (0xc000, last_prg_page, _16K_);
 
-
 //	last_page_switched = 0;
 ///	nes->o_cpu->swap_page (0x8000, 0, _16K_);
 //	nes->o_cpu->swap_page (0xc000, nes->o_rom->information ().prg_pages - 1, _16K_);
@@ -106,7 +105,10 @@ void c_mapper_002:: write_byte (__UINT_16 address, __UINT_8 value)
 {
 	if (address < 0x8000)
 	{
-		if (nes->o_rom->information ().o_sram) nes->o_sram->write_byte (address, value);
+		if (nes->o_rom->information ().o_sram)
+        {
+            nes->o_sram->write_byte (address, value);
+        }
 	}
 	else
 	{
